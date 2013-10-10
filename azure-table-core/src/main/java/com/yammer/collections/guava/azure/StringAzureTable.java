@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class StringAzureTable implements Table<String, String, String> {
-    public static final Timer GET_TIMER = createTimerFor("get");
-    public static final Timer SELECT_ALL_TIMER = createTimerFor("select-all-rows-and-columns");
-    public static final Timer PUT_TIMER = createTimerFor("put");
-    public static final Timer REMOVE_TIMER = createTimerFor("remove");
+    private static final Timer GET_TIMER = createTimerFor("get");
+    private static final Timer SELECT_ALL_TIMER = createTimerFor("select-all-rows-and-columns");
+    private static final Timer PUT_TIMER = createTimerFor("put");
+    private static final Timer REMOVE_TIMER = createTimerFor("remove");
     private static final Function<StringEntity, String> COLUMN_KEY_EXTRACTOR = new Function<StringEntity, String>() {
         @Override
         public String apply(StringEntity input) {
@@ -64,7 +64,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     private static String encode(String stringToBeEncoded) {
         try {
-            return new String(Base64.encode(stringToBeEncoded.getBytes(ENCODING)));
+            return Base64.encode(stringToBeEncoded.getBytes(ENCODING));
         } catch (UnsupportedEncodingException e) {
             // shouldn't happen but
             throw Throwables.propagate(e);

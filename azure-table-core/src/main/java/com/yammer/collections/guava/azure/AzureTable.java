@@ -1,7 +1,10 @@
 package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 
 import java.util.Collection;
 import java.util.Map;

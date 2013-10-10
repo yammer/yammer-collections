@@ -3,7 +3,6 @@ package com.yammer.collections.guava.azure;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
-import com.yammer.collections.guava.azure.AzureTable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
