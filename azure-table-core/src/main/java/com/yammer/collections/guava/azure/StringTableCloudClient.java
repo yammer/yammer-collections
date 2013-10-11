@@ -9,7 +9,7 @@ import com.microsoft.windowsazure.services.table.client.TableQuery;
     private final CloudTableClient delegate;
 
     StringTableCloudClient(CloudTableClient delegateClient) {
-        this.delegate = delegateClient;
+        delegate = delegateClient;
     }
 
     StringEntity execute(String tableName, TableOperation tableOperation) throws StorageException {

@@ -37,7 +37,7 @@ public class AzureTableTest {
 
     @Before
     public void setUp() {
-        azureTable = new AzureTable(new FloatMarshaller(), new LongMarshaller(), new IntegerMarshaller(), stringTableMock);
+        azureTable = new AzureTable<>(new FloatMarshaller(), new LongMarshaller(), new IntegerMarshaller(), stringTableMock);
     }
 
     // contains
@@ -240,6 +240,7 @@ public class AzureTableTest {
 
         Table.Cell<Float, Long, Integer> expectedCell = Tables.immutableCell(ROW_KEY, COLUMN_KEY, VALUE);
 
+        //noinspection unchecked
         assertThat(azureTable.cellSet(), containsInAnyOrder(expectedCell));
     }
 

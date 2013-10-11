@@ -42,9 +42,9 @@ public class StringAzureTableTest {
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     @Mock
-    private com.yammer.collections.guava.azure.StringTableCloudClient stringTableCloudClientMock;
+    private StringTableCloudClient stringTableCloudClientMock;
     @Mock
-    private com.yammer.collections.guava.azure.StringTableRequestFactory stringTableRequestFactoryMock;
+    private StringTableRequestFactory stringTableRequestFactoryMock;
     private StringAzureTable stringAzureTable;
 
     @Before
@@ -54,6 +54,7 @@ public class StringAzureTableTest {
 
     @Test
     public void when_columnKeySet_requested_then_all_keys_returned() throws UnsupportedEncodingException, StorageException {
+        //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
         Set<String> columnKeySet = stringAzureTable.columnKeySet();
@@ -63,6 +64,7 @@ public class StringAzureTableTest {
 
     @Test
     public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException, UnsupportedEncodingException {
+        //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
         String value = stringAzureTable.get(ROW_KEY_1, COLUMN_KEY_1);
@@ -72,6 +74,7 @@ public class StringAzureTableTest {
 
     @Test
     public void get_of_non_existing_entry_returns_null() throws UnsupportedEncodingException, StorageException {
+        //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
         String value = stringAzureTable.get(ROW_KEY_2, COLUMN_KEY_2);
@@ -81,6 +84,7 @@ public class StringAzureTableTest {
 
     @Test(expected = RuntimeException.class)
     public void when_table_client_throws_storage_exception_during_get_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
+        //noinspection unchecked
         setAzureTableToContain(CELL_1);
         setToThrowStorageExceptionOnRetrievalOf(CELL_1);
 
@@ -106,6 +110,7 @@ public class StringAzureTableTest {
 
     @Test
     public void when_delete_then_deleted_in_azure() throws StorageException, UnsupportedEncodingException {
+        //noinspection unchecked
         setAzureTableToContain(CELL_1);
         TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
 
@@ -121,6 +126,7 @@ public class StringAzureTableTest {
 
     @Test(expected = RuntimeException.class)
     public void when_table_client_throws_storage_exception_during_delete_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
+        //noinspection unchecked
         setAzureTableToContain(CELL_1);
         TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
         setupThrowStorageExceptionOnTableOperation(deleteTableOperationMock);
@@ -130,10 +136,12 @@ public class StringAzureTableTest {
 
     @Test
     public void cellSet_returns_all_table_cells() throws UnsupportedEncodingException, StorageException {
+        //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
         Set<Table.Cell<String, String, String>> cellSet = stringAzureTable.cellSet();
 
+        //noinspection unchecked
         assertThat(cellSet, containsInAnyOrder(CELL_1, CELL_2));
     }
 
