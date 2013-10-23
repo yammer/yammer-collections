@@ -20,23 +20,17 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StringEtityIterableSetTest {
+public class StringEntityIterableSetTest {
     private static final String ROW_KEY_1 = "rown_name_1";
     private static final String ROW_KEY_2 = "row_name_2";
     private static final String COLUMN_KEY_1 = "column_key_1";
     private static final String COLUMN_KEY_2 = "column_key_2";
-    private static final String NON_EXISTENT_COLUMN_KEY = "non_existent_column_key";
     private static final String VALUE_1 = "value1";
     private static final String VALUE_2 = "value3";
     private static final String TABLE_NAME = "secretie_table";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
 
-    // TODO change API to call for iterable rather than have it passed in (it will fix inconsistency issues)
-    @Mock
-    private StringEntity stringEntity1Mock;
-    @Mock
-    private StringEntity stringEntity2Mock;
     @Mock
     private StringAzureTable stringAzureTable;
     @Mock
@@ -44,31 +38,31 @@ public class StringEtityIterableSetTest {
     @Mock
     private StringTableRequestFactory stringTableRequestFactoryMock;
 
-    private Iterable<StringEntity> stringEntityIterable;
-
-    private StringEtityIterableSet set;
+    private StringEtnityIterableSet set;
 
     @Before
     public void setUp() {
         when(stringAzureTable.getTableName()).thenReturn(TABLE_NAME);
-        stringEntityIterable = Arrays.asList(stringEntity1Mock, stringEntity2Mock);
-        set = new StringEtityIterableSet(stringAzureTable, stringEntityIterable, stringTableCloudClientMock, stringTableRequestFactoryMock);
+        set = new StringEtnityIterableSet(stringAzureTable, stringTableCloudClientMock, stringTableRequestFactoryMock);
     }
 
     @Test
-    public void size_returns_correct_value() {
+    public void size_returns_correct_value() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
         assertThat(set.size(), is(equalTo(2)));
     }
 
     @Test
-    public void is_returns_false_on_non_empty_set() {
+    public void is_returns_false_on_non_empty_set() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1);
+
         assertThat(set.isEmpty(), is(equalTo(false)));
     }
 
     @Test
-    public void is_returns_true_on_empty_set() {
-        // TODO this will not be needed
-        set = new StringEtityIterableSet(stringAzureTable, Collections.<StringEntity>emptyList(), stringTableCloudClientMock, stringTableRequestFactoryMock);
+    public void is_returns_true_on_empty_set() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain();
 
         assertThat(set.isEmpty(), is(equalTo(true)));
     }
