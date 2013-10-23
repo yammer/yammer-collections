@@ -1,31 +1,57 @@
 package com.yammer.collections.guava.azure;
 
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
+import com.microsoft.windowsazure.services.table.client.TableQuery;
+import com.yammer.metrics.core.Timer;
+import com.yammer.metrics.core.TimerContext;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
+import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
+
 class StringEtityIterableSet implements Set<Table.Cell<String, String, String>> {
+    private static final Function<StringEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
+            new Function<StringEntity, Table.Cell<String, String, String>>() {
+                @Override
+                public Table.Cell<String, String, String> apply(StringEntity input) {
+                    return Tables.immutableCell(
+                            decode(input.getPartitionKey()),
+                            decode(input.getRowKey()),
+                            decode(input.getValue()));
+                }
+            };
+
     private final StringAzureTable stringAzureTable;
     private final Iterable<StringEntity> stringEntityIterable;
+    private final StringTableCloudClient stringCloudTableClient;
+    private final StringTableRequestFactory stringTableRequestFactory;
 
-    StringEtityIterableSet(StringAzureTable azureTable, Iterable<StringEntity> stringEntityIterable) {
+    StringEtityIterableSet(StringAzureTable azureTable, Iterable<StringEntity> stringEntityIterable,
+                           StringTableCloudClient stringCloudTableClient,
+                           StringTableRequestFactory stringTableRequestFactory) {
         stringAzureTable = azureTable;
         this.stringEntityIterable = stringEntityIterable;
+        this.stringCloudTableClient = stringCloudTableClient;
+        this.stringTableRequestFactory = stringTableRequestFactory;
     }
 
     @Override
     public int size() {
-        // TODO can this be optimized with a direct query?
+        // TODO migrate it to method call on self,
+        // TODO can this be optimized through a direct query
         return Iterables.size(stringEntityIterable);
     }
 
     @Override
     public boolean isEmpty() {
-        // TODO can this be optimized with a direct query?
         return Iterables.isEmpty(stringEntityIterable);
     }
 
@@ -41,7 +67,10 @@ class StringEtityIterableSet implements Set<Table.Cell<String, String, String>> 
 
     @Override
     public Iterator<Table.Cell<String, String, String>> iterator() {
-        throw new UnsupportedOperationException();// TODO implement this
+        TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(stringAzureTable.getTableName());
+        return Iterables.transform(
+                stringCloudTableClient.execute(query),
+                TABLE_CELL_CREATOR).iterator();
     }
 
     @Override
