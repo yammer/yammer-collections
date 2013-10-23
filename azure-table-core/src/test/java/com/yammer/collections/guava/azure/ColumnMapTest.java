@@ -1,7 +1,6 @@
 package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
@@ -16,7 +15,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -38,7 +36,7 @@ public class ColumnMapTest {
     private static final String TABLE_NAME = "secretie_table";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY, COLUMN_KEY_2, VALUE_2);
-    private static final Table.Cell<String, String, String> OTHER_CELL = Tables.immutableCell(OTHER_ROW_KEY, OTHER_COLUMN_KEY, OTHER_VALUE);
+    private static final Table.Cell<String, String, String> CELL_WITH_OTHER_ROW_KEY = Tables.immutableCell(OTHER_ROW_KEY, OTHER_COLUMN_KEY, OTHER_VALUE);
 
     @Mock
     private StringTableCloudClient stringTableCloudClientMock;
@@ -96,21 +94,21 @@ public class ColumnMapTest {
 
     @Test
     public void keySet_returns_contained_keys() throws UnsupportedEncodingException, StorageException {
-        setAzureTableToContain(CELL_1, CELL_2, OTHER_CELL);
+        setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(columnMap.keySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
     }
 
     @Test
     public void values_returns_contained_values() throws UnsupportedEncodingException, StorageException {
-        setAzureTableToContain(CELL_1, CELL_2, OTHER_CELL);
+        setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(columnMap.values(), containsInAnyOrder(VALUE_1, VALUE_2));
     }
 
     @Test
     public void entrySet_returns_contained_entries() throws UnsupportedEncodingException, StorageException {
-        setAzureTableToContain(CELL_1, CELL_2, OTHER_CELL);
+        setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(
                 Iterables.transform(columnMap.entrySet(), MAP_TO_ENTRIES),
@@ -118,6 +116,23 @@ public class ColumnMapTest {
                         new TestMapEntry(COLUMN_KEY_1, VALUE_1),
                         new TestMapEntry(COLUMN_KEY_2, VALUE_2)
                 ));
+    }
+
+    @Test
+    public void size_returns_correct_value() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
+
+        assertThat(columnMap.size(), is(equalTo(2)));
+    }
+
+    @Test
+    public void clear_deletes_values_from_key_set() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
+
+        columnMap.clear();
+
+        verify(stringAzureTable).remove(ROW_KEY, COLUMN_KEY_1);
+        verify(stringAzureTable).remove(ROW_KEY, COLUMN_KEY_2);
     }
 
     private static final Function<Map.Entry, TestMapEntry> MAP_TO_ENTRIES = new Function<Map.Entry, TestMapEntry>() {

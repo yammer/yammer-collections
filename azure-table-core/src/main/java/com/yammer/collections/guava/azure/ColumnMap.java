@@ -50,9 +50,9 @@ class ColumnMap implements Map<String, String> {
         this.stringTableRequestFactoryMock = stringTableRequestFactoryMock;
     }
 
-    @Override
-    public int size() {  // TODO can we actually support this?
-        throw new UnsupportedOperationException();
+    @Override // TODO this requires a javadoc to explain that this is a very expensive operation
+    public int size() { // investigate, maybe there is a single azure op that can do that
+        return entrySet().size();
     }
 
     @Override
@@ -93,8 +93,10 @@ class ColumnMap implements Map<String, String> {
     }
 
     @Override
-    public void clear() {// TODO can we actually support this?
-        throw new UnsupportedOperationException();
+    public void clear() {// TODO this requires a javadoc to explain that this is a very expensive operation
+       for(String columnKey : keySet()) {
+           remove(columnKey);
+       }
     }
 
     @Override
