@@ -12,6 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -155,6 +156,16 @@ public class StringAzureTableTest {
     @Test
     public void when_does_not_contain_value_for_row_and_key_then_returns_false() throws UnsupportedEncodingException, StorageException {
         assertThat(stringAzureTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(false)));
+    }
+
+    @Test
+    public void row_returns_column_map_with_appropriate_contents() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        Map<String, String> columnMap = stringAzureTable.row(ROW_KEY_1);
+
+        assertThat(columnMap.containsKey(COLUMN_KEY_1), is(equalTo(true)));
+        assertThat(columnMap.containsKey(COLUMN_KEY_2), is(equalTo(false)));
     }
 
     //

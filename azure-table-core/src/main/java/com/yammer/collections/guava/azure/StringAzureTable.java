@@ -69,7 +69,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsRow(Object rowString) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();  // todo doable with column map
     }
 
     @Override
@@ -79,7 +79,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsValue(Object value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); // TODO doable with cellset
     }
 
     @Override
@@ -119,17 +119,17 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();   // TODO doable with cellset
     }
 
     @Override
     public int size() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); // TODO doable with cellset
     }
 
     @Override
     public void clear() { // cannot be done meaningfully at the moment
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();   // TODO doable with cellset
     }
 
     @Override
@@ -174,8 +174,8 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     @Override
-    public Map<String, String> row(String rowString) {
-        throw new UnsupportedOperationException();
+    public Map<String, String> row(String rowString) {// todo doable with column map
+        return new ColumnMap(this, rowString, cloudTableClient, secretieTableOperationFactory);
     }
 
     @Override
@@ -215,7 +215,7 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     @Override
-    public Collection<String> values() {
+    public Collection<String> values() {  // TODO doable
         throw new UnsupportedOperationException();
     }
 
