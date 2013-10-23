@@ -133,8 +133,10 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     @Override
-    public void clear() { // cannot be done meaningfully at the moment
-        throw new UnsupportedOperationException();   // TODO doable with cellset
+    public void clear() { // TODO do a javadoc
+        for(Cell<String, String, String> cell : cellSet()) {
+            remove(cell.getRowKey(), cell.getColumnKey());
+        }
     }
 
     @Override

@@ -232,6 +232,17 @@ public class StringAzureTableTest {
         assertThat(stringAzureTable.size(), is(equalTo(2)));
     }
 
+    @Test
+    public void clear_deletes_all_in_cell_set() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+        TableOperation deleteTableOperationMock1 = mockDeleteTableOperation(CELL_1);
+        TableOperation deleteTableOperationMock2 = mockDeleteTableOperation(CELL_2);
+
+        stringAzureTable.clear();
+
+        verify(stringTableCloudClientMock).execute(TABLE_NAME, deleteTableOperationMock1);
+        verify(stringTableCloudClientMock).execute(TABLE_NAME, deleteTableOperationMock2);
+    }
 
 
     //
