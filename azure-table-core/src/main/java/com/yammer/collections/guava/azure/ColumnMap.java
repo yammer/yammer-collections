@@ -1,18 +1,39 @@
 package com.yammer.collections.guava.azure;
 
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import com.microsoft.windowsazure.services.table.client.TableQuery;
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
+
+// TODO no timers here as of yet
 class ColumnMap implements Map<String, String> {
+    private static final Function<? super StringEntity, ? extends String> EXTRACT_COLUMN_KEY = new Function<StringEntity, String>() {
+        @Override
+        public String apply(StringEntity input) {
+            return decode(input.getRowKey());
+        }
+    };
     private final StringAzureTable stringAzureTable;
     private final String rowKey;
+    private final StringTableCloudClient stringTableCloudClientMock;
+    private final StringTableRequestFactory stringTableRequestFactoryMock;
 
-    public ColumnMap(StringAzureTable stringAzureTable, String rowKey) {
-
+    public ColumnMap(StringAzureTable stringAzureTable,
+                     String rowKey,
+                     StringTableCloudClient stringTableCloudClientMock,
+                     StringTableRequestFactory stringTableRequestFactoryMock) {
         this.stringAzureTable = stringAzureTable;
         this.rowKey = rowKey;
+        this.stringTableCloudClientMock = stringTableCloudClientMock;
+        this.stringTableRequestFactoryMock = stringTableRequestFactoryMock;
     }
 
     @Override
@@ -52,7 +73,7 @@ class ColumnMap implements Map<String, String> {
 
     @Override
     public void putAll(Map<? extends String, ? extends String> m) {
-        for(Entry<? extends String, ? extends String> entry : m.entrySet()) {
+        for (Entry<? extends String, ? extends String> entry : m.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
     }
@@ -64,7 +85,11 @@ class ColumnMap implements Map<String, String> {
 
     @Override
     public Set<String> keySet() {
-        throw new UnsupportedOperationException();
+        // TODO: we are drainging the whole iterable into a set here: this should be replaced with a view
+        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), rowKey);
+        Iterable<String> columnStringIterable = Iterables.transform(stringTableCloudClientMock.execute(selectAllForRowQuery), EXTRACT_COLUMN_KEY);
+        return Collections.unmodifiableSet(Sets.newHashSet(columnStringIterable));
+
     }
 
     @Override

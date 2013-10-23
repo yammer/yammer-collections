@@ -1,12 +1,9 @@
 package com.yammer.collections.guava.azure;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
-import com.microsoft.windowsazure.services.core.storage.utils.Base64;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
-import com.microsoft.windowsazure.services.table.client.TableQuery;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +12,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -23,7 +19,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,7 +34,6 @@ public class StringAzureTableTest {
     private static final String VALUE_1 = "value1";
     private static final String VALUE_2 = "value3";
     private static final String TABLE_NAME = "secretie_table";
-    private static final String ENCODING = "UTF-8";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     @Mock
@@ -51,6 +45,11 @@ public class StringAzureTableTest {
     @Before
     public void setUp() throws IOException {
         stringAzureTable = new StringAzureTable(TABLE_NAME, stringTableCloudClientMock, stringTableRequestFactoryMock);
+    }
+
+    @Test
+    public void get_table_name_returns_table_name() {
+        assertThat(stringAzureTable.getTableName(), is(equalTo(TABLE_NAME)));
     }
 
     @Test
@@ -166,7 +165,6 @@ public class StringAzureTableTest {
         return AzureTestUtil.encode(stringToBeEncoded);
 
     }
-
 
     private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);

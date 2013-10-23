@@ -8,7 +8,6 @@ import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
-import com.microsoft.windowsazure.services.core.storage.utils.Base64;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
@@ -16,11 +15,13 @@ import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
+import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
+import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
 
 public class StringAzureTable implements Table<String, String, String> {
     private static final Timer GET_TIMER = createTimerFor("get");
@@ -43,7 +44,6 @@ public class StringAzureTable implements Table<String, String, String> {
                             decode(input.getValue()));
                 }
             };
-    private static final String ENCODING = "UTF-8";
     private final String tableName;
     private final StringTableCloudClient cloudTableClient;
     private final StringTableRequestFactory secretieTableOperationFactory;
@@ -60,24 +60,6 @@ public class StringAzureTable implements Table<String, String, String> {
 
     private static Timer createTimerFor(String name) {
         return Metrics.newTimer(StringAzureTable.class, name);
-    }
-
-    private static String encode(String stringToBeEncoded) {
-        try {
-            return Base64.encode(stringToBeEncoded.getBytes(ENCODING));
-        } catch (UnsupportedEncodingException e) {
-            // shouldn't happen but
-            throw Throwables.propagate(e);
-        }
-    }
-
-    private static String decode(String stringToBeDecoded) {
-        try {
-            return new String(Base64.decode(stringToBeDecoded), ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            // shouldn't happen but
-            throw Throwables.propagate(e);
-        }
     }
 
     @Override
@@ -245,5 +227,9 @@ public class StringAzureTable implements Table<String, String, String> {
     @Override
     public Map<String, Map<String, String>> columnMap() {
         throw new UnsupportedOperationException();
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 }
