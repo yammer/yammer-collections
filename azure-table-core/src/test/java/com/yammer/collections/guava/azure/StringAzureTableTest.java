@@ -197,6 +197,20 @@ public class StringAzureTableTest {
         assertThat(stringAzureTable.values(), containsInAnyOrder(VALUE_1, VALUE_2));
     }
 
+    @Test
+    public void contains_value_returns_true_if_value_contains() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        assertThat(stringAzureTable.containsValue(VALUE_1), is(equalTo(true)));
+    }
+
+    @Test
+    public void contains_value_returns_false_if_does_not_contain_value() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_2);
+
+        assertThat(stringAzureTable.containsValue(VALUE_1), is(equalTo(false)));
+    }
+
 
 
     //

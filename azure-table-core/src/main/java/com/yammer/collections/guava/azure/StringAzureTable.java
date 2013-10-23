@@ -83,7 +83,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsValue(Object value) {
-        throw new UnsupportedOperationException(); // TODO doable with cellset
+       return values().contains(value); // TODO this can be optimized through a direct query
     }
 
     @Override
