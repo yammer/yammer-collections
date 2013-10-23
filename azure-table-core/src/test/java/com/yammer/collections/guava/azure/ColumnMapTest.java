@@ -124,6 +124,18 @@ public class ColumnMapTest {
     }
 
     @Test
+    public void setValue_on_entry_updates_backing_table() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
+        when(stringAzureTable.put(ROW_KEY, COLUMN_KEY_1, OTHER_VALUE)).thenReturn(RET_VALUE);
+        when(stringAzureTable.put(ROW_KEY, COLUMN_KEY_2, OTHER_VALUE)).thenReturn(RET_VALUE);
+
+        Map.Entry<String, String> someEntry = columnMap.entrySet().iterator().next();
+
+        assertThat(someEntry.setValue(OTHER_VALUE), is(equalTo(RET_VALUE)));
+        verify(stringAzureTable).put(ROW_KEY, someEntry.getKey(), OTHER_VALUE);
+    }
+
+    @Test
     public void size_returns_correct_value() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
@@ -161,6 +173,9 @@ public class ColumnMapTest {
     //----------------------
 
     private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
+        for(Table.Cell<String, String, String> cell : cells) {
+            when(stringAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
+        }
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
     }
 
