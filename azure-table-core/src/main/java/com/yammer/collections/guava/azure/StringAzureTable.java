@@ -2,6 +2,7 @@ package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
@@ -22,6 +23,9 @@ import java.util.Set;
 
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
+
+import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
+
 
 public class StringAzureTable implements Table<String, String, String> {
     private static final Timer GET_TIMER = createTimerFor("get");
@@ -45,13 +49,13 @@ public class StringAzureTable implements Table<String, String, String> {
                 }
             };
     private final String tableName;
-    private final StringTableCloudClient cloudTableClient;
-    private final StringTableRequestFactory secretieTableOperationFactory;
+    private final StringTableCloudClient stringCloudTableClient;
+    private final StringTableRequestFactory stringTableRequestFactory;
 
-    /* package */ StringAzureTable(String tableName, StringTableCloudClient cloudTableClient, StringTableRequestFactory secretieTableOperationFactory) {
+    /* package */ StringAzureTable(String tableName, StringTableCloudClient stringCloudTableClient, StringTableRequestFactory stringTableRequestFactory) {
         this.tableName = tableName;
-        this.cloudTableClient = cloudTableClient;
-        this.secretieTableOperationFactory = secretieTableOperationFactory;
+        this.stringCloudTableClient = stringCloudTableClient;
+        this.stringTableRequestFactory = stringTableRequestFactory;
     }
 
     public StringAzureTable(String secretieTableName, CloudTableClient tableClient) {
@@ -99,7 +103,7 @@ public class StringAzureTable implements Table<String, String, String> {
         String row = encode((String) rowString);
         String column = encode((String) columnString);
 
-        TableOperation retrieveEntityOperation = secretieTableOperationFactory.retrieve(row, column);
+        TableOperation retrieveEntityOperation = stringTableRequestFactory.retrieve(row, column);
 
         try {
             return timedTableOperation(GET_TIMER, retrieveEntityOperation);
@@ -111,7 +115,7 @@ public class StringAzureTable implements Table<String, String, String> {
     private StringEntity timedTableOperation(Timer contextSpecificTimer, TableOperation tableOperation) throws StorageException {
         TimerContext context = contextSpecificTimer.time();
         try {
-            return cloudTableClient.execute(tableName, tableOperation);
+            return stringCloudTableClient.execute(tableName, tableOperation);
         } finally {
             context.stop();
         }
@@ -134,7 +138,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public String put(String rowString, String columnString, String value) {
-        TableOperation putStringieOperation = secretieTableOperationFactory.put(encode(rowString), encode(columnString), encode(value));
+        TableOperation putStringieOperation = stringTableRequestFactory.put(encode(rowString), encode(columnString), encode(value));
 
         try {
             return entityToValue(timedTableOperation(PUT_TIMER, putStringieOperation));
@@ -156,7 +160,7 @@ public class StringAzureTable implements Table<String, String, String> {
             return null;
         }
 
-        TableOperation deleteStringieOperation = secretieTableOperationFactory.delete(entityToBeDeleted);
+        TableOperation deleteStringieOperation = stringTableRequestFactory.delete(entityToBeDeleted);
 
         try {
             return entityToValue(timedTableOperation(REMOVE_TIMER, deleteStringieOperation));
@@ -174,8 +178,8 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     @Override
-    public Map<String, String> row(String rowString) {// todo doable with column map
-        return new ColumnMap(this, rowString, cloudTableClient, secretieTableOperationFactory);
+    public Map<String, String> row(String rowString) {
+        return new ColumnMap(this, rowString, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
@@ -201,22 +205,25 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     private Iterable<StringEntity> selectAll() {
-        TableQuery<StringEntity> keySetQuery = secretieTableOperationFactory.selectAll(tableName);
+        TableQuery<StringEntity> keySetQuery = stringTableRequestFactory.selectAll(tableName);
         return timedExecuteQuery(SELECT_ALL_TIMER, keySetQuery);
     }
 
     private Iterable<StringEntity> timedExecuteQuery(Timer contextTimer, TableQuery<StringEntity> query) {
         TimerContext context = contextTimer.time();
         try {
-            return cloudTableClient.execute(query);
+            return stringCloudTableClient.execute(query);
         } finally {
             context.stop();
         }
     }
 
     @Override
-    public Collection<String> values() {  // TODO doable
-        throw new UnsupportedOperationException();
+    public Collection<String> values() {
+        // TODO: we are drainging the whole iterable into a memmory here: this should be replaced with a view
+        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactory.selectAll(tableName);
+        Iterable<String> valuesStringIterable = Iterables.transform(stringCloudTableClient.execute(selectAllForRowQuery), EXTRACT_VALUE);
+        return ImmutableList.copyOf(valuesStringIterable.iterator());
     }
 
     @Override

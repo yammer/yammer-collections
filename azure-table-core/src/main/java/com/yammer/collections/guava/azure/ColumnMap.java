@@ -12,17 +12,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 
 // TODO no timers here as of yet
 class ColumnMap implements Map<String, String> {
     // TODO these are probably extractable
-    private static final Function<? super StringEntity, ? extends String> EXTRACT_VALUE = new Function<StringEntity, String>() {
-        @Override
-        public String apply(StringEntity input) {
-            return decode(input.getValue());
-        }
-    };
     private static final Function<? super StringEntity, ? extends String> EXTRACT_COLUMN_KEY = new Function<StringEntity, String>() {
         @Override
         public String apply(StringEntity input) {
@@ -68,7 +63,8 @@ class ColumnMap implements Map<String, String> {
 
     @Override
     public boolean containsValue(Object value) {
-        throw new UnsupportedOperationException();
+        // TODO this can be optimized, to select for a particular value
+        return values().contains(value);
     }
 
     @Override
@@ -95,9 +91,9 @@ class ColumnMap implements Map<String, String> {
 
     @Override
     public void clear() {// TODO this requires a javadoc to explain that this is a very expensive operation
-       for(String columnKey : keySet()) {
-           remove(columnKey);
-       }
+        for (String columnKey : keySet()) {
+            remove(columnKey);
+        }
     }
 
     @Override

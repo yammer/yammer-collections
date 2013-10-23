@@ -17,6 +17,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
@@ -187,6 +188,13 @@ public class StringAzureTableTest {
         setAzureTableToContain(CELL_2);
 
         assertThat(stringAzureTable.containsRow(ROW_KEY_1), is(equalTo(false)));
+    }
+
+    @Test
+    public void values_returns_all_values() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        assertThat(stringAzureTable.values(), containsInAnyOrder(VALUE_1, VALUE_2));
     }
 
 

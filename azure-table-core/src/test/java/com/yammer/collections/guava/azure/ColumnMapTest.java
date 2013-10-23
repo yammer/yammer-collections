@@ -166,6 +166,20 @@ public class ColumnMapTest {
         assertThat(columnMap.isEmpty(), is(equalTo(false)));
     }
 
+    @Test
+    public void contains_value_returns_true_if_value_contains() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_WITH_OTHER_ROW_KEY);
+
+        assertThat(columnMap.containsValue(VALUE_1), is(equalTo(true)));
+    }
+
+    @Test
+    public void contains_value_returns_false_if_does_not_contain_value_in_row() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(Tables.immutableCell(OTHER_ROW_KEY, COLUMN_KEY_1, VALUE_1));
+
+        assertThat(columnMap.containsValue(VALUE_1), is(equalTo(false)));
+    }
+
 
 
     //----------------------
