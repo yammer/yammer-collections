@@ -225,6 +225,12 @@ public class StringAzureTableTest {
         assertThat(stringAzureTable.isEmpty(), is(equalTo(true)));
     }
 
+    @Test
+    public void size_returns_correct_size() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        assertThat(stringAzureTable.size(), is(equalTo(2)));
+    }
 
 
 

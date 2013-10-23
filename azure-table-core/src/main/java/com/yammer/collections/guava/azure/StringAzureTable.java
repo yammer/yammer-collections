@@ -128,7 +128,8 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public int size() {
-        throw new UnsupportedOperationException(); // TODO doable with cellset
+        // TODO investigate if this can be optimized through a direct query
+        return cellSet().size();
     }
 
     @Override
