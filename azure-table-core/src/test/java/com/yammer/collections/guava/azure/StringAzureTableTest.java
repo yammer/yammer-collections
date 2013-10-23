@@ -1,5 +1,7 @@
 package com.yammer.collections.guava.azure;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
@@ -244,6 +246,19 @@ public class StringAzureTableTest {
         verify(stringTableCloudClientMock).execute(TABLE_NAME, deleteTableOperationMock2);
     }
 
+    @Test
+    public void put_all_puts_all_the_values() throws UnsupportedEncodingException, StorageException {
+        Table<String, String, String> sourceTable = HashBasedTable.create();
+        sourceTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+        sourceTable.put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
+        TableOperation putTableOperationMock1 = mockPutTableOperation(CELL_1);
+        TableOperation putTableOperationMock2 = mockPutTableOperation(CELL_2);
+
+        stringAzureTable.putAll(sourceTable);
+
+        verify(stringTableCloudClientMock).execute(TABLE_NAME, putTableOperationMock1);
+        verify(stringTableCloudClientMock).execute(TABLE_NAME, putTableOperationMock2);
+    }
 
     //
     // Utility methods

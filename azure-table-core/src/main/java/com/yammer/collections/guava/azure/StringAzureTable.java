@@ -21,10 +21,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
-
-import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
 
 
 public class StringAzureTable implements Table<String, String, String> {
@@ -83,7 +82,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsValue(Object value) {
-       return values().contains(value); // TODO this can be optimized through a direct query
+        return values().contains(value); // TODO this can be optimized through a direct query
     }
 
     @Override
@@ -134,7 +133,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public void clear() { // TODO do a javadoc
-        for(Cell<String, String, String> cell : cellSet()) {
+        for (Cell<String, String, String> cell : cellSet()) {
             remove(cell.getRowKey(), cell.getColumnKey());
         }
     }
@@ -152,7 +151,9 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public void putAll(Table<? extends String, ? extends String, ? extends String> table) {
-        throw new UnsupportedOperationException();
+        for (Cell<? extends String, ? extends String, ? extends String> cell : table.cellSet()) {
+            put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
+        }
     }
 
     @Override
