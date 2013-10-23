@@ -211,6 +211,21 @@ public class StringAzureTableTest {
         assertThat(stringAzureTable.containsValue(VALUE_1), is(equalTo(false)));
     }
 
+    @Test
+    public void when_contains_values_the_is_empty_returns_false() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_2);
+
+        assertThat(stringAzureTable.isEmpty(), is(equalTo(false)));
+    }
+
+    @Test
+    public void when_empty_then_is_empty_returns_true() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain();
+
+        assertThat(stringAzureTable.isEmpty(), is(equalTo(true)));
+    }
+
+
 
 
     //

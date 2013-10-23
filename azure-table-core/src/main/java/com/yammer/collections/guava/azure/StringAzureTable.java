@@ -123,7 +123,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException();   // TODO doable with cellset
+        return cellSet().isEmpty();
     }
 
     @Override
