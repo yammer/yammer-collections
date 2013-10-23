@@ -145,6 +145,18 @@ public class StringAzureTableTest {
         assertThat(cellSet, containsInAnyOrder(CELL_1, CELL_2));
     }
 
+    @Test
+    public void when_contains_value_for_row_and_key_then_returns_true() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1);
+
+        assertThat(stringAzureTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(true)));
+    }
+
+    @Test
+    public void when_does_not_contain_value_for_row_and_key_then_returns_false() throws UnsupportedEncodingException, StorageException {
+        assertThat(stringAzureTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(false)));
+    }
+
     //
     // Utility methods
     //

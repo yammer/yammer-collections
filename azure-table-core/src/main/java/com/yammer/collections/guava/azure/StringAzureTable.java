@@ -82,7 +82,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean contains(Object rowString, Object columnString) {
-        throw new UnsupportedOperationException();
+        return get(rowString, columnString) != null;
     }
 
     @Override
