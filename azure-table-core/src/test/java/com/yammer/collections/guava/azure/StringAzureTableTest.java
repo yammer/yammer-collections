@@ -168,6 +168,29 @@ public class StringAzureTableTest {
         assertThat(columnMap.containsKey(COLUMN_KEY_2), is(equalTo(false)));
     }
 
+    @Test
+    public void when_contains_value_for_given_row_contains_row_returns_true() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        assertThat(stringAzureTable.containsRow(ROW_KEY_1), is(equalTo(true)));
+    }
+
+    @Test
+    public void when_row_object_is_not_a_string_then_contains_row_returns_false() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        assertThat(stringAzureTable.containsRow(new Object()), is(equalTo(false)));
+    }
+
+    @Test
+    public void when_does_not_contain_a_value_for_given_row_contains_row_returns_false() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_2);
+
+        assertThat(stringAzureTable.containsRow(ROW_KEY_1), is(equalTo(false)));
+    }
+
+
+
     //
     // Utility methods
     //

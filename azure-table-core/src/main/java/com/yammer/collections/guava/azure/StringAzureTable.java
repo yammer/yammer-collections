@@ -69,7 +69,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsRow(Object rowString) {
-        throw new UnsupportedOperationException();  // todo doable with column map
+        return (rowString instanceof String) && !row((String) rowString).isEmpty();
     }
 
     @Override
