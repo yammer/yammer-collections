@@ -1,6 +1,9 @@
 package com.yammer.collections.guava.azure;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
@@ -11,7 +14,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -95,6 +100,89 @@ public class ColumnMapTest {
 
         assertThat(columnMap.keySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
     }
+
+    @Test
+    public void values_returns_contained_values() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2, OTHER_CELL);
+
+        assertThat(columnMap.values(), containsInAnyOrder(VALUE_1, VALUE_2));
+    }
+
+    @Test
+    public void entrySet_returns_contained_entries() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2, OTHER_CELL);
+
+        assertThat(
+                Iterables.transform(columnMap.entrySet(), MAP_TO_ENTRIES),
+                containsInAnyOrder(
+                        new TestMapEntry(COLUMN_KEY_1, VALUE_1),
+                        new TestMapEntry(COLUMN_KEY_2, VALUE_2)
+                ));
+    }
+
+    private static final Function<Map.Entry, TestMapEntry> MAP_TO_ENTRIES = new Function<Map.Entry, TestMapEntry>() {
+        @Override
+        public TestMapEntry apply(Map.Entry input) {
+            return new TestMapEntry(input);
+        }
+    };
+
+    private static class TestMapEntry implements Map.Entry<String, String> {
+        private final String key;
+        private final String value;
+
+        public TestMapEntry(Map.Entry<String, String> entry) {
+            this(entry.getKey(), entry.getValue());
+        }
+
+        public TestMapEntry(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String setValue(String value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TestMapEntry that = (TestMapEntry) o;
+
+            if (key != null ? !key.equals(that.key) : that.key != null) return false;
+            if (value != null ? !value.equals(that.value) : that.value != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = key != null ? key.hashCode() : 0;
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "["+key+","+value+"]";
+        }
+    }
+
+
+
 
     private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);

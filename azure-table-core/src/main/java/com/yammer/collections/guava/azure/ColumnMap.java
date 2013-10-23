@@ -2,6 +2,7 @@ package com.yammer.collections.guava.azure;
 
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
@@ -15,10 +16,23 @@ import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 
 // TODO no timers here as of yet
 class ColumnMap implements Map<String, String> {
+    // TODO these are probably extractable
+    private static final Function<? super StringEntity, ? extends String> EXTRACT_VALUE = new Function<StringEntity, String>() {
+        @Override
+        public String apply(StringEntity input) {
+            return decode(input.getValue());
+        }
+    };
     private static final Function<? super StringEntity, ? extends String> EXTRACT_COLUMN_KEY = new Function<StringEntity, String>() {
         @Override
         public String apply(StringEntity input) {
             return decode(input.getRowKey());
+        }
+    };
+    private static final Function<? super StringEntity, ? extends Entry<String, String>> EXTRACT_ENTRY = new Function<StringEntity, Entry<String, String>>() {
+        @Override
+        public Entry<String, String> apply(StringEntity input) {
+            return new ColumnMapEntry(decode(input.getRowKey()), decode(input.getValue()));
         }
     };
     private final StringAzureTable stringAzureTable;
@@ -89,16 +103,49 @@ class ColumnMap implements Map<String, String> {
         TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), rowKey);
         Iterable<String> columnStringIterable = Iterables.transform(stringTableCloudClientMock.execute(selectAllForRowQuery), EXTRACT_COLUMN_KEY);
         return Collections.unmodifiableSet(Sets.newHashSet(columnStringIterable));
-
     }
+
+    // TODO all three methods can be done using a dynamic collection view
 
     @Override
     public Collection<String> values() {
-        throw new UnsupportedOperationException();
+        // TODO: we are drainging the whole iterable into a memmory here: this should be replaced with a view
+        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), rowKey);
+        Iterable<String> valuesStringIterable = Iterables.transform(stringTableCloudClientMock.execute(selectAllForRowQuery), EXTRACT_VALUE);
+        return ImmutableList.copyOf(valuesStringIterable.iterator());
     }
 
     @Override
     public Set<Entry<String, String>> entrySet() {
-        throw new UnsupportedOperationException();
+        // TODO: we are drainging the whole iterable into a memmory here: this should be replaced with a view
+        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), rowKey);
+        Iterable<Entry<String, String>> stringEntries = Iterables.transform(stringTableCloudClientMock.execute(selectAllForRowQuery), EXTRACT_ENTRY);
+        return Collections.unmodifiableSet(Sets.newHashSet(stringEntries));
+    }
+
+    private static class ColumnMapEntry implements Entry<String, String> {
+        private final String key;
+        private final String value;
+
+        private ColumnMapEntry(String key, String value) {
+
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String setValue(String value) {
+            throw new UnsupportedOperationException();  //TODO implement this
+        }
     }
 }
