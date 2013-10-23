@@ -16,7 +16,7 @@ class ColumnMap implements Map<String, String> {
     }
 
     @Override
-    public int size() {
+    public int size() {  // TODO can we actually support this?
         throw new UnsupportedOperationException();
     }
 
@@ -52,11 +52,13 @@ class ColumnMap implements Map<String, String> {
 
     @Override
     public void putAll(Map<? extends String, ? extends String> m) {
-        throw new UnsupportedOperationException();
+        for(Entry<? extends String, ? extends String> entry : m.entrySet()) {
+            put(entry.getKey(), entry.getValue());
+        }
     }
 
     @Override
-    public void clear() {
+    public void clear() {// TODO can we actually support this?
         throw new UnsupportedOperationException();
     }
 
