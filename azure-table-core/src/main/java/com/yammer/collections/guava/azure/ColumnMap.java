@@ -57,7 +57,7 @@ class ColumnMap implements Map<String, String> {
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException();
+        return entrySet().isEmpty();
     }
 
     @Override

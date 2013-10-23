@@ -37,7 +37,12 @@ public class ColumnMapTest {
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY, COLUMN_KEY_2, VALUE_2);
     private static final Table.Cell<String, String, String> CELL_WITH_OTHER_ROW_KEY = Tables.immutableCell(OTHER_ROW_KEY, OTHER_COLUMN_KEY, OTHER_VALUE);
-
+    private static final Function<Map.Entry, TestMapEntry> MAP_TO_ENTRIES = new Function<Map.Entry, TestMapEntry>() {
+        @Override
+        public TestMapEntry apply(Map.Entry input) {
+            return new TestMapEntry(input);
+        }
+    };
     @Mock
     private StringTableCloudClient stringTableCloudClientMock;
     @Mock
@@ -135,12 +140,29 @@ public class ColumnMapTest {
         verify(stringAzureTable).remove(ROW_KEY, COLUMN_KEY_2);
     }
 
-    private static final Function<Map.Entry, TestMapEntry> MAP_TO_ENTRIES = new Function<Map.Entry, TestMapEntry>() {
-        @Override
-        public TestMapEntry apply(Map.Entry input) {
-            return new TestMapEntry(input);
-        }
-    };
+    @Test
+    public void isEmpty_returns_false_if_no_entires() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_WITH_OTHER_ROW_KEY);
+
+        assertThat(columnMap.isEmpty(), is(equalTo(true)));
+    }
+
+    @Test
+    public void isEmpty_returns_true_if_there_are_entires() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1);
+
+        assertThat(columnMap.isEmpty(), is(equalTo(false)));
+    }
+
+
+
+    //----------------------
+    // Utilities
+    //----------------------
+
+    private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
+        AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
+    }
 
     private static class TestMapEntry implements Map.Entry<String, String> {
         private final String key;
@@ -192,15 +214,8 @@ public class ColumnMapTest {
 
         @Override
         public String toString() {
-            return "["+key+","+value+"]";
+            return "[" + key + "," + value + "]";
         }
-    }
-
-
-
-
-    private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
-        AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
     }
 
 

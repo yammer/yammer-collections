@@ -15,10 +15,12 @@ import com.microsoft.windowsazure.services.table.client.TableQuery;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -87,6 +89,10 @@ public final class AzureTestUtil {
         for(Table.Cell<String, String, String> cell : cells) {
            rowCellMap.put(cell.getRowKey(), cell);
         }
+
+        TableQuery<StringEntity> emptyQueryMock = mock(TableQuery.class);
+        when(stringTableRequestFactoryMock.selectAllForRow(anyString(), anyString())).thenReturn(emptyQueryMock);
+        when(stringTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<StringEntity>emptyList());
 
         for (Map.Entry<String, Collection<Table.Cell<String, String, String>>> entry : rowCellMap.asMap().entrySet()) {
             TableQuery<StringEntity> rowQueryMock = mock(TableQuery.class);
