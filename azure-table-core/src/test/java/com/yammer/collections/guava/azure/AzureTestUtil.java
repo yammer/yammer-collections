@@ -46,10 +46,17 @@ public final class AzureTestUtil {
 
 
         // per entity setup
+        TableQuery<StringEntity> emptyQuery = mock(TableQuery.class);
+        when(stringTableRequestFactoryMock.containsValueQuery(anyString(), anyString())).thenReturn(emptyQuery);
+        when(stringTableCloudClientMock.execute(emptyQuery)).thenReturn(Collections.<StringEntity>emptyList());
         Collection<StringEntity> encodedStringEntities = Lists.newArrayList();
         for (Table.Cell<String, String, String> cell : cells) {
             encodedStringEntities.add(encodedStringEntity(cell));
             setAzureTableToRetrieve(tableName, stringTableRequestFactoryMock, stringTableCloudClientMock, cell);
+
+            TableQuery<StringEntity> valueQuery = mock(TableQuery.class);
+            when(stringTableRequestFactoryMock.containsValueQuery(tableName, encode(cell.getValue()))).thenReturn(valueQuery);
+            when(stringTableCloudClientMock.execute(valueQuery)).thenReturn(Collections.singleton(ENCODE_CELL.apply(cell)));
         }
 
         // select query

@@ -224,6 +224,13 @@ public class StringAzureTableTest {
     }
 
     @Test
+    public void contains_value_returns_false_if_object_not_string() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_2);
+
+        assertThat(stringAzureTable.containsValue(new Object()), is(equalTo(false)));
+    }
+
+    @Test
     public void when_contains_values_the_is_empty_returns_false() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_2);
 

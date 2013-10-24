@@ -8,6 +8,7 @@ import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
+import com.microsoft.windowsazure.services.table.client.TableQuery;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
@@ -72,7 +73,12 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsValue(Object value) {
-        return values().contains(value); // TODO this can be optimized through a direct query
+        if(!(value instanceof String)) {
+            return false;
+        }
+
+        TableQuery<StringEntity> valueQuery = stringTableRequestFactory.containsValueQuery(tableName, encode((String)value));
+        return stringCloudTableClient.execute(valueQuery).iterator().hasNext();
     }
 
     @Override

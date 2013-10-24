@@ -50,4 +50,8 @@ import java.util.Set;
                 );
         return selectAll(tableName).where(rowValueFilter);
     }
+
+    TableQuery<StringEntity> containsValueQuery(String tableName, String value) {
+        return selectAll(tableName).where(generateValueFilter(value));
+    }
 }
