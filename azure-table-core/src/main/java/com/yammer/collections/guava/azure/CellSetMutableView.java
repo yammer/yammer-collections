@@ -17,7 +17,7 @@ import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 /**
  * This class implements the set interface, however it does not enforce it as it only a view.
  */
-class CellSetView extends AbstractSet<Table.Cell<String, String, String>> implements Set<Table.Cell<String, String, String>> {
+class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>> implements Set<Table.Cell<String, String, String>> {
     private static final Function<StringEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
             new Function<StringEntity, Table.Cell<String, String, String>>() {
                 @Override
@@ -32,9 +32,9 @@ class CellSetView extends AbstractSet<Table.Cell<String, String, String>> implem
     private final StringTableCloudClient stringCloudTableClient;
     private final StringTableRequestFactory stringTableRequestFactory;
 
-    CellSetView(StringAzureTable azureTable,
-                StringTableCloudClient stringCloudTableClient,
-                StringTableRequestFactory stringTableRequestFactory) {
+    CellSetMutableView(StringAzureTable azureTable,
+                       StringTableCloudClient stringCloudTableClient,
+                       StringTableRequestFactory stringTableRequestFactory) {
         stringAzureTable = azureTable;
         this.stringCloudTableClient = stringCloudTableClient;
         this.stringTableRequestFactory = stringTableRequestFactory;

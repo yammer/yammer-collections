@@ -5,19 +5,20 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class CollectionView<E> implements Collection<E> {
+public class PossibleSetCollectionView<E> extends AbstractSet<E> {
     private final StringAzureTable stringAzureTable;
     private final StringTableCloudClient stringTableCloudClient;
     private final StringTableRequestFactory stringTableRequestFactory;
     private final Function<StringEntity, E> typeExtractor;
 
-    public CollectionView(StringAzureTable stringAzureTable,
-                          Function<StringEntity, E> typeExtractor,
-                          StringTableCloudClient stringTableCloudClient,
-                          StringTableRequestFactory stringTableRequestFactory) {
+    public PossibleSetCollectionView(StringAzureTable stringAzureTable,
+                                     Function<StringEntity, E> typeExtractor,
+                                     StringTableCloudClient stringTableCloudClient,
+                                     StringTableRequestFactory stringTableRequestFactory) {
         this.stringAzureTable = stringAzureTable;
         this.typeExtractor = typeExtractor;
         this.stringTableCloudClient = stringTableCloudClient;
@@ -76,8 +77,8 @@ public class CollectionView<E> implements Collection<E> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        for(Object o : c) {
-            if(!contains(o)) {
+        for (Object o : c) {
+            if (!contains(o)) {
                 return false;
             }
         }

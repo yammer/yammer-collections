@@ -2,11 +2,9 @@ package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
@@ -183,7 +181,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Set<Cell<String, String, String>> cellSet() {
-        return new CellSetView(this, stringCloudTableClient, stringTableRequestFactory);
+        return new CellSetMutableView(this, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
@@ -213,7 +211,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Collection<String> values() {
-        return new CollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
+        return new PossibleSetCollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override

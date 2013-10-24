@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CellSetViewTest {
+public class CellSetMutableViewTest {
     private static final String ROW_KEY_1 = "rown_name_1";
     private static final String ROW_KEY_2 = "row_name_2";
     private static final String COLUMN_KEY_1 = "column_key_1";
@@ -40,12 +40,12 @@ public class CellSetViewTest {
     @Mock
     private StringTableRequestFactory stringTableRequestFactoryMock;
 
-    private CellSetView set;
+    private CellSetMutableView set;
 
     @Before
     public void setUp() {
         when(stringAzureTable.getTableName()).thenReturn(TABLE_NAME);
-        set = new CellSetView(stringAzureTable, stringTableCloudClientMock, stringTableRequestFactoryMock);
+        set = new CellSetMutableView(stringAzureTable, stringTableCloudClientMock, stringTableRequestFactoryMock);
     }
 
     @Test
