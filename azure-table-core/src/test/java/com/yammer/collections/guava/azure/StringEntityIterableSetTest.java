@@ -10,13 +10,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -38,12 +37,12 @@ public class StringEntityIterableSetTest {
     @Mock
     private StringTableRequestFactory stringTableRequestFactoryMock;
 
-    private StringEtnityIterableSet set;
+    private StringEntityIterableSet set;
 
     @Before
     public void setUp() {
         when(stringAzureTable.getTableName()).thenReturn(TABLE_NAME);
-        set = new StringEtnityIterableSet(stringAzureTable, stringTableCloudClientMock, stringTableRequestFactoryMock);
+        set = new StringEntityIterableSet(stringAzureTable, stringTableCloudClientMock, stringTableRequestFactoryMock);
     }
 
     @Test
@@ -87,6 +86,27 @@ public class StringEntityIterableSetTest {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(set, containsInAnyOrder(CELL_1, CELL_2));
+    }
+
+    @Test
+    public void add_delegates_to_table() {
+        set.add(CELL_1);
+
+        verify(stringAzureTable).put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+    }
+
+    @Test
+    public void when_value_existed_in_table_then_add_returns_false() {
+        when(stringAzureTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1)).thenReturn(VALUE_1);
+
+        assertThat(set.add(CELL_1), is(equalTo(false)));
+    }
+
+    @Test
+    public void when_value_did_not_exist_in_table_then_add_returns_true() {
+        when(stringAzureTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1)).thenReturn(null);
+
+        assertThat(set.add(CELL_1), is(equalTo(true)));
     }
 
     //----------------------

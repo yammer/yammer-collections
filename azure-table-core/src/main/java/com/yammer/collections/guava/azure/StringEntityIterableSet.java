@@ -13,7 +13,7 @@ import java.util.Set;
 
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 
-class StringEtnityIterableSet implements Set<Table.Cell<String, String, String>> {
+class StringEntityIterableSet implements Set<Table.Cell<String, String, String>> {
     private static final Function<StringEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
             new Function<StringEntity, Table.Cell<String, String, String>>() {
                 @Override
@@ -28,7 +28,7 @@ class StringEtnityIterableSet implements Set<Table.Cell<String, String, String>>
     private final StringTableCloudClient stringCloudTableClient;
     private final StringTableRequestFactory stringTableRequestFactory;
 
-    StringEtnityIterableSet(StringAzureTable azureTable,
+    StringEntityIterableSet(StringAzureTable azureTable,
                             StringTableCloudClient stringCloudTableClient,
                             StringTableRequestFactory stringTableRequestFactory) {
         stringAzureTable = azureTable;
@@ -71,17 +71,21 @@ class StringEtnityIterableSet implements Set<Table.Cell<String, String, String>>
 
     @Override
     public Object[] toArray() {
-        throw new UnsupportedOperationException();// TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        throw new UnsupportedOperationException();// TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean add(Table.Cell<String, String, String> stringStringStringCell) {
-        throw new UnsupportedOperationException();// TODO implement this
+    public boolean add(Table.Cell<String, String, String> cell) {
+        return stringAzureTable.put(
+                cell.getRowKey(),
+                cell.getColumnKey(),
+                cell.getValue()
+        ) == null;
     }
 
     @Override
