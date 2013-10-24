@@ -68,7 +68,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsColumn(Object columnString) {
-        throw new UnsupportedOperationException();
+        return (columnString instanceof String) && !column((String) columnString).isEmpty();
     }
 
     @Override
@@ -212,12 +212,12 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, Map<String, String>> rowMap() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); // TODO implement this
     }
 
     @Override
     public Map<String, Map<String, String>> columnMap() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); // TODO implement this
     }
 
     public String getTableName() {
