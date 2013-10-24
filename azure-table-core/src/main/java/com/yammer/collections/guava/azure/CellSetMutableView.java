@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
-     // TODO should be renamed, as it allows modifications
 /**
  * This class implements the set interface, however it does not enforce it as it only a view.
  */
@@ -42,7 +41,6 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @Override
     public int size() {
-        // TODO can this be optimized through a direct query
         return Iterables.size(getBackingIterable());
     }
 

@@ -32,14 +32,12 @@ public class CellSetMutableViewTest {
     private static final String TABLE_NAME = "secretie_table";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
-
     @Mock
     private StringAzureTable stringAzureTable;
     @Mock
     private StringTableCloudClient stringTableCloudClientMock;
     @Mock
     private StringTableRequestFactory stringTableRequestFactoryMock;
-
     private CellSetMutableView set;
 
     @Before
@@ -161,7 +159,6 @@ public class CellSetMutableViewTest {
         verify(stringAzureTable).put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     }
 
-
     @Test
     public void when_all_values_where_contained_then_return_false() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
@@ -183,7 +180,6 @@ public class CellSetMutableViewTest {
         verify(stringAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
         verify(stringAzureTable).remove(ROW_KEY_2, COLUMN_KEY_2);
     }
-
 
     @Test
     public void when_some_remove_all_values_where_contained_then_return_true() throws UnsupportedEncodingException, StorageException {
@@ -214,7 +210,7 @@ public class CellSetMutableViewTest {
     //----------------------
 
     private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
-        for(Table.Cell<String, String, String> cell : cells) {
+        for (Table.Cell<String, String, String> cell : cells) {
             when(stringAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
             when(stringAzureTable.contains(cell.getRowKey(), cell.getColumnKey())).thenReturn(true);
             when(stringAzureTable.put(eq(cell.getRowKey()), eq(cell.getColumnKey()), anyString())).thenReturn(cell.getValue());

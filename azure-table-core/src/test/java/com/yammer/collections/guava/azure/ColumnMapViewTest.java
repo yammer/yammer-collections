@@ -188,13 +188,12 @@ public class ColumnMapViewTest {
     }
 
 
-
     //----------------------
     // Utilities
     //----------------------
 
     private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
-        for(Table.Cell<String, String, String> cell : cells) {
+        for (Table.Cell<String, String, String> cell : cells) {
             when(stringAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
         }
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);

@@ -107,8 +107,6 @@ class ColumnMapView implements Map<String, String> {
                 );
     }
 
-    // TODO all three methods can be done using a dynamic collection view
-
     @Override
     public Collection<String> values() {
         return new ColumnMapSetView<>(stringAzureTable, rowKey, EXTRACT_VALUE, stringTableCloudClient, stringTableRequestFactory);
