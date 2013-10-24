@@ -24,8 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public final class AzureTestUtil {
-    private static final String ENCODING = "UTF-8";
-    private static final Function<Table.Cell<String, String, String>, StringEntity> ENCODE_CELL = new Function<Table.Cell<String, String, String>, StringEntity>() {
+    static final Function<Table.Cell<String, String, String>, StringEntity> ENCODE_CELL = new Function<Table.Cell<String, String, String>, StringEntity>() {
         @Override
         public StringEntity apply(Table.Cell<String, String, String> input) {
             try {
@@ -35,6 +34,7 @@ public final class AzureTestUtil {
             }
         }
     };
+    private static final String ENCODING = "UTF-8";
 
     static void setAzureTableToContain(String tableName,
                                        StringTableRequestFactory stringTableRequestFactoryMock,

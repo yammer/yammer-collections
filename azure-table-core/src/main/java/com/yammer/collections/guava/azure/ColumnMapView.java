@@ -160,7 +160,7 @@ class ColumnMapView implements Map<String, String> {
                 Function<StringEntity, E> typeExtractor,
                 StringTableCloudClient stringTableCloudClient,
                 StringTableRequestFactory stringTableRequestFactory) {
-            super(stringAzureTable, typeExtractor, stringTableCloudClient, stringTableRequestFactory);
+            super(typeExtractor);
             this.stringAzureTable = stringAzureTable;
             this.rowKey = rowKey;
             this.stringTableCloudClient = stringTableCloudClient;

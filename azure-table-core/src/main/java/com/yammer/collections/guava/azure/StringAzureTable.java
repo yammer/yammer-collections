@@ -37,7 +37,8 @@ public class StringAzureTable implements Table<String, String, String> {
         public String apply(StringEntity input) {
             return decode(input.getPartitionKey());
         }
-    };;
+    };
+    ;
     private final String tableName;
     private final StringTableCloudClient stringCloudTableClient;
     private final StringTableRequestFactory stringTableRequestFactory;
@@ -73,11 +74,11 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsValue(Object value) {
-        if(!(value instanceof String)) {
+        if (!(value instanceof String)) {
             return false;
         }
 
-        TableQuery<StringEntity> valueQuery = stringTableRequestFactory.containsValueQuery(tableName, encode((String)value));
+        TableQuery<StringEntity> valueQuery = stringTableRequestFactory.containsValueQuery(tableName, encode((String) value));
         return stringCloudTableClient.execute(valueQuery).iterator().hasNext();
     }
 
@@ -194,18 +195,18 @@ public class StringAzureTable implements Table<String, String, String> {
     // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure
     @Override
     public Set<String> rowKeySet() {
-        return ImmutableSet.copyOf(new CollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
+        return ImmutableSet.copyOf(new TableCollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
     }
 
     // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure
     @Override
     public Set<String> columnKeySet() {
-        return ImmutableSet.copyOf(new CollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
+        return ImmutableSet.copyOf(new TableCollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
     }
 
     @Override
     public Collection<String> values() {
-        return new CollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
+        return new TableCollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
@@ -220,5 +221,23 @@ public class StringAzureTable implements Table<String, String, String> {
 
     public String getTableName() {
         return tableName;
+    }
+
+    private static final class TableCollectionView<E> extends CollectionView<E> {
+        private final StringAzureTable stringAzureTable;
+        private final StringTableCloudClient stringTableCloudClient;
+        private final StringTableRequestFactory stringTableRequestFactory;
+
+        public TableCollectionView(StringAzureTable stringAzureTable, Function<StringEntity, E> typeExtractor, StringTableCloudClient stringTableCloudClient, StringTableRequestFactory stringTableRequestFactory) {
+            super(typeExtractor);
+            this.stringAzureTable = stringAzureTable;
+            this.stringTableCloudClient = stringTableCloudClient;
+            this.stringTableRequestFactory = stringTableRequestFactory;
+        }
+
+        protected Iterable<StringEntity> getBackingIterable() {
+            TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(stringAzureTable.getTableName());
+            return stringTableCloudClient.execute(query);
+        }
     }
 }

@@ -3,28 +3,18 @@ package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import com.microsoft.windowsazure.services.table.client.TableQuery;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class CollectionView<E> extends AbstractCollection<E> {
-    private final StringAzureTable stringAzureTable;
+public abstract class CollectionView<E> extends AbstractCollection<E> {
     private final Function<StringEntity, E> typeExtractor;
-    private final StringTableCloudClient stringTableCloudClient;
-    private final StringTableRequestFactory stringTableRequestFactory;
 
     public CollectionView(
-            StringAzureTable stringAzureTable,
-                          Function<StringEntity, E> typeExtractor,
-                          StringTableCloudClient stringTableCloudClient,
-                          StringTableRequestFactory stringTableRequestFactory
+            Function<StringEntity, E> typeExtractor
     ) {
-        this.stringAzureTable = stringAzureTable;
         this.typeExtractor = typeExtractor;
-        this.stringTableCloudClient = stringTableCloudClient;
-        this.stringTableRequestFactory = stringTableRequestFactory;
     }
 
     @Override
@@ -44,10 +34,7 @@ public class CollectionView<E> extends AbstractCollection<E> {
                 o);
     }
 
-    protected Iterable<StringEntity> getBackingIterable() {
-        TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(stringAzureTable.getTableName());
-        return stringTableCloudClient.execute(query);
-    }
+    protected abstract Iterable<StringEntity> getBackingIterable();
 
     @Override
     public Iterator<E> iterator() {
