@@ -193,8 +193,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Set<Cell<String, String, String>> cellSet() {
-        Iterable<Cell<String, String, String>> cellSetIterable = Iterables.transform(selectAll(), TABLE_CELL_CREATOR);
-        return Collections.unmodifiableSet(Sets.newHashSet(cellSetIterable));
+        return new StringEntityIterableSet(this, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
@@ -203,7 +202,7 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     @Override
-    public Set<String> columnKeySet() {
+    public Set<String> columnKeySet() {  // TODO materializes the whole set of columns in memmory, needs redoing
         Iterable<String> columnStringIterable = Iterables.transform(selectAll(), COLUMN_KEY_EXTRACTOR);
         return Collections.unmodifiableSet(Sets.newHashSet(columnStringIterable));
     }
