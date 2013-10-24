@@ -25,7 +25,7 @@ class ColumnMapView implements Map<String, String> {
             return decode(input.getRowKey());
         }
     };
-    private final Function<? super StringEntity, ? extends Entry<String, String>> extractEntry;
+    private final Function<StringEntity, Entry<String, String>> extractEntry;
     private final StringAzureTable stringAzureTable;
     private final String rowKey;
     private final StringTableCloudClient stringTableCloudClient;
@@ -104,6 +104,8 @@ class ColumnMapView implements Map<String, String> {
 
     @Override
     public Set<String> keySet() {
+        // TODO this should have a view that is mutable (makes sense)
+        // TODO this should be wrapped around with a set,
         return new ColumnMapSetView<>(stringAzureTable, rowKey, EXTRACT_COLUMN_KEY, stringTableCloudClient, stringTableRequestFactory);
     }
 
@@ -111,18 +113,13 @@ class ColumnMapView implements Map<String, String> {
 
     @Override
     public Collection<String> values() {
-        // TODO: we are drainging the whole iterable into a memmory here: this should be replaced with a view
-        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactory.selectAllForRow(stringAzureTable.getTableName(), encode(rowKey));
-        Iterable<String> valuesStringIterable = Iterables.transform(stringTableCloudClient.execute(selectAllForRowQuery), EXTRACT_VALUE);
-        return ImmutableList.copyOf(valuesStringIterable.iterator());
+        return new ColumnMapSetView<>(stringAzureTable, rowKey, EXTRACT_VALUE, stringTableCloudClient, stringTableRequestFactory);
     }
 
     @Override
-    public Set<Entry<String, String>> entrySet() {
-        // TODO: we are drainging the whole iterable into a memmory here: this should be replaced with a view
-        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactory.selectAllForRow(stringAzureTable.getTableName(), encode(rowKey));
-        Iterable<Entry<String, String>> stringEntries = Iterables.transform(stringTableCloudClient.execute(selectAllForRowQuery), extractEntry);
-        return Collections.unmodifiableSet(Sets.newHashSet(stringEntries));
+    public Set<Entry<String, String>> entrySet() { // TODO this should have a view that is mutable (makes sense)
+        // TODO this should be wrapped around with a set
+        return new ColumnMapSetView<>(stringAzureTable, rowKey, extractEntry, stringTableCloudClient, stringTableRequestFactory);
     }
 
     private static class ColumnMapEntry implements Entry<String, String> {
