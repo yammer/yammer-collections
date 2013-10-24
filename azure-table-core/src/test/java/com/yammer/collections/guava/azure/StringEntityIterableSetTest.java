@@ -10,11 +10,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -96,15 +99,15 @@ public class StringEntityIterableSetTest {
     }
 
     @Test
-    public void when_value_existed_in_table_then_add_returns_false() {
-        when(stringAzureTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1)).thenReturn(VALUE_1);
+    public void when_value_existed_in_table_then_add_returns_false() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1);
 
         assertThat(set.add(CELL_1), is(equalTo(false)));
     }
 
     @Test
-    public void when_value_did_not_exist_in_table_then_add_returns_true() {
-        when(stringAzureTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1)).thenReturn(null);
+    public void when_value_did_not_exist_in_table_then_add_returns_true() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain();
 
         assertThat(set.add(CELL_1), is(equalTo(true)));
     }
@@ -117,15 +120,15 @@ public class StringEntityIterableSetTest {
     }
 
     @Test
-    public void when_value_existed_in_table_then_remove_returns_true() {
-        when(stringAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1)).thenReturn(VALUE_1);
+    public void when_value_existed_in_table_then_remove_returns_true() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1);
 
         assertThat(set.remove(CELL_1), is(equalTo(true)));
     }
 
     @Test
-    public void when_value_did_not_exist_in_table_then_remove_returns_false() {
-        when(stringAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1)).thenReturn(null);
+    public void when_value_did_not_exist_in_table_then_remove_returns_false() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain();
 
         assertThat(set.remove(CELL_1), is(equalTo(false)));
     }
@@ -135,6 +138,44 @@ public class StringEntityIterableSetTest {
         assertThat(set.remove(new Object()), is(equalTo(false)));
     }
 
+    @Test
+    public void when_contains_all_then_contains_all_returns_true() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        assertThat(set.containsAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(true)));
+
+    }
+
+    @Test
+    public void when_does_not_contain_all_then_returns_false() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_2);
+
+        assertThat(set.containsAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(false)));
+    }
+
+    @Test
+    public void add_all_adds_to_table() {
+        set.addAll(Arrays.asList(CELL_1, CELL_2));
+
+        verify(stringAzureTable).put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+        verify(stringAzureTable).put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
+    }
+
+
+    @Test
+    public void when_all_values_where_contained_then_return_false() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        assertThat(set.addAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(false)));
+    }
+
+    @Test
+    public void when_some_value_was_not_present_then_return_true() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1);
+
+        assertThat(set.addAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(true)));
+    }
+
     //----------------------
     // Utilities
     //----------------------
@@ -142,6 +183,10 @@ public class StringEntityIterableSetTest {
     private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
         for(Table.Cell<String, String, String> cell : cells) {
             when(stringAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
+            when(stringAzureTable.contains(cell.getRowKey(), cell.getColumnKey())).thenReturn(true);
+            when(stringAzureTable.put(eq(cell.getRowKey()), eq(cell.getColumnKey()), anyString())).thenReturn(cell.getValue());
+            when(stringAzureTable.remove(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
+
         }
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
     }

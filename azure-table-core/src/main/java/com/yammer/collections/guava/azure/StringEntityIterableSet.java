@@ -104,12 +104,25 @@ class StringEntityIterableSet implements Set<Table.Cell<String, String, String>>
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        throw new UnsupportedOperationException();// TODO implement this
+        for(Object o : c) {
+            if(!contains(o)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
     public boolean addAll(Collection<? extends Table.Cell<String, String, String>> c) {
-        throw new UnsupportedOperationException();// TODO implement this
+        boolean change = false;
+        for(Table.Cell<String, String, String> cell : c) {
+            if(add(cell) == true) {
+                change = true;
+            }
+        }
+
+        return change;
     }
 
     @Override
