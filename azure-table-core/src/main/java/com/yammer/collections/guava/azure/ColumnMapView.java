@@ -2,13 +2,9 @@ package com.yammer.collections.guava.azure;
 
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -105,8 +101,10 @@ class ColumnMapView implements Map<String, String> {
     @Override
     public Set<String> keySet() {
         // TODO this should have a view that is mutable (makes sense)
-        // TODO this should be wrapped around with a set,
-        return new ColumnMapSetView<>(stringAzureTable, rowKey, EXTRACT_COLUMN_KEY, stringTableCloudClient, stringTableRequestFactory);
+        return
+                new SetView<>(
+                        new ColumnMapSetView<>(stringAzureTable, rowKey, EXTRACT_COLUMN_KEY, stringTableCloudClient, stringTableRequestFactory)
+                );
     }
 
     // TODO all three methods can be done using a dynamic collection view
@@ -118,8 +116,9 @@ class ColumnMapView implements Map<String, String> {
 
     @Override
     public Set<Entry<String, String>> entrySet() { // TODO this should have a view that is mutable (makes sense)
-        // TODO this should be wrapped around with a set
-        return new ColumnMapSetView<>(stringAzureTable, rowKey, extractEntry, stringTableCloudClient, stringTableRequestFactory);
+        return new SetView<>(
+                new ColumnMapSetView<>(stringAzureTable, rowKey, extractEntry, stringTableCloudClient, stringTableRequestFactory)
+        );
     }
 
     private static class ColumnMapEntry implements Entry<String, String> {
@@ -149,7 +148,7 @@ class ColumnMapView implements Map<String, String> {
         }
     }
 
-    private static class ColumnMapSetView<E> extends CollectionView<E> implements Set<E> {
+    private static class ColumnMapSetView<E> extends CollectionView<E> {
         private final StringAzureTable stringAzureTable;
         private final String rowKey;
         private final StringTableCloudClient stringTableCloudClient;

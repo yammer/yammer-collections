@@ -1,14 +1,12 @@
 package com.yammer.collections.guava.azure;
 
 
-import com.microsoft.windowsazure.services.core.storage.StorageException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -16,7 +14,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -27,7 +24,6 @@ public class SetViewTest {
     private static final Integer SIZE = 2;
     @Mock
     private CollectionView<Long> collectionViewMock;
-
     private SetView<Long> setView;
 
     @Before
