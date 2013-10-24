@@ -3,6 +3,7 @@ package com.yammer.collections.guava.azure;
 import com.microsoft.windowsazure.services.table.client.TableServiceEntity;
 
 public class StringEntity extends TableServiceEntity {
+    public static final String VALUE = "Value";
     private String value;
 
     public StringEntity() { // needed by azure java api

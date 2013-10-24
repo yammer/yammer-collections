@@ -16,7 +16,6 @@ import com.microsoft.windowsazure.services.table.client.TableQuery;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Matchers.any;
@@ -61,9 +60,12 @@ public final class AzureTestUtil {
         setupRowQueries(tableName, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
     }
 
-    static String encode(String stringToBeEncoded) throws UnsupportedEncodingException {
-        return Base64.encode(stringToBeEncoded.getBytes(ENCODING));
-
+    static String encode(String stringToBeEncoded) {
+        try {
+            return Base64.encode(stringToBeEncoded.getBytes(ENCODING));
+        } catch (UnsupportedEncodingException e) {
+            throw Throwables.propagate(e);
+        }
     }
 
     static StringEntity encodedStringEntity(Table.Cell<String, String, String> unEncodedcell) throws UnsupportedEncodingException {
@@ -85,18 +87,30 @@ public final class AzureTestUtil {
                                         StringTableCloudClient stringTableCloudClientMock,
                                         Table.Cell<String, String, String>... cells) {
 
-        Multimap<String, Table.Cell<String, String, String>> rowCellMap = HashMultimap.create();
-        for(Table.Cell<String, String, String> cell : cells) {
-           rowCellMap.put(cell.getRowKey(), cell);
-        }
-
         TableQuery<StringEntity> emptyQueryMock = mock(TableQuery.class);
         when(stringTableRequestFactoryMock.selectAllForRow(anyString(), anyString())).thenReturn(emptyQueryMock);
+        when(stringTableRequestFactoryMock.containsValueForRowQuery(anyString(), anyString(), anyString())).thenReturn(emptyQueryMock);
         when(stringTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<StringEntity>emptyList());
 
+        Multimap<String, Table.Cell<String, String, String>> rowCellMap = HashMultimap.create();
+        for (Table.Cell<String, String, String> cell : cells) {
+            rowCellMap.put(cell.getRowKey(), cell);
+
+            TableQuery<StringEntity> rowValueQueryMock = mock(TableQuery.class);
+            when(
+                    stringTableRequestFactoryMock.containsValueForRowQuery(
+                            tableName,
+                            encode(cell.getRowKey()),
+                            encode(cell.getValue())
+                    )
+            ).thenReturn(rowValueQueryMock);
+            when(stringTableCloudClientMock.execute(rowValueQueryMock)).thenReturn(Collections.singletonList(ENCODE_CELL.apply(cell)));
+        }
+
         for (Map.Entry<String, Collection<Table.Cell<String, String, String>>> entry : rowCellMap.asMap().entrySet()) {
+            // row query
             TableQuery<StringEntity> rowQueryMock = mock(TableQuery.class);
-            when(stringTableRequestFactoryMock.selectAllForRow(tableName, entry.getKey())).
+            when(stringTableRequestFactoryMock.selectAllForRow(tableName, encode(entry.getKey()))).
                     thenReturn(rowQueryMock);
             when(stringTableCloudClientMock.execute(rowQueryMock)).thenReturn(Collections2.transform(entry.getValue(), ENCODE_CELL));
         }

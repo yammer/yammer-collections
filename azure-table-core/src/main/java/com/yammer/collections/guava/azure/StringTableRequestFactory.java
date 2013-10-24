@@ -24,12 +24,30 @@ import java.util.Set;
         return TableQuery.from(tableName, StringEntity.class);
     }
 
-    TableQuery<StringEntity> selectAllForRow(String tableName, String rowKey) {
-        String partitionFilter = TableQuery.generateFilterCondition(
+    private String generatePartitionFilter(String rowKey) {
+        return TableQuery.generateFilterCondition(
                 TableConstants.PARTITION_KEY,
                 TableQuery.QueryComparisons.EQUAL,
                 rowKey);
+    }
 
-        return selectAll(tableName).where(partitionFilter);
+    private String generateValueFilter(String value) {
+        return TableQuery.generateFilterCondition(
+                StringEntity.VALUE,
+                TableQuery.QueryComparisons.EQUAL,
+                value);
+    }
+
+    TableQuery<StringEntity> selectAllForRow(String tableName, String rowKey) {
+        return selectAll(tableName).where(generatePartitionFilter(rowKey));
+    }
+
+    TableQuery<StringEntity> containsValueForRowQuery(String tableName, String rowKey, String value) {
+        String rowValueFilter = TableQuery.combineFilters(
+                generatePartitionFilter(rowKey),
+                TableQuery.Operators.AND,
+                generateValueFilter(value)
+                );
+        return selectAll(tableName).where(rowValueFilter);
     }
 }

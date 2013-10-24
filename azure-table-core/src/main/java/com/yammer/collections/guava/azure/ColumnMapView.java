@@ -14,9 +14,10 @@ import java.util.Set;
 
 import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
+import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
 
 // TODO no timers here as of yet
-class ColumnMap implements Map<String, String> {
+class ColumnMapView implements Map<String, String> {
     // TODO these are probably extractable
     private static final Function<? super StringEntity, ? extends String> EXTRACT_COLUMN_KEY = new Function<StringEntity, String>() {
         @Override
@@ -30,10 +31,10 @@ class ColumnMap implements Map<String, String> {
     private final StringTableCloudClient stringTableCloudClientMock;
     private final StringTableRequestFactory stringTableRequestFactoryMock;
 
-    public ColumnMap(final StringAzureTable stringAzureTable,
-                     final String rowKey,
-                     StringTableCloudClient stringTableCloudClientMock,
-                     StringTableRequestFactory stringTableRequestFactoryMock) {
+    public ColumnMapView(final StringAzureTable stringAzureTable,
+                         final String rowKey,
+                         StringTableCloudClient stringTableCloudClientMock,
+                         StringTableRequestFactory stringTableRequestFactoryMock) {
         this.stringAzureTable = stringAzureTable;
         this.rowKey = rowKey;
         this.stringTableCloudClientMock = stringTableCloudClientMock;
@@ -47,7 +48,7 @@ class ColumnMap implements Map<String, String> {
     }
 
     @Override // TODO this requires a javadoc to explain that this is a very expensive operation
-    public int size() { // investigate, maybe there is a single azure op that can do that
+    public int size() {
         return entrySet().size();
     }
 
@@ -61,10 +62,15 @@ class ColumnMap implements Map<String, String> {
         return stringAzureTable.contains(rowKey, key);
     }
 
-    @Override
+    @Override // TODO do for main table
     public boolean containsValue(Object value) {
-        // TODO this can be optimized, to select for a particular value
-        return values().contains(value);
+        if(!(value instanceof String)) {
+            return false;
+        }
+
+        TableQuery<StringEntity> valueQuery = stringTableRequestFactoryMock.containsValueForRowQuery(stringAzureTable.getTableName(), encode(rowKey),
+                encode((String)value));
+        return stringTableCloudClientMock.execute(valueQuery).iterator().hasNext();
     }
 
     @Override
@@ -99,7 +105,7 @@ class ColumnMap implements Map<String, String> {
     @Override
     public Set<String> keySet() {
         // TODO: we are drainging the whole iterable into a set here: this should be replaced with a view
-        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), rowKey);
+        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), encode(rowKey));
         Iterable<String> columnStringIterable = Iterables.transform(stringTableCloudClientMock.execute(selectAllForRowQuery), EXTRACT_COLUMN_KEY);
         return Collections.unmodifiableSet(Sets.newHashSet(columnStringIterable));
     }
@@ -109,7 +115,7 @@ class ColumnMap implements Map<String, String> {
     @Override
     public Collection<String> values() {
         // TODO: we are drainging the whole iterable into a memmory here: this should be replaced with a view
-        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), rowKey);
+        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), encode(rowKey));
         Iterable<String> valuesStringIterable = Iterables.transform(stringTableCloudClientMock.execute(selectAllForRowQuery), EXTRACT_VALUE);
         return ImmutableList.copyOf(valuesStringIterable.iterator());
     }
@@ -117,7 +123,7 @@ class ColumnMap implements Map<String, String> {
     @Override
     public Set<Entry<String, String>> entrySet() {
         // TODO: we are drainging the whole iterable into a memmory here: this should be replaced with a view
-        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), rowKey);
+        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactoryMock.selectAllForRow(stringAzureTable.getTableName(), encode(rowKey));
         Iterable<Entry<String, String>> stringEntries = Iterables.transform(stringTableCloudClientMock.execute(selectAllForRowQuery), extractEntry);
         return Collections.unmodifiableSet(Sets.newHashSet(stringEntries));
     }

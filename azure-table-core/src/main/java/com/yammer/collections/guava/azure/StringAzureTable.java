@@ -172,7 +172,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, String> row(String rowString) {
-        return new ColumnMap(this, rowString, stringCloudTableClient, stringTableRequestFactory);
+        return new ColumnMapView(this, rowString, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
