@@ -29,7 +29,6 @@ public class CollectionView<E> extends AbstractCollection<E> {
 
     @Override
     public int size() {
-        // TODO can this be optimized through a direct query
         return Iterables.size(getBackingIterable());
     }
 

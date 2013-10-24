@@ -6,7 +6,7 @@ import com.google.common.base.Function;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-
+ // IS THIS needed?
 public class SetView<E> extends AbstractSet<E> {
     private final CollectionView<E> collectionView;
 

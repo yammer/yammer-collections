@@ -2,6 +2,7 @@ package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
@@ -183,10 +184,10 @@ public class StringAzureTable implements Table<String, String, String> {
         throw new UnsupportedOperationException();
     }
 
+    // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure
     @Override
     public Set<String> columnKeySet() {
-        // TODO this is incorrect: the returned result may not be a set. Can we fix it with a query, or do we have materialize it?
-        return new SetView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory);
+        return ImmutableSet.copyOf(new CollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
     }
 
     @Override
