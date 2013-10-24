@@ -44,7 +44,7 @@ public class CollectionView<E> extends AbstractCollection<E> {
                 o);
     }
 
-    private Iterable<StringEntity> getBackingIterable() {
+    protected Iterable<StringEntity> getBackingIterable() {
         TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(stringAzureTable.getTableName());
         return stringTableCloudClient.execute(query);
     }
