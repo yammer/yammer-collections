@@ -90,7 +90,16 @@ class StringEntityIterableSet implements Set<Table.Cell<String, String, String>>
 
     @Override
     public boolean remove(Object o) {
-        throw new UnsupportedOperationException();// TODO implement this
+        if(!(o instanceof Table.Cell)) {
+            return false;
+        }
+
+        Table.Cell<Object, Object, Object> cell = (Table.Cell) o;
+
+        return stringAzureTable.remove(
+                cell.getRowKey(),
+                cell.getColumnKey()
+        ) != null;
     }
 
     @Override

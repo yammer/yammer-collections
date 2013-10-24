@@ -109,6 +109,32 @@ public class StringEntityIterableSetTest {
         assertThat(set.add(CELL_1), is(equalTo(true)));
     }
 
+    @Test
+    public void remove_delegates_to_table() {
+        set.remove(CELL_1);
+
+        verify(stringAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
+    }
+
+    @Test
+    public void when_value_existed_in_table_then_remove_returns_true() {
+        when(stringAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1)).thenReturn(VALUE_1);
+
+        assertThat(set.remove(CELL_1), is(equalTo(true)));
+    }
+
+    @Test
+    public void when_value_did_not_exist_in_table_then_remove_returns_false() {
+        when(stringAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1)).thenReturn(null);
+
+        assertThat(set.remove(CELL_1), is(equalTo(false)));
+    }
+
+    @Test
+    public void when_object_to_be_removed_is_not_a_table_cell_then_remove_returns_false() {
+        assertThat(set.remove(new Object()), is(equalTo(false)));
+    }
+
     //----------------------
     // Utilities
     //----------------------
