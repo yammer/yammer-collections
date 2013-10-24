@@ -2,7 +2,6 @@ package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
@@ -20,7 +19,7 @@ import java.util.Set;
 import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
- // TODO this should be renamed to azure table
+// TODO this should be renamed to azure table
 
 public class StringAzureTable implements Table<String, String, String> {
     private static final Timer GET_TIMER = createTimerFor("get");
@@ -184,7 +183,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, String> column(String columnString) {
-        throw new UnsupportedOperationException();
+        return new RowMapView(this, columnString, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
