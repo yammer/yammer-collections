@@ -193,7 +193,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Set<Cell<String, String, String>> cellSet() {
-        return new StringEntityIterableSet(this, stringCloudTableClient, stringTableRequestFactory);
+        return new CellSetView(this, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
