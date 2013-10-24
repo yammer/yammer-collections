@@ -199,6 +199,15 @@ public class StringEntityIterableSetTest {
         assertThat(set.removeAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(false)));
     }
 
+    @Test
+    public void clear_deletes_contained_entries() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        set.clear();
+
+        verify(stringAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
+        verify(stringAzureTable).remove(ROW_KEY_2, COLUMN_KEY_2);
+    }
 
     //----------------------
     // Utilities

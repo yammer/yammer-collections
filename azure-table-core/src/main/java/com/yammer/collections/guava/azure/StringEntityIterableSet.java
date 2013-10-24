@@ -7,13 +7,14 @@ import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 
-class StringEntityIterableSet implements Set<Table.Cell<String, String, String>> {
+class StringEntityIterableSet  extends AbstractSet<Table.Cell<String, String, String>> implements Set<Table.Cell<String, String, String>> {
     private static final Function<StringEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
             new Function<StringEntity, Table.Cell<String, String, String>>() {
                 @Override
@@ -144,6 +145,11 @@ class StringEntityIterableSet implements Set<Table.Cell<String, String, String>>
 
     @Override
     public void clear() {
-        throw new UnsupportedOperationException();// TODO implement this
+        removeAll(this); // this works, because the iterator is only a view onto a remote collection
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()+"AZURE_TABLE_NAME: "+stringAzureTable.getTableName();
     }
 }
