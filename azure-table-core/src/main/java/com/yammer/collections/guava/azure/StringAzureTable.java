@@ -192,16 +192,18 @@ public class StringAzureTable implements Table<String, String, String> {
         return new CellSetMutableView(this, stringCloudTableClient, stringTableRequestFactory);
     }
 
-    // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure
     @Override // TODO delete operations may make sense on these, decide
-    public Set<String> rowKeySet() { // TODO: perhaps we don't have to materilize it but, we will have to make it a set on interation
-        return ImmutableSet.copyOf(new TableCollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
+    public Set<String> rowKeySet() {
+        return SetView.fromCollectionView(
+                new TableCollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory)
+        );
     }
 
-    // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure
     @Override // TODO delete operations may make sense on these, decide
-    public Set<String> columnKeySet() { // TODO: perhaps we don't have to materilize it but, we will have to make it a set on interation
-        return ImmutableSet.copyOf(new TableCollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
+    public Set<String> columnKeySet() {
+        return SetView.fromCollectionView(
+                new TableCollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory)
+        );
     }
 
     @Override
