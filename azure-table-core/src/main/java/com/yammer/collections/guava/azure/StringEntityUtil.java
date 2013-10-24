@@ -9,7 +9,7 @@ import java.io.UnsupportedEncodingException;
 final class StringEntityUtil {
     private static final String ENCODING = "UTF-8";
 
-    static final Function<? super StringEntity, ? extends String> EXTRACT_VALUE = new Function<StringEntity, String>() {
+    static final Function<StringEntity,String> EXTRACT_VALUE = new Function<StringEntity, String>() {
         @Override
         public String apply(StringEntity input) {
             return decode(input.getValue());

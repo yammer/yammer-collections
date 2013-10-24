@@ -37,16 +37,6 @@ public class StringAzureTable implements Table<String, String, String> {
             return decode(input.getRowKey());
         }
     };
-    private static final Function<StringEntity, Cell<String, String, String>> TABLE_CELL_CREATOR =
-            new Function<StringEntity, Cell<String, String, String>>() {
-                @Override
-                public Cell<String, String, String> apply(StringEntity input) {
-                    return Tables.immutableCell(
-                            decode(input.getPartitionKey()),
-                            decode(input.getRowKey()),
-                            decode(input.getValue()));
-                }
-            };
     private final String tableName;
     private final StringTableCloudClient stringCloudTableClient;
     private final StringTableRequestFactory stringTableRequestFactory;
@@ -223,10 +213,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Collection<String> values() {
-        // TODO: we are drainging the whole iterable into a memmory here: this should be replaced with a view
-        TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactory.selectAll(tableName);
-        Iterable<String> valuesStringIterable = Iterables.transform(stringCloudTableClient.execute(selectAllForRowQuery), EXTRACT_VALUE);
-        return ImmutableList.copyOf(valuesStringIterable.iterator());
+        return new CollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
