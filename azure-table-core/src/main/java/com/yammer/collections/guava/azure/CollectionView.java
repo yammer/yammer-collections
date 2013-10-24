@@ -1,72 +1,107 @@
 package com.yammer.collections.guava.azure;
 
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.microsoft.windowsazure.services.table.client.TableQuery;
+
 import java.util.Collection;
 import java.util.Iterator;
 
 public class CollectionView<E> implements Collection<E> {
+    private final StringAzureTable stringAzureTable;
+    private final StringTableCloudClient stringTableCloudClient;
+    private final StringTableRequestFactory stringTableRequestFactory;
+    private final Function<StringEntity, E> typeExtractor;
+
+    public CollectionView(StringAzureTable stringAzureTable,
+                          Function<StringEntity, E> typeExtractor,
+                          StringTableCloudClient stringTableCloudClient,
+                          StringTableRequestFactory stringTableRequestFactory) {
+        this.stringAzureTable = stringAzureTable;
+        this.typeExtractor = typeExtractor;
+        this.stringTableCloudClient = stringTableCloudClient;
+        this.stringTableRequestFactory = stringTableRequestFactory;
+    }
+
     @Override
     public int size() {
-        return 0;  //TODO implement this
+        // TODO can this be optimized through a direct query
+        return Iterables.size(getBackingIterable());
     }
 
     @Override
     public boolean isEmpty() {
-        return false;  //TODO implement this
+        return !iterator().hasNext();
     }
 
     @Override
     public boolean contains(Object o) {
-        return false;  //TODO implement this
+        return Iterables.contains(
+                Iterables.transform(getBackingIterable(), typeExtractor),
+                o);
+    }
+
+    private Iterable<StringEntity> getBackingIterable() {
+        TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(stringAzureTable.getTableName());
+        return stringTableCloudClient.execute(query);
     }
 
     @Override
     public Iterator<E> iterator() {
-        return null;  //TODO implement this
+        return Iterables.transform(
+                getBackingIterable(),
+                typeExtractor).iterator();
     }
 
     @Override
     public Object[] toArray() {
-        return new Object[0];  //TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        return null;  //TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean add(E e) {
-        return false;  //TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean remove(Object o) {
-        return false;  //TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return false;  //TODO implement this
+        for(Object o : c) {
+            if(!contains(o)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
-        return false;  //TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return false;  //TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return false;  //TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void clear() {
-        //TODO implement this
+        throw new UnsupportedOperationException();
     }
 }

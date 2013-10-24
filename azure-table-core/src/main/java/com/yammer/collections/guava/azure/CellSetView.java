@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
-
+     // TODO should be renamed, as it allows modifications
 /**
  * This class implements the set interface, however it does not enforce it as it only a view.
  */
