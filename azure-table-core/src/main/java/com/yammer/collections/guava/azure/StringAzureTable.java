@@ -31,6 +31,12 @@ public class StringAzureTable implements Table<String, String, String> {
             return decode(input.getRowKey());
         }
     };
+    private static final Function<StringEntity, String> ROW_KEY_EXTRACTOR = new Function<StringEntity, String>() {
+        @Override
+        public String apply(StringEntity input) {
+            return decode(input.getPartitionKey());
+        }
+    };;
     private final String tableName;
     private final StringTableCloudClient stringCloudTableClient;
     private final StringTableRequestFactory stringTableRequestFactory;
@@ -179,9 +185,10 @@ public class StringAzureTable implements Table<String, String, String> {
         return new CellSetMutableView(this, stringCloudTableClient, stringTableRequestFactory);
     }
 
+    // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure
     @Override
     public Set<String> rowKeySet() {
-        throw new UnsupportedOperationException();
+        return ImmutableSet.copyOf(new CollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
     }
 
     // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure

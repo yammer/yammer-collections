@@ -67,6 +67,16 @@ public class StringAzureTableTest {
     }
 
     @Test
+    public void when_rowKeySet_requested_then_all_keys_returned() throws UnsupportedEncodingException, StorageException {
+        //noinspection unchecked
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        Set<String> rowKeySet = stringAzureTable.rowKeySet();
+
+        assertThat(rowKeySet, containsInAnyOrder(ROW_KEY_1, ROW_KEY_2));
+    }
+
+    @Test
     public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException, UnsupportedEncodingException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
