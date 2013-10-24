@@ -38,6 +38,13 @@ public class CollectionView<E> extends AbstractCollection<E> {
         return !iterator().hasNext();
     }
 
+    @Override
+    public boolean contains(Object o) {
+        return Iterables.contains(
+                Iterables.transform(getBackingIterable(), typeExtractor),
+                o);
+    }
+
     private Iterable<StringEntity> getBackingIterable() {
         TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(stringAzureTable.getTableName());
         return stringTableCloudClient.execute(query);

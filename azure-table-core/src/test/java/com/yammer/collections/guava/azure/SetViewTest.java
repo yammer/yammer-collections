@@ -27,7 +27,7 @@ import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class PossibleSetCollectionViewTest {
+public class SetViewTest {
     private static final String ROW_KEY_1 = "rown_name_1";
     private static final String ROW_KEY_2 = "row_name_2";
     private static final String COLUMN_KEY_1 = "column_key_1";
@@ -58,12 +58,12 @@ public class PossibleSetCollectionViewTest {
     @Mock
     private StringTableRequestFactory stringTableRequestFactoryMock;
 
-    private PossibleSetCollectionView<Long> possibleSetCollectionView;
+    private SetView<Long> setView;
 
     @Before
     public void setUp() {
         when(stringAzureTable.getTableName()).thenReturn(TABLE_NAME);
-        possibleSetCollectionView = new PossibleSetCollectionView(
+        setView = new SetView(
                 stringAzureTable,
                 LONG_EXTRACTOR,
                 stringTableCloudClientMock,
@@ -74,35 +74,35 @@ public class PossibleSetCollectionViewTest {
     public void size_returns_correct_value() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        assertThat(possibleSetCollectionView.size(), is(equalTo(2)));
+        assertThat(setView.size(), is(equalTo(2)));
     }
 
     @Test
     public void is_returns_false_on_non_empty_collection() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1);
 
-        assertThat(possibleSetCollectionView.isEmpty(), is(equalTo(false)));
+        assertThat(setView.isEmpty(), is(equalTo(false)));
     }
 
     @Test
     public void is_returns_true_on_empty_collection() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain();
 
-        assertThat(possibleSetCollectionView.isEmpty(), is(equalTo(true)));
+        assertThat(setView.isEmpty(), is(equalTo(true)));
     }
 
     @Test
     public void contains_on_wrong_type_returns_false() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1);
 
-        assertThat(possibleSetCollectionView.contains(new Object()), is(equalTo(false)));
+        assertThat(setView.contains(new Object()), is(equalTo(false)));
     }
 
     @Test
     public void contain_returns_true_when_object_exists_in_collection() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1);
 
-        assertThat(possibleSetCollectionView.contains(L1), is(equalTo(true)));
+        assertThat(setView.contains(L1), is(equalTo(true)));
     }
 
     @Test
@@ -110,25 +110,25 @@ public class PossibleSetCollectionViewTest {
             StorageException {
         setAzureTableToContain();
 
-        assertThat(possibleSetCollectionView.contains(L1), is(equalTo(false)));
+        assertThat(setView.contains(L1), is(equalTo(false)));
     }
 
     @Test
     public void iterator_contains_contained_entities() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        assertThat(possibleSetCollectionView, containsInAnyOrder(L1, L2));
+        assertThat(setView, containsInAnyOrder(L1, L2));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void add_not_supported() {
-        possibleSetCollectionView.add(L1);
+        setView.add(L1);
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void remove_not_supported() {
-        possibleSetCollectionView.remove(L2);
+        setView.remove(L2);
 
         verify(stringAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
     }
@@ -137,31 +137,31 @@ public class PossibleSetCollectionViewTest {
     public void when_contains_all_then_contains_all_returns_true() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        assertThat(possibleSetCollectionView.containsAll(Arrays.asList(L1, L2)), is(equalTo(true)));
+        assertThat(setView.containsAll(Arrays.asList(L1, L2)), is(equalTo(true)));
     }
 
     @Test
     public void when_does_not_contain_all_then_returns_false() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_2);
 
-        assertThat(possibleSetCollectionView.containsAll(Arrays.asList(L1, L2)), is(equalTo(false)));
+        assertThat(setView.containsAll(Arrays.asList(L1, L2)), is(equalTo(false)));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void add_all_not_supported() {
-        possibleSetCollectionView.addAll(Arrays.asList(L1, L2));
+        setView.addAll(Arrays.asList(L1, L2));
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void remove_all_not_supported() {
-        possibleSetCollectionView.removeAll(Arrays.asList(L1, L2));
+        setView.removeAll(Arrays.asList(L1, L2));
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void clear_all_unsupported() throws UnsupportedEncodingException, StorageException {
-        possibleSetCollectionView.clear();
+        setView.clear();
     }
 
     //----------------------

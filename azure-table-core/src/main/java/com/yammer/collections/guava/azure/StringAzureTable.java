@@ -211,7 +211,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Collection<String> values() {
-        return new PossibleSetCollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
+        return new SetView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
