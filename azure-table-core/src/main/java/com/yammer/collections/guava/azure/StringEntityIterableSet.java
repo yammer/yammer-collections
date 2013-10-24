@@ -127,12 +127,19 @@ class StringEntityIterableSet implements Set<Table.Cell<String, String, String>>
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        throw new UnsupportedOperationException();// TODO implement this
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        throw new UnsupportedOperationException();// TODO implement this
+        boolean change = false;
+        for(Object o : c) {
+            if(remove(o) == true) {
+                change = true;
+            }
+        }
+
+        return change;
     }
 
     @Override

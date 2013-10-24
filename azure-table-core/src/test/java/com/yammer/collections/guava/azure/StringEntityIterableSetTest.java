@@ -176,6 +176,30 @@ public class StringEntityIterableSetTest {
         assertThat(set.addAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(true)));
     }
 
+    @Test
+    public void remove_all_removes_from_table() {
+        set.removeAll(Arrays.asList(CELL_1, CELL_2));
+
+        verify(stringAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
+        verify(stringAzureTable).remove(ROW_KEY_2, COLUMN_KEY_2);
+    }
+
+
+    @Test
+    public void when_some_remove_all_values_where_contained_then_return_true() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        assertThat(set.removeAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(true)));
+    }
+
+    @Test
+    public void when_non_of_remove_all_values_existed_then_return_false() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain();
+
+        assertThat(set.removeAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(false)));
+    }
+
+
     //----------------------
     // Utilities
     //----------------------
