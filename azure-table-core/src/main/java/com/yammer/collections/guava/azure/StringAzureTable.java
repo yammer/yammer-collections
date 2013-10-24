@@ -2,20 +2,16 @@ package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
-import com.microsoft.windowsazure.services.table.client.TableQuery;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +22,6 @@ import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
 
 public class StringAzureTable implements Table<String, String, String> {
     private static final Timer GET_TIMER = createTimerFor("get");
-    private static final Timer SELECT_ALL_TIMER = createTimerFor("select-all-rows-and-columns");
     private static final Timer PUT_TIMER = createTimerFor("put");
     private static final Timer REMOVE_TIMER = createTimerFor("remove");
     private static final Function<StringEntity, String> COLUMN_KEY_EXTRACTOR = new Function<StringEntity, String>() {
@@ -115,7 +110,6 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public int size() {
-        // TODO investigate if this can be optimized through a direct query
         return cellSet().size();
     }
 
@@ -191,6 +185,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Set<String> columnKeySet() {
+        // TODO this is incorrect: the returned result may not be a set. Can we fix it with a query, or do we have materialize it?
         return new SetView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory);
     }
 
