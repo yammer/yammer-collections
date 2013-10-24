@@ -190,28 +190,13 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     @Override
-    public Set<String> columnKeySet() {  // TODO materializes the whole set of columns in memmory, needs redoing
-        Iterable<String> columnStringIterable = Iterables.transform(selectAll(), COLUMN_KEY_EXTRACTOR);
-        return Collections.unmodifiableSet(Sets.newHashSet(columnStringIterable));
-    }
-
-    private Iterable<StringEntity> selectAll() {
-        TableQuery<StringEntity> keySetQuery = stringTableRequestFactory.selectAll(tableName);
-        return timedExecuteQuery(SELECT_ALL_TIMER, keySetQuery);
-    }
-
-    private Iterable<StringEntity> timedExecuteQuery(Timer contextTimer, TableQuery<StringEntity> query) {
-        TimerContext context = contextTimer.time();
-        try {
-            return stringCloudTableClient.execute(query);
-        } finally {
-            context.stop();
-        }
+    public Set<String> columnKeySet() {
+        return new SetView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
     public Collection<String> values() {
-        return new SetView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
+        return new CollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
