@@ -1,6 +1,5 @@
 package com.yammer.collections.guava.azure;
 
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,12 +14,10 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-
 @RunWith(MockitoJUnitRunner.class)
-public class SetViewTest {
+public class EnforceSetViewTest {
     private static final Long L1 = 1L;
     private static final Long L2 = 2L;
-    private static final Long L1_DUPLICATE = 1L;
     private static final Integer SIZE = 2;
     @Mock
     private CollectionView<Long> collectionViewMock;
@@ -28,12 +25,12 @@ public class SetViewTest {
 
     @Before
     public void setUp() {
-        setView = SetView.fromSetCollectionView(collectionViewMock);
+        setView = SetView.fromCollectionView(collectionViewMock);
     }
 
     @Test
-    public void size_delegates() {
-        when(collectionViewMock.size()).thenReturn(SIZE);
+    public void size_computed_correctly() {
+        when(collectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2, L2, L1, L1, L2, L1, L2, L1, L1, L1).iterator());
 
         assertThat(setView.size(), is(equalTo(SIZE)));
     }
@@ -60,10 +57,10 @@ public class SetViewTest {
     }
 
     @Test
-    public void if_underlying_collection_is_a_multiset_then_this_collection_does_not_guarantee_contract() {
-        when(collectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2, L1_DUPLICATE).iterator());
+    public void if_underlying_collection_is_a_multiset_then_this_collection_is_a_set() {
+        when(collectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2, L2, L1, L1, L2, L1, L2, L1, L1, L1).iterator());
 
-        assertThat(setView, containsInAnyOrder(L1, L2, L1_DUPLICATE));
+        assertThat(setView, containsInAnyOrder(L1, L2));
     }
 
 

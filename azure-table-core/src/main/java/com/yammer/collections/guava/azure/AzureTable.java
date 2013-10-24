@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
+// TODO this should be renamed to serializing azure table
 /**
  * In early stages of implementation. Built for the Secretie project, which deals with small data sets that can be trivially sent
  * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.

@@ -20,7 +20,7 @@ import java.util.Set;
 import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
-
+ // TODO this should be renamed to azure table
 
 public class StringAzureTable implements Table<String, String, String> {
     private static final Timer GET_TIMER = createTimerFor("get");
@@ -193,14 +193,14 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure
-    @Override
-    public Set<String> rowKeySet() {
+    @Override // TODO delete operations may make sense on these, decide
+    public Set<String> rowKeySet() { // TODO: perhaps we don't have to materilize it but, we will have to make it a set on interation
         return ImmutableSet.copyOf(new TableCollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
     }
 
     // TODO java doc: this is a very expensive operation, materializes all the columns in memmory: there are no agregate functions on azure
-    @Override
-    public Set<String> columnKeySet() {
+    @Override // TODO delete operations may make sense on these, decide
+    public Set<String> columnKeySet() { // TODO: perhaps we don't have to materilize it but, we will have to make it a set on interation
         return ImmutableSet.copyOf(new TableCollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory));
     }
 
