@@ -6,15 +6,12 @@ import com.google.common.base.Function;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
- // IS THIS needed?
+
 public class SetView<E> extends AbstractSet<E> {
     private final CollectionView<E> collectionView;
 
-    public SetView(StringAzureTable stringAzureTable,
-                   Function<StringEntity, E> typeExtractor,
-                   StringTableCloudClient stringTableCloudClient,
-                   StringTableRequestFactory stringTableRequestFactory) {
-        collectionView = new CollectionView<>(stringAzureTable, typeExtractor, stringTableCloudClient, stringTableRequestFactory);
+    public SetView(CollectionView<E> collectionView) {
+        this.collectionView = collectionView;
     }
 
     @Override
