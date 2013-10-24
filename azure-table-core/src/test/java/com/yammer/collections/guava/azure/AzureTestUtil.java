@@ -65,6 +65,7 @@ public final class AzureTestUtil {
         when(stringTableCloudClientMock.execute(tableQuery)).thenReturn(encodedStringEntities);
 
         setupRowQueries(tableName, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
+        setupColumnQueries(tableName, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
     }
 
     static String encode(String stringToBeEncoded) {
@@ -120,6 +121,40 @@ public final class AzureTestUtil {
             when(stringTableRequestFactoryMock.selectAllForRow(tableName, encode(entry.getKey()))).
                     thenReturn(rowQueryMock);
             when(stringTableCloudClientMock.execute(rowQueryMock)).thenReturn(Collections2.transform(entry.getValue(), ENCODE_CELL));
+        }
+    }
+
+    private static void setupColumnQueries(String tableName,
+                                        StringTableRequestFactory stringTableRequestFactoryMock,
+                                        StringTableCloudClient stringTableCloudClientMock,
+                                        Table.Cell<String, String, String>... cells) {
+
+        TableQuery<StringEntity> emptyQueryMock = mock(TableQuery.class);
+        when(stringTableRequestFactoryMock.selectAllForColumn(anyString(), anyString())).thenReturn(emptyQueryMock);
+        when(stringTableRequestFactoryMock.containsValueForColumnQuery(anyString(), anyString(), anyString())).thenReturn(emptyQueryMock);
+        when(stringTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<StringEntity>emptyList());
+
+        Multimap<String, Table.Cell<String, String, String>> columnCellMap = HashMultimap.create();
+        for (Table.Cell<String, String, String> cell : cells) {
+            columnCellMap.put(cell.getColumnKey(), cell);
+
+            TableQuery<StringEntity> columnValueQueryMock = mock(TableQuery.class);
+            when(
+                    stringTableRequestFactoryMock.containsValueForColumnQuery(
+                            tableName,
+                            encode(cell.getColumnKey()),
+                            encode(cell.getValue())
+                    )
+            ).thenReturn(columnValueQueryMock);
+            when(stringTableCloudClientMock.execute(columnValueQueryMock)).thenReturn(Collections.singletonList(ENCODE_CELL.apply(cell)));
+        }
+
+        for (Map.Entry<String, Collection<Table.Cell<String, String, String>>> entry : columnCellMap.asMap().entrySet()) {
+            // row query
+            TableQuery<StringEntity> columnQueryMock = mock(TableQuery.class);
+            when(stringTableRequestFactoryMock.selectAllForColumn(tableName, encode(entry.getKey()))).
+                    thenReturn(columnQueryMock);
+            when(stringTableCloudClientMock.execute(columnQueryMock)).thenReturn(Collections2.transform(entry.getValue(), ENCODE_CELL));
         }
     }
 
