@@ -11,9 +11,41 @@ import java.util.Set;
 
 class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
     private final Table<R, C, V> backingTable;
+    private final Function<R, Map<C, V>> valueCreator;
+    private final Function<R, Entry<R, Map<C, V>>> entryCreator;
 
-    public RowMapView(Table<R, C, V> backingTable) {
+    public RowMapView(final Table<R, C, V> backingTable) {
         this.backingTable = backingTable;
+        valueCreator = new Function<R, Map<C, V>>() {
+            @Override
+            public Map<C, V> apply(final R key) {
+                return backingTable.row(key);
+            }
+        };
+        entryCreator = new
+                Function<R, Entry<R, Map<C, V>>>() {
+                    @Override
+                    public Entry<R, Map<C, V>> apply(final R input) {
+                        return new Entry<R, Map<C, V>>() {
+                            @Override
+                            public R getKey() {
+                                return input;
+                            }
+
+                            @Override
+                            public Map<C, V> getValue() {
+                                return backingTable.row(input);
+                            }
+
+                            @Override
+                            public Map<C, V> setValue(Map<C, V> value) {
+                                return put(input, value);
+                            }
+
+                        };
+                    }
+                };
+
     }
 
     @Override
@@ -91,47 +123,18 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
     @Override
     public Collection<Map<C, V>> values() {
-        // TODO make this static or at least once per instance
         return Collections2.transform(
                 keySet(),
-                new Function<R, Map<C, V>>() {
-                    @Override
-                    public Map<C, V> apply(final R key) {
-                        return backingTable.row(key);
-                    }
-                }
+                valueCreator
         );
     }
 
     @Override
     public Set<Entry<R, Map<C, V>>> entrySet() {
-        // TODO make this static or at least once per instance
         return new HashSet<>(// TODO this is temporary, materializes
                 Collections2.transform(
                         keySet(),
-                        new Function<R, Entry<R, Map<C, V>>>() {
-                            @Override
-                            public Entry<R, Map<C, V>> apply(final R input) {
-                                // TODO make it static
-                                return new Entry<R, Map<C, V>>() {
-                                    @Override
-                                    public R getKey() {
-                                        return input;
-                                    }
-
-                                    @Override
-                                    public Map<C, V> getValue() {
-                                        return backingTable.row(input);
-                                    }
-
-                                    @Override
-                                    public Map<C, V> setValue(Map<C, V> value) {
-                                        return put(input, value);
-                                    }
-
-                                };
-                            }
-                        }
+                        entryCreator
                 ));
     }
 }

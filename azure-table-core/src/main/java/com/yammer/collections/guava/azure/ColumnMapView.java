@@ -11,9 +11,39 @@ import java.util.Set;
 
 public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
     private final Table<R, C, V> backingTable;
+    private final Function<C, Map<R, V>> valueCreator;
+    private final Function<C, Entry<C, Map<R, V>>> entryConstructor;
 
-    public ColumnMapView(Table<R, C, V> backingTable) {
+    public ColumnMapView(final Table<R, C, V> backingTable) {
         this.backingTable = backingTable;
+        valueCreator = new Function<C, Map<R, V>>() {
+            @Override
+            public Map<R, V> apply(final C key) {
+                return backingTable.column(key);
+            }
+        };
+        entryConstructor = new Function<C, Entry<C, Map<R, V>>>() {
+            @Override
+            public Entry<C, Map<R, V>> apply(final C input) {
+                return new Entry<C, Map<R, V>>() {
+                    @Override
+                    public C getKey() {
+                        return input;
+                    }
+
+                    @Override
+                    public Map<R, V> getValue() {
+                        return backingTable.column(input);
+                    }
+
+                    @Override
+                    public Map<R, V> setValue(Map<R, V> value) {
+                        return put(input, value);
+                    }
+
+                };
+            }
+        };
     }
 
 
@@ -92,47 +122,18 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
 
     @Override
     public Collection<Map<R, V>> values() {
-        // TODO make this static or at least once per instance
         return Collections2.transform(
                 keySet(),
-                new Function<C, Map<R, V>>() {
-                    @Override
-                    public Map<R, V> apply(final C key) {
-                        return backingTable.column(key);
-                    }
-                }
+                valueCreator
         );
     }
 
     @Override
     public Set<Entry<C, Map<R, V>>> entrySet() {
-        // TODO make this static or at least once per instance
         return new HashSet<>(// TODO this is temporary, materializes
                 Collections2.transform(
                         keySet(),
-                        new Function<C, Entry<C, Map<R, V>>>() {
-                            @Override
-                            public Entry<C, Map<R, V>> apply(final C input) {
-                                // TODO make it static
-                                return new Entry<C, Map<R, V>>() {
-                                    @Override
-                                    public C getKey() {
-                                        return input;
-                                    }
-
-                                    @Override
-                                    public Map<R, V> getValue() {
-                                        return backingTable.column(input);
-                                    }
-
-                                    @Override
-                                    public Map<R, V> setValue(Map<R, V> value) {
-                                        return put(input, value);
-                                    }
-
-                                };
-                            }
-                        }
+                        entryConstructor
                 ));
     }
 }
