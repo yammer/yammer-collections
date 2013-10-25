@@ -14,11 +14,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * In early stages of implementation. Built for the Secretie project, which deals with small data sets that can be trivially sent
  * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.
  */
-// TODO transforming table, make it really agnostic of the target
-public class TransformingTable<R, C, V> implements Table<R, C, V> {
-    private final Function<Cell<R, C, V>, Cell<String, String, String>> toBaseCellFunction = new Function<Cell<R, C, V>, Cell<String, String, String>>() {
+public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
+    private final Function<Cell<R, C, V>, Cell<R1, C1, V1>> toBaseCellFunction = new Function<Cell<R, C, V>, Cell<R1, C1, V1>>() {
         @Override
-        public Cell<String, String, String> apply(Cell<R, C, V> input) {
+        public Cell<R1, C1, V1> apply(Cell<R, C, V> input) {
             return Tables.immutableCell(
                     rowKeyMarshaller.marshal(input.getRowKey()),
                     columnKeyMarshaller.marshal(input.getColumnKey()),
@@ -26,10 +25,10 @@ public class TransformingTable<R, C, V> implements Table<R, C, V> {
             );
         }
     };
-    private final Function<Cell<String, String, String>, Cell<R, C, V>> fromBaseCellFunction =
-            new Function<Cell<String, String, String>, Cell<R, C, V>>() {
+    private final Function<Cell<R1, C1, V1>, Cell<R, C, V>> fromBaseCellFunction =
+            new Function<Cell<R1, C1, V1>, Cell<R, C, V>>() {
                 @Override
-                public Cell<R, C, V> apply(Cell<String, String, String> input) {
+                public Cell<R, C, V> apply(Cell<R1, C1, V1> input) {
                     return Tables.immutableCell(
                             rowKeyMarshaller.unmarshal(input.getRowKey()),
                             columnKeyMarshaller.unmarshal(input.getColumnKey()),
@@ -37,22 +36,21 @@ public class TransformingTable<R, C, V> implements Table<R, C, V> {
                     );
                 }
             };
-    private final Function<C, String> columnMarshallingTransformation;
-    private final Function<String, C> columnUnmarshallingTransformation;
-    private final Function<R, String> rowMarshallingTransformation;
-    private final Function<String, R> rowUnmarshallingTransformation;
-    private final Function<V, String> valueMarshallingTransformation;
-    private final Function<String, V> valueUnmarshallingTransformation;
+    private final Function<C, C1> columnMarshallingTransformation;
+    private final Function<C1, C> columnUnmarshallingTransformation;
+    private final Function<R, R1> rowMarshallingTransformation;
+    private final Function<R1, R> rowUnmarshallingTransformation;
+    private final Function<V, V1> valueMarshallingTransformation;
+    private final Function<V1, V> valueUnmarshallingTransformation;
+    private final Marshaller<R, R1> rowKeyMarshaller;
+    private final Marshaller<C, C1> columnKeyMarshaller;
+    private final Marshaller<V, V1> valueMarshaller;
+    private final Table<R1, C1, V1> backingTable;
 
-    private final Marshaller<R, String> rowKeyMarshaller;
-    private final Marshaller<C, String> columnKeyMarshaller;
-    private final Marshaller<V, String> valueMarshaller;
-    private final Table<String, String, String> backingTable;
-
-    public TransformingTable(final Marshaller<R, String> rowKeyMarshaller,
-                             final Marshaller<C, String> columnKeyMarshaller,
-                             final Marshaller<V, String> valueMarshaller,
-                             Table<String, String, String> backingTable) {
+    public TransformingTable(final Marshaller<R, R1> rowKeyMarshaller,
+                             final Marshaller<C, C1> columnKeyMarshaller,
+                             final Marshaller<V, V1> valueMarshaller,
+                             Table<R1, C1, V1> backingTable) {
         this.rowKeyMarshaller = rowKeyMarshaller;
         this.columnKeyMarshaller = columnKeyMarshaller;
         this.valueMarshaller = valueMarshaller;
@@ -97,48 +95,48 @@ public class TransformingTable<R, C, V> implements Table<R, C, V> {
     public boolean contains(Object rowKey, Object columnKey) {
         checkNotNull(rowKey);
         checkNotNull(columnKey);
-        final String rowKeyString = tryMarshaling(rowKey, rowKeyMarshaller);
-        final String columnKeyString = tryMarshaling(columnKey, columnKeyMarshaller);
-        return rowKeyString != null &&
-                columnKeyString != null &&
-                backingTable.contains(rowKeyString, columnKeyString);
+        final R1 mRowKey = tryMarshaling(rowKey, rowKeyMarshaller);
+        final C1 mColumnKey = tryMarshaling(columnKey, columnKeyMarshaller);
+        return mRowKey != null &&
+                mColumnKey != null &&
+                backingTable.contains(mRowKey, mColumnKey);
     }
 
     @Override
     public boolean containsRow(Object rowKey) {
         checkNotNull(rowKey);
-        final String rowKeyString = tryMarshaling(rowKey, rowKeyMarshaller);
-        return rowKeyString != null && backingTable.containsRow(rowKeyString);
+        final R1 mRowKey = tryMarshaling(rowKey, rowKeyMarshaller);
+        return mRowKey != null && backingTable.containsRow(mRowKey);
     }
 
     @Override
     public boolean containsColumn(Object columnKey) {
         checkNotNull(columnKey);
-        final String columnKeyString = tryMarshaling(columnKey, columnKeyMarshaller);
-        return columnKeyString != null && backingTable.containsColumn(columnKeyString);
+        final C1 mColumnKey = tryMarshaling(columnKey, columnKeyMarshaller);
+        return mColumnKey != null && backingTable.containsColumn(mColumnKey);
     }
 
     @Override
     public boolean containsValue(Object value) {
         checkNotNull(value);
-        final String valueString = tryMarshaling(value, valueMarshaller);
-        return value != null && backingTable.containsValue(valueString);
+        final V1 mValue = tryMarshaling(value, valueMarshaller);
+        return value != null && backingTable.containsValue(mValue);
     }
 
     @Override
     public V get(Object rowKey, Object columnKey) {
         checkNotNull(rowKey);
         checkNotNull(columnKey);
-        final String rowKeyString = tryMarshaling(rowKey, rowKeyMarshaller);
-        final String columnKeyString = tryMarshaling(columnKey, columnKeyMarshaller);
+        final R1 mRowKey = tryMarshaling(rowKey, rowKeyMarshaller);
+        final C1 mColumnKey = tryMarshaling(columnKey, columnKeyMarshaller);
 
-        if (rowKeyString == null || columnKeyString == null) {
+        if (mRowKey == null || mColumnKey == null) {
             return null;
         }
 
-        String valueString = backingTable.get(rowKeyString, columnKeyString);
+        V1 mValue = backingTable.get(mRowKey, mColumnKey);
 
-        return valueString == null ? null : valueMarshaller.unmarshal(valueString);
+        return mValue == null ? null : valueMarshaller.unmarshal(mValue);
     }
 
     @Override
@@ -162,13 +160,13 @@ public class TransformingTable<R, C, V> implements Table<R, C, V> {
         checkNotNull(columnKey);
         checkNotNull(value);
 
-        final String valueString = backingTable.put(
+        final V1 mValue = backingTable.put(
                 rowKeyMarshaller.marshal(rowKey),
                 columnKeyMarshaller.marshal(columnKey),
                 valueMarshaller.marshal(value)
         );
 
-        return valueString == null ? null : valueMarshaller.unmarshal(valueString);
+        return mValue == null ? null : valueMarshaller.unmarshal(mValue);
     }
 
     @Override
@@ -182,16 +180,16 @@ public class TransformingTable<R, C, V> implements Table<R, C, V> {
     public V remove(Object rowKey, Object columnKey) {
         checkNotNull(rowKey);
         checkNotNull(columnKey);
-        final String rowKeyString = tryMarshaling(rowKey, rowKeyMarshaller);
-        final String columnKeyString = tryMarshaling(columnKey, columnKeyMarshaller);
+        final R1 mRowKey = tryMarshaling(rowKey, rowKeyMarshaller);
+        final C1 mColumnKey = tryMarshaling(columnKey, columnKeyMarshaller);
 
-        if (rowKeyString == null || columnKeyString == null) {
+        if (mRowKey == null || mColumnKey == null) {
             return null;
         }
 
-        final String valueString = backingTable.remove(rowKeyString, columnKeyString);
+        final V1 mValue = backingTable.remove(mRowKey, mColumnKey);
 
-        return valueString == null ? null : valueMarshaller.unmarshal(valueString);
+        return mValue == null ? null : valueMarshaller.unmarshal(mValue);
     }
 
     @Override

@@ -30,14 +30,13 @@ public class TransformingTableTest {
     private static final Long COLUMN_KEY_2 = 2343l;
     private static final Integer VALUE_1 = 1;
     private static final Integer VALUE_2 = 11;
-
     private static final String STRING_ROW_KEY_1 = ROW_KEY_1.toString();
     private static final String STRING_COLUMN_KEY_1 = COLUMN_KEY_1.toString();
     private static final String STRING_VALUE_1 = VALUE_1.toString();
     private static final String STRING_ROW_KEY_2 = ROW_KEY_2.toString();
     private static final String STRING_COLUMN_KEY_2 = COLUMN_KEY_2.toString();
     private static final String STRING_VALUE_2 = VALUE_2.toString();
-    private TransformingTable<Float, Long, Integer> transformingTable;
+    private TransformingTable<Float, Long, Integer, String, String, String> transformingTable;
     @Mock
     private Table<String, String, String> baseTableMock;
 
