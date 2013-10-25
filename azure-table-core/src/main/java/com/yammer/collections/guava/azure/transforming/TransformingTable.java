@@ -37,8 +37,13 @@ public class TransformingTable<R, C, V> implements Table<R, C, V> {
                     );
                 }
             };
-    private final Function<String, C> columnUnmarshallingTransformation;
     private final Function<C, String> columnMarshallingTransformation;
+    private final Function<String, C> columnUnmarshallingTransformation;
+    private final Function<R, String> rowMarshallingTransformation;
+    private final Function<String, R> rowUnmarshallingTransformation;
+    private final Function<V, String> valueMarshallingTransformation;
+    private final Function<String, V> valueUnmarshallingTransformation;
+
     private final Marshaller<R, String> rowKeyMarshaller;
     private final Marshaller<C, String> columnKeyMarshaller;
     private final Marshaller<V, String> valueMarshaller;
@@ -54,6 +59,10 @@ public class TransformingTable<R, C, V> implements Table<R, C, V> {
         this.backingTable = backingTable;
         columnMarshallingTransformation = createMarshallingFunction(columnKeyMarshaller);
         columnUnmarshallingTransformation = createUnmarshallingFunction(columnKeyMarshaller);
+        rowMarshallingTransformation = createMarshallingFunction(rowKeyMarshaller);
+        rowUnmarshallingTransformation = createUnmarshallingFunction(rowKeyMarshaller);
+        valueMarshallingTransformation = createMarshallingFunction(valueMarshaller);
+        valueUnmarshallingTransformation = createUnmarshallingFunction(valueMarshaller);
     }
 
     private static <F, T> Function<F, T> createMarshallingFunction(final Marshaller<F, T> marshaller) {
@@ -206,19 +215,23 @@ public class TransformingTable<R, C, V> implements Table<R, C, V> {
 
     @Override
     public Set<R> rowKeySet() {
-        throw new UnsupportedOperationException();    // TODO implement
+        return new TransformingSet(
+                backingTable.rowKeySet(), rowMarshallingTransformation, rowUnmarshallingTransformation
+        );
     }
 
     @Override
     public Set<C> columnKeySet() {
         return new TransformingSet(
-                backingTable.columnKeySet(), columnUnmarshallingTransformation, columnUnmarshallingTransformation
+                backingTable.columnKeySet(), columnMarshallingTransformation, columnUnmarshallingTransformation
         );
     }
 
     @Override
     public Collection<V> values() {
-        throw new UnsupportedOperationException();    // TODO implement
+        return new TransformingCollection<>(
+                backingTable.values(), valueMarshallingTransformation, valueUnmarshallingTransformation
+        );
     }
 
     @Override

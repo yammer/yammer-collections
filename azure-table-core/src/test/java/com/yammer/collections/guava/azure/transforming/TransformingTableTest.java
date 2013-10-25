@@ -259,6 +259,24 @@ public class TransformingTableTest {
         assertThat(transformingTable.columnKeySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
     }
 
+    // row key set
+
+    @Test
+    public void rowKeySet_delegates_to_backing_table() throws UnsupportedEncodingException {
+        when(baseTableMock.rowKeySet()).thenReturn(ImmutableSet.of(STRING_ROW_KEY_1, STRING_ROW_KEY_2));
+
+        assertThat(transformingTable.rowKeySet(), containsInAnyOrder(ROW_KEY_1, ROW_KEY_2));
+    }
+
+    // values
+
+    @Test
+    public void value_delegates_to_backing_table() throws UnsupportedEncodingException {
+        when(baseTableMock.values()).thenReturn(ImmutableSet.of(STRING_VALUE_1, STRING_VALUE_2));
+
+        assertThat(transformingTable.values(), containsInAnyOrder(VALUE_1, VALUE_2));
+    }
+
     // put all delegates
     @Test
     public void put_all_delegates() {
