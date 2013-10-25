@@ -1,174 +1,138 @@
 package com.yammer.collections.guava.azure;
 
-
 import com.google.common.base.Function;
-import com.microsoft.windowsazure.services.table.client.TableQuery;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Table;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
-import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
-import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
+class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
+    private final Table<R, C, V> backingTable;
 
-public class RowMapView implements Map<String, String> {
-    private static final Function<StringEntity, String> EXTRACT_ROW_KEY = new Function<StringEntity, String>() {
-        @Override
-        public String apply(StringEntity input) {
-            return decode(input.getPartitionKey());
-        }
-    };
-    private final StringAzureTable stringAzureTable;
-    private final String columnKey;
-    private final StringTableCloudClient stringTableCloudClient;
-    private final StringTableRequestFactory stringTableRequestFactory;
-    private final Function<StringEntity, Entry<String, String>> extractEntry;
+    public RowMapView(Table<R, C, V> backingTable) {
 
-    public RowMapView(
-            final StringAzureTable stringAzureTable,
-            final String columnKey,
-            StringTableCloudClient stringTableCloudClient,
-            StringTableRequestFactory stringTableRequestFactory) {
-        this.stringAzureTable = stringAzureTable;
-        this.columnKey = columnKey;
-        this.stringTableCloudClient = stringTableCloudClient;
-        this.stringTableRequestFactory = stringTableRequestFactory;
-        extractEntry = new Function<StringEntity, Entry<String, String>>() {
-            @Override
-            public Entry<String, String> apply(StringEntity input) {
-                return new RowMapEntry(decode(input.getPartitionKey()), columnKey, stringAzureTable);
-            }
-        };
+        this.backingTable = backingTable;
     }
 
-    @Override // TODO this requires a javadoc to explain that this is a very expensive operation
+    @Override
     public int size() {
-        return entrySet().size();
+        return backingTable.rowKeySet().size();
     }
 
     @Override
     public boolean isEmpty() {
-        return entrySet().isEmpty();
+        return backingTable.isEmpty();
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return stringAzureTable.contains(key, columnKey);
+        return backingTable.containsRow(key);
     }
 
     @Override
     public boolean containsValue(Object value) {
-        if (!(value instanceof String)) {
+        if (!(value instanceof Entry)) {
             return false;
         }
 
-        TableQuery<StringEntity> valueQuery = stringTableRequestFactory.containsValueForColumnQuery(stringAzureTable.getTableName(), encode(columnKey),
-                encode((String) value));
-        return stringTableCloudClient.execute(valueQuery).iterator().hasNext();
-    }
-
-    @Override
-    public String get(Object key) {
-        return stringAzureTable.get(key, columnKey);
-    }
-
-    @Override
-    public String put(String key, String value) {
-        return stringAzureTable.put(key, columnKey, value);
-    }
-
-    @Override
-    public String remove(Object key) {
-        return stringAzureTable.remove(key, columnKey);
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends String> m) {
-        for (Entry<? extends String, ? extends String> entry : m.entrySet()) {
-            put(entry.getKey(), entry.getValue());
+        Entry<?, ?> entry = (Entry<?, ?>) value;
+        try {
+            return backingTable.column((C) entry.getKey()).containsValue(entry.getValue());
+        } catch (ClassCastException c) {
+            return false;
         }
     }
 
     @Override
-    public void clear() {// TODO this requires a javadoc to explain that this is a very expensive operation
-        for (String rowKey : keySet()) {
-            remove(rowKey);
+    public Map<C, V> get(Object key) {
+        try {
+            Map<C, V> mapForRow = backingTable.row((R) key);
+            return mapForRow.isEmpty() ? null : mapForRow;
+        } catch (ClassCastException e) {
+            return null;
         }
     }
 
     @Override
-    public Set<String> keySet() {
-        // TODO this should have a view that is mutable (makes sense)
-        return
-                SetView.fromSetCollectionView(
-                        new RowMapSetView<>(stringAzureTable, columnKey, EXTRACT_ROW_KEY, stringTableCloudClient, stringTableRequestFactory)
-                );
+    public Map<C, V> put(R key, Map<C, V> value) {// TODO ret value breaks contract
+        Map<C, V> oldValue = get(key);
+        oldValue.clear();
+        if (!value.isEmpty()) {
+            backingTable.row(key).putAll(value);
+        }
+        return oldValue;
     }
 
     @Override
-    public Collection<String> values() {
-        return new RowMapSetView<>(stringAzureTable, columnKey, EXTRACT_VALUE, stringTableCloudClient, stringTableRequestFactory);
+    public Map<C, V> remove(Object key) {// TODO ret value breaks contract
+        Map<C, V> oldValue = get(key);
+        oldValue.clear();
+        return oldValue;
     }
 
     @Override
-    public Set<Entry<String, String>> entrySet() { // TODO this should have a view that is mutable (makes sense)
-        return SetView.fromSetCollectionView(
-                new RowMapSetView<>(stringAzureTable, columnKey, extractEntry, stringTableCloudClient, stringTableRequestFactory)
+    public void putAll(Map<? extends R, ? extends Map<C, V>> m) {
+        for (Entry<? extends R, ? extends Map<C, V>> entry : m.entrySet()) {
+            backingTable.row(entry.getKey()).putAll(entry.getValue());
+        }
+    }
+
+    @Override
+    public void clear() {
+        backingTable.clear();
+    }
+
+    @Override
+    public Set<R> keySet() {
+        return backingTable.rowKeySet();
+    }
+
+    @Override
+    public Collection<Map<C, V>> values() {
+        // TODO make this static or at least once per instance
+        return Collections2.transform(
+                keySet(),
+                new Function<R, Map<C, V>>() {
+                    @Override
+                    public Map<C, V> apply(final R key) {
+                        return backingTable.row(key);
+                    }
+                }
         );
     }
 
-    private static class RowMapEntry implements Entry<String, String> {
-        private final String columnKey;
-        private final String rowKey;
-        private final StringAzureTable azureTable;
+    @Override
+    public Set<Entry<R, Map<C, V>>> entrySet() {
+        // TODO make this static or at least once per instance
+        return new HashSet<>(// TODO this is temporary, materializes
+                Collections2.transform(
+                        keySet(),
+                        new Function<R, Entry<R, Map<C, V>>>() {
+                            @Override
+                            public Entry<R, Map<C, V>> apply(final R input) {
+                                // TODO make it static
+                                return new Entry<R, Map<C, V>>() {
+                                    @Override
+                                    public R getKey() {
+                                        return input;
+                                    }
 
-        private RowMapEntry(String rowKey, String columnKey, StringAzureTable azureTable) {
-            this.rowKey = rowKey;
-            this.columnKey = columnKey;
-            this.azureTable = azureTable;
-        }
+                                    @Override
+                                    public Map<C, V> getValue() {
+                                        return backingTable.row(input);
+                                    }
 
-        @Override
-        public String getKey() {
-            return rowKey;
-        }
+                                    @Override
+                                    public Map<C, V> setValue(Map<C, V> value) {
+                                        return put(input, value);
+                                    }
 
-        @Override
-        public String getValue() {
-            return azureTable.get(rowKey, columnKey);
-        }
-
-        @Override
-        public String setValue(String value) {
-            return azureTable.put(rowKey, columnKey, value);
-        }
+                                };
+                            }
+                        }
+                ));
     }
-
-    private static class RowMapSetView<E> extends CollectionView<E> {
-        private final StringAzureTable stringAzureTable;
-        private final String columnKey;
-        private final StringTableCloudClient stringTableCloudClient;
-        private final StringTableRequestFactory stringTableRequestFactory;
-
-        public RowMapSetView(
-                StringAzureTable stringAzureTable,
-                String columnKey,
-                Function<StringEntity, E> typeExtractor,
-                StringTableCloudClient stringTableCloudClient,
-                StringTableRequestFactory stringTableRequestFactory) {
-            super(typeExtractor);
-            this.stringAzureTable = stringAzureTable;
-            this.columnKey = columnKey;
-            this.stringTableCloudClient = stringTableCloudClient;
-            this.stringTableRequestFactory = stringTableRequestFactory;
-        }
-
-        @Override
-        protected Iterable<StringEntity> getBackingIterable() {
-            TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactory.selectAllForColumn(stringAzureTable.getTableName(), encode(columnKey));
-            return stringTableCloudClient.execute(selectAllForRowQuery);
-        }
-    }
-
 }

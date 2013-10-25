@@ -27,14 +27,14 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
                             decode(input.getValue()));
                 }
             };
-    private final StringAzureTable stringAzureTable;
+    private final BaseAzureTable baseAzureTable;
     private final StringTableCloudClient stringCloudTableClient;
     private final StringTableRequestFactory stringTableRequestFactory;
 
-    CellSetMutableView(StringAzureTable azureTable,
+    CellSetMutableView(BaseAzureTable azureTable,
                        StringTableCloudClient stringCloudTableClient,
                        StringTableRequestFactory stringTableRequestFactory) {
-        stringAzureTable = azureTable;
+        baseAzureTable = azureTable;
         this.stringCloudTableClient = stringCloudTableClient;
         this.stringTableRequestFactory = stringTableRequestFactory;
     }
@@ -53,14 +53,14 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
     public boolean contains(Object o) {
         if (o instanceof Table.Cell) {
             Table.Cell<Object, Object, Object> cell = (Table.Cell<Object, Object, Object>) o;
-            return stringAzureTable.contains(cell.getRowKey(), cell.getColumnKey());
+            return baseAzureTable.contains(cell.getRowKey(), cell.getColumnKey());
         }
 
         return false;
     }
 
     private Iterable<StringEntity> getBackingIterable() {
-        TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(stringAzureTable.getTableName());
+        TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(baseAzureTable.getTableName());
         return stringCloudTableClient.execute(query);
     }
 
@@ -83,7 +83,7 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @Override
     public boolean add(Table.Cell<String, String, String> cell) {
-        return stringAzureTable.put(
+        return baseAzureTable.put(
                 cell.getRowKey(),
                 cell.getColumnKey(),
                 cell.getValue()
@@ -98,7 +98,7 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
         Table.Cell<Object, Object, Object> cell = (Table.Cell) o;
 
-        return stringAzureTable.remove(
+        return baseAzureTable.remove(
                 cell.getRowKey(),
                 cell.getColumnKey()
         ) != null;
@@ -151,6 +151,6 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @Override
     public String toString() {
-        return super.toString()+"AZURE_TABLE_NAME: "+stringAzureTable.getTableName();
+        return super.toString()+"AZURE_TABLE_NAME: "+ baseAzureTable.getTableName();
     }
 }

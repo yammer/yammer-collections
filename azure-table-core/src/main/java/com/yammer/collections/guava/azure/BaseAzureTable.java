@@ -2,7 +2,6 @@ package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
@@ -15,18 +14,16 @@ import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.microsoft.windowsazure.services.core.storage.utils.Utility.assertNotNull;
 import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
 // TODO this should be renamed to azure table
 
-public class StringAzureTable implements Table<String, String, String> {
+public class BaseAzureTable implements Table<String, String, String> {
     private static final Timer GET_TIMER = createTimerFor("get"); // TODO remove metrics dep
     private static final Timer PUT_TIMER = createTimerFor("put");
     private static final Timer REMOVE_TIMER = createTimerFor("remove");
@@ -47,18 +44,18 @@ public class StringAzureTable implements Table<String, String, String> {
     private final StringTableCloudClient stringCloudTableClient;
     private final StringTableRequestFactory stringTableRequestFactory;
 
-    /* package */ StringAzureTable(String tableName, StringTableCloudClient stringCloudTableClient, StringTableRequestFactory stringTableRequestFactory) {
+    /* package */ BaseAzureTable(String tableName, StringTableCloudClient stringCloudTableClient, StringTableRequestFactory stringTableRequestFactory) {
         this.tableName = tableName;
         this.stringCloudTableClient = stringCloudTableClient;
         this.stringTableRequestFactory = stringTableRequestFactory;
     }
 
-    public StringAzureTable(String secretieTableName, CloudTableClient tableClient) {
+    public BaseAzureTable(String secretieTableName, CloudTableClient tableClient) {
         this(secretieTableName, new StringTableCloudClient(tableClient), new StringTableRequestFactory());
     }
 
     private static Timer createTimerFor(String name) {
-        return Metrics.newTimer(StringAzureTable.class, name);
+        return Metrics.newTimer(BaseAzureTable.class, name);
     }
 
     @Override
@@ -183,12 +180,12 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, String> row(String rowString) {
-        return new ColumnMapView(this, rowString, stringCloudTableClient, stringTableRequestFactory);
+        return new ColumnView(this, rowString, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
     public Map<String, String> column(String columnString) {
-        return new RowMapView(this, columnString, stringCloudTableClient, stringTableRequestFactory);
+        return new RowView(this, columnString, stringCloudTableClient, stringTableRequestFactory);
     }
 
     @Override
@@ -217,7 +214,7 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, Map<String, String>> rowMap() {
-        return new RowMap(this);
+        return new RowMapView(this);
     }
 
     @Override
@@ -231,19 +228,19 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     private static final class TableCollectionView<E> extends CollectionView<E> {
-        private final StringAzureTable stringAzureTable;
+        private final BaseAzureTable baseAzureTable;
         private final StringTableCloudClient stringTableCloudClient;
         private final StringTableRequestFactory stringTableRequestFactory;
 
-        public TableCollectionView(StringAzureTable stringAzureTable, Function<StringEntity, E> typeExtractor, StringTableCloudClient stringTableCloudClient, StringTableRequestFactory stringTableRequestFactory) {
+        public TableCollectionView(BaseAzureTable baseAzureTable, Function<StringEntity, E> typeExtractor, StringTableCloudClient stringTableCloudClient, StringTableRequestFactory stringTableRequestFactory) {
             super(typeExtractor);
-            this.stringAzureTable = stringAzureTable;
+            this.baseAzureTable = baseAzureTable;
             this.stringTableCloudClient = stringTableCloudClient;
             this.stringTableRequestFactory = stringTableRequestFactory;
         }
 
         protected Iterable<StringEntity> getBackingIterable() {
-            TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(stringAzureTable.getTableName());
+            TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(baseAzureTable.getTableName());
             return stringTableCloudClient.execute(query);
         }
     }

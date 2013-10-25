@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ColumnMapViewTest {
+public class ColumnViewTest {
     private final static String ROW_KEY = "rowKey";
     private final static String COLUMN_KEY_1 = "columnKey1";
     private final static String VALUE_1 = "value1";
@@ -48,67 +48,67 @@ public class ColumnMapViewTest {
     @Mock
     private StringTableRequestFactory stringTableRequestFactoryMock;
     @Mock
-    private StringAzureTable stringAzureTable;
-    private ColumnMapView columnMapView;
+    private BaseAzureTable baseAzureTable;
+    private ColumnView columnView;
 
     @Before
     public void setUp() {
-        when(stringAzureTable.getTableName()).thenReturn(TABLE_NAME);
-        columnMapView = new ColumnMapView(stringAzureTable, ROW_KEY, stringTableCloudClientMock, stringTableRequestFactoryMock);
+        when(baseAzureTable.getTableName()).thenReturn(TABLE_NAME);
+        columnView = new ColumnView(baseAzureTable, ROW_KEY, stringTableCloudClientMock, stringTableRequestFactoryMock);
     }
 
     @Test
     public void put_delegates_to_table() {
-        when(stringAzureTable.put(ROW_KEY, COLUMN_KEY_1, VALUE_1)).thenReturn(RET_VALUE);
+        when(baseAzureTable.put(ROW_KEY, COLUMN_KEY_1, VALUE_1)).thenReturn(RET_VALUE);
 
-        assertThat(columnMapView.put(COLUMN_KEY_1, VALUE_1), is(equalTo(RET_VALUE)));
+        assertThat(columnView.put(COLUMN_KEY_1, VALUE_1), is(equalTo(RET_VALUE)));
     }
 
     @Test
     public void get_delegates_to_table() {
-        when(stringAzureTable.get(ROW_KEY, COLUMN_KEY_1)).thenReturn(VALUE_1);
+        when(baseAzureTable.get(ROW_KEY, COLUMN_KEY_1)).thenReturn(VALUE_1);
 
-        assertThat(columnMapView.get(COLUMN_KEY_1), is(equalTo(VALUE_1)));
+        assertThat(columnView.get(COLUMN_KEY_1), is(equalTo(VALUE_1)));
     }
 
     @Test
     public void remove_delegates_to_table() {
-        when(stringAzureTable.remove(ROW_KEY, COLUMN_KEY_1)).thenReturn(VALUE_1);
+        when(baseAzureTable.remove(ROW_KEY, COLUMN_KEY_1)).thenReturn(VALUE_1);
 
-        assertThat(columnMapView.remove(COLUMN_KEY_1), is(equalTo(VALUE_1)));
+        assertThat(columnView.remove(COLUMN_KEY_1), is(equalTo(VALUE_1)));
     }
 
     @Test
     public void contains_key_delegates_to_table() {
-        when(stringAzureTable.contains(ROW_KEY, COLUMN_KEY_1)).thenReturn(true);
+        when(baseAzureTable.contains(ROW_KEY, COLUMN_KEY_1)).thenReturn(true);
 
-        assertThat(columnMapView.containsKey(COLUMN_KEY_1), is(equalTo(true)));
+        assertThat(columnView.containsKey(COLUMN_KEY_1), is(equalTo(true)));
     }
 
     @Test
     public void putAll_delegates_to_table() {
-        columnMapView.putAll(
+        columnView.putAll(
                 ImmutableMap.of(
                         COLUMN_KEY_1, VALUE_1,
                         COLUMN_KEY_2, VALUE_2
                 ));
 
-        verify(stringAzureTable).put(ROW_KEY, COLUMN_KEY_1, VALUE_1);
-        verify(stringAzureTable).put(ROW_KEY, COLUMN_KEY_2, VALUE_2);
+        verify(baseAzureTable).put(ROW_KEY, COLUMN_KEY_1, VALUE_1);
+        verify(baseAzureTable).put(ROW_KEY, COLUMN_KEY_2, VALUE_2);
     }
 
     @Test
     public void keySet_returns_contained_keys() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
-        assertThat(columnMapView.keySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
+        assertThat(columnView.keySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
     }
 
     @Test
     public void values_returns_contained_values() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
-        assertThat(columnMapView.values(), containsInAnyOrder(VALUE_1, VALUE_2));
+        assertThat(columnView.values(), containsInAnyOrder(VALUE_1, VALUE_2));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ColumnMapViewTest {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(
-                Iterables.transform(columnMapView.entrySet(), MAP_TO_ENTRIES),
+                Iterables.transform(columnView.entrySet(), MAP_TO_ENTRIES),
                 containsInAnyOrder(
                         new TestMapEntry(COLUMN_KEY_1, VALUE_1),
                         new TestMapEntry(COLUMN_KEY_2, VALUE_2)
@@ -126,65 +126,65 @@ public class ColumnMapViewTest {
     @Test
     public void setValue_on_entry_updates_backing_table() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
-        when(stringAzureTable.put(ROW_KEY, COLUMN_KEY_1, OTHER_VALUE)).thenReturn(RET_VALUE);
-        when(stringAzureTable.put(ROW_KEY, COLUMN_KEY_2, OTHER_VALUE)).thenReturn(RET_VALUE);
+        when(baseAzureTable.put(ROW_KEY, COLUMN_KEY_1, OTHER_VALUE)).thenReturn(RET_VALUE);
+        when(baseAzureTable.put(ROW_KEY, COLUMN_KEY_2, OTHER_VALUE)).thenReturn(RET_VALUE);
 
-        Map.Entry<String, String> someEntry = columnMapView.entrySet().iterator().next();
+        Map.Entry<String, String> someEntry = columnView.entrySet().iterator().next();
 
         assertThat(someEntry.setValue(OTHER_VALUE), is(equalTo(RET_VALUE)));
-        verify(stringAzureTable).put(ROW_KEY, someEntry.getKey(), OTHER_VALUE);
+        verify(baseAzureTable).put(ROW_KEY, someEntry.getKey(), OTHER_VALUE);
     }
 
     @Test
     public void size_returns_correct_value() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
-        assertThat(columnMapView.size(), is(equalTo(2)));
+        assertThat(columnView.size(), is(equalTo(2)));
     }
 
     @Test
     public void clear_deletes_values_from_key_set() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
-        columnMapView.clear();
+        columnView.clear();
 
-        verify(stringAzureTable).remove(ROW_KEY, COLUMN_KEY_1);
-        verify(stringAzureTable).remove(ROW_KEY, COLUMN_KEY_2);
+        verify(baseAzureTable).remove(ROW_KEY, COLUMN_KEY_1);
+        verify(baseAzureTable).remove(ROW_KEY, COLUMN_KEY_2);
     }
 
     @Test
     public void isEmpty_returns_false_if_no_entires() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_WITH_OTHER_ROW_KEY);
 
-        assertThat(columnMapView.isEmpty(), is(equalTo(true)));
+        assertThat(columnView.isEmpty(), is(equalTo(true)));
     }
 
     @Test
     public void isEmpty_returns_true_if_there_are_entires() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1);
 
-        assertThat(columnMapView.isEmpty(), is(equalTo(false)));
+        assertThat(columnView.isEmpty(), is(equalTo(false)));
     }
 
     @Test
     public void contains_value_returns_true_if_value_contains() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_WITH_OTHER_ROW_KEY);
 
-        assertThat(columnMapView.containsValue(VALUE_1), is(equalTo(true)));
+        assertThat(columnView.containsValue(VALUE_1), is(equalTo(true)));
     }
 
     @Test
     public void contains_value_returns_false_if_does_not_contain_value_in_row() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(Tables.immutableCell(OTHER_ROW_KEY, COLUMN_KEY_1, VALUE_1));
 
-        assertThat(columnMapView.containsValue(VALUE_1), is(equalTo(false)));
+        assertThat(columnView.containsValue(VALUE_1), is(equalTo(false)));
     }
 
     @Test
     public void contains_value_returns_false_if_object_not_string() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain();
 
-        assertThat(columnMapView.containsValue(new Object()), is(equalTo(false)));
+        assertThat(columnView.containsValue(new Object()), is(equalTo(false)));
     }
 
 
@@ -194,7 +194,7 @@ public class ColumnMapViewTest {
 
     private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
         for (Table.Cell<String, String, String> cell : cells) {
-            when(stringAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
+            when(baseAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
         }
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
     }

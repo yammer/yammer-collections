@@ -33,7 +33,7 @@ public class CellSetMutableViewTest {
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     @Mock
-    private StringAzureTable stringAzureTable;
+    private BaseAzureTable baseAzureTable;
     @Mock
     private StringTableCloudClient stringTableCloudClientMock;
     @Mock
@@ -42,8 +42,8 @@ public class CellSetMutableViewTest {
 
     @Before
     public void setUp() {
-        when(stringAzureTable.getTableName()).thenReturn(TABLE_NAME);
-        set = new CellSetMutableView(stringAzureTable, stringTableCloudClientMock, stringTableRequestFactoryMock);
+        when(baseAzureTable.getTableName()).thenReturn(TABLE_NAME);
+        set = new CellSetMutableView(baseAzureTable, stringTableCloudClientMock, stringTableRequestFactoryMock);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class CellSetMutableViewTest {
         Object o1 = new Object();
         Object o2 = new Object();
         Table.Cell<Object, Object, Object> cell = Tables.immutableCell(o1, o2, new Object());
-        when(stringAzureTable.contains(o1, o2)).thenReturn(true);
+        when(baseAzureTable.contains(o1, o2)).thenReturn(true);
 
         assertThat(set.contains(cell), is(equalTo(true)));
     }
@@ -93,7 +93,7 @@ public class CellSetMutableViewTest {
     public void add_delegates_to_table() {
         set.add(CELL_1);
 
-        verify(stringAzureTable).put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+        verify(baseAzureTable).put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class CellSetMutableViewTest {
     public void remove_delegates_to_table() {
         set.remove(CELL_1);
 
-        verify(stringAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
+        verify(baseAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
     }
 
     @Test
@@ -155,8 +155,8 @@ public class CellSetMutableViewTest {
     public void add_all_adds_to_table() {
         set.addAll(Arrays.asList(CELL_1, CELL_2));
 
-        verify(stringAzureTable).put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
-        verify(stringAzureTable).put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
+        verify(baseAzureTable).put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+        verify(baseAzureTable).put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     }
 
     @Test
@@ -177,8 +177,8 @@ public class CellSetMutableViewTest {
     public void remove_all_removes_from_table() {
         set.removeAll(Arrays.asList(CELL_1, CELL_2));
 
-        verify(stringAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
-        verify(stringAzureTable).remove(ROW_KEY_2, COLUMN_KEY_2);
+        verify(baseAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
+        verify(baseAzureTable).remove(ROW_KEY_2, COLUMN_KEY_2);
     }
 
     @Test
@@ -201,8 +201,8 @@ public class CellSetMutableViewTest {
 
         set.clear();
 
-        verify(stringAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
-        verify(stringAzureTable).remove(ROW_KEY_2, COLUMN_KEY_2);
+        verify(baseAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
+        verify(baseAzureTable).remove(ROW_KEY_2, COLUMN_KEY_2);
     }
 
     //----------------------
@@ -211,10 +211,10 @@ public class CellSetMutableViewTest {
 
     private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
         for (Table.Cell<String, String, String> cell : cells) {
-            when(stringAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
-            when(stringAzureTable.contains(cell.getRowKey(), cell.getColumnKey())).thenReturn(true);
-            when(stringAzureTable.put(eq(cell.getRowKey()), eq(cell.getColumnKey()), anyString())).thenReturn(cell.getValue());
-            when(stringAzureTable.remove(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
+            when(baseAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
+            when(baseAzureTable.contains(cell.getRowKey(), cell.getColumnKey())).thenReturn(true);
+            when(baseAzureTable.put(eq(cell.getRowKey()), eq(cell.getColumnKey()), anyString())).thenReturn(cell.getValue());
+            when(baseAzureTable.remove(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
 
         }
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
