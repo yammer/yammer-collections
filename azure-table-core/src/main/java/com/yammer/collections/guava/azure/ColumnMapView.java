@@ -5,7 +5,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Table;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +22,7 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
             }
         };
         entryConstructor = new
+
                 Function<C, Entry<C, Map<R, V>>>() {
                     @Override
                     public Entry<C, Map<R, V>> apply(final C input) {
@@ -130,10 +130,11 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
 
     @Override
     public Set<Entry<C, Map<R, V>>> entrySet() {
-        return new HashSet<>(// TODO this is temporary, materializes
+        return SetView.fromSetCollectionView(
                 Collections2.transform(
                         keySet(),
                         entryConstructor
-                ));
+                )
+        );
     }
 }

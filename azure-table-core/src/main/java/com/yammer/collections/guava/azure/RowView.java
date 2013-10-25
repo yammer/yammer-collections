@@ -42,7 +42,7 @@ public class RowView implements Map<String, String> {
         };
     }
 
-    @Override // TODO this requires a javadoc to explain that this is a very expensive operation
+    @Override
     public int size() {
         return entrySet().size();
     }
@@ -91,7 +91,7 @@ public class RowView implements Map<String, String> {
     }
 
     @Override
-    public void clear() {// TODO this requires a javadoc to explain that this is a very expensive operation
+    public void clear() {
         for (String rowKey : keySet()) {
             remove(rowKey);
         }

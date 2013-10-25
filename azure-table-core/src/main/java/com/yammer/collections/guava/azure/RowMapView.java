@@ -5,7 +5,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Table;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -132,7 +131,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
     @Override
     public Set<Entry<R, Map<C, V>>> entrySet() {
-        return new HashSet<>(// TODO this is temporary, materializes
+        return SetView.fromSetCollectionView(
                 Collections2.transform(
                         keySet(),
                         entryCreator

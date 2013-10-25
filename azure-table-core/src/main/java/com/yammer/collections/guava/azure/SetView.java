@@ -11,18 +11,18 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class SetView<E> extends AbstractSet<E> {
-    private final CollectionView<E> collectionView;
+    private final Collection<E> collectionView;
 
-    private SetView(CollectionView<E> collectionView) {
+    private SetView(Collection<E> collectionView) {
         this.collectionView = collectionView;
     }
 
-    public static <E> SetView<E> fromSetCollectionView(CollectionView<E> colletionView) {
-        return new SetView<>(colletionView);
+    public static <E> SetView<E> fromSetCollectionView(Collection<E> collection) {
+        return new SetView<>(collection);
     }
 
-    public static <E> SetView<E> fromCollectionView(CollectionView<E> colletionView) {
-        return new NonSetCollectionBasedSetView<>(colletionView);
+    public static <E> SetView<E> fromCollectionView(Collection<E> collection) {
+        return new NonSetCollectionBasedSetView<>(collection);
     }
 
     @Override
@@ -66,9 +66,9 @@ public class SetView<E> extends AbstractSet<E> {
     }
 
     private static class NonSetCollectionBasedSetView<E> extends SetView<E> {
-        private final CollectionView<E> collectionView;
+        private final Collection<E> collectionView;
 
-        public NonSetCollectionBasedSetView(CollectionView<E> collectionView) {
+        public NonSetCollectionBasedSetView(Collection<E> collectionView) {
             super(collectionView);
             this.collectionView = collectionView;
         }

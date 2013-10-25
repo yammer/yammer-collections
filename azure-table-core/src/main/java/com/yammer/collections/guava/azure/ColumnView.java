@@ -90,7 +90,7 @@ class ColumnView implements Map<String, String> {
     }
 
     @Override
-    public void clear() {// TODO this requires a javadoc to explain that this is a very expensive operation
+    public void clear() {
         for (String columnKey : keySet()) {
             remove(columnKey);
         }
