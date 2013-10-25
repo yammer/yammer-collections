@@ -1,8 +1,6 @@
 package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 
@@ -16,6 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * In early stages of implementation. Built for the Secretie project, which deals with small data sets that can be trivially sent
  * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.
  */
+// TODO transforming table, make it really agnostic of the target
 public class AzureTable<R, C, V> implements Table<R, C, V> {
     private final Function<Cell<R, C, V>, Cell<String, String, String>> toBaseCellFunction = new Function<Cell<R, C, V>, Cell<String, String, String>>() {
         @Override
@@ -38,25 +37,43 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
                     );
                 }
             };
-    private final Function<String, C> columnUnmarshallingTransformation = new Function<String, C>() {
-        @Override
-        public C apply(String input) {
-            return columnKeyMarshaller.unmarshal(input);
-        }
-    };
+    private final Function<String, C> columnUnmarshallingTransformation;
+    private final Function<C, String> columnMarshallingTransformation;
     private final Marshaller<R, String> rowKeyMarshaller;
     private final Marshaller<C, String> columnKeyMarshaller;
     private final Marshaller<V, String> valueMarshaller;
     private final Table<String, String, String> backingTable;
 
-    public AzureTable(Marshaller<R, String> rowKeyMarshaller,
-                      Marshaller<C, String> columnKeyMarshaller,
-                      Marshaller<V, String> valueMarshaller,
+    public AzureTable(final Marshaller<R, String> rowKeyMarshaller,
+                      final Marshaller<C, String> columnKeyMarshaller,
+                      final Marshaller<V, String> valueMarshaller,
                       Table<String, String, String> backingTable) {
         this.rowKeyMarshaller = rowKeyMarshaller;
         this.columnKeyMarshaller = columnKeyMarshaller;
         this.valueMarshaller = valueMarshaller;
         this.backingTable = backingTable;
+        columnMarshallingTransformation = createMarshallingFunction(columnKeyMarshaller);
+        columnUnmarshallingTransformation = createUnmarshallingFunction(columnKeyMarshaller);
+    }
+
+    private static <F, T> Function<F, T> createMarshallingFunction(final Marshaller<F, T> marshaller) {
+        return new Function<F, T>() {
+
+            @Override
+            public T apply(F input) {
+                return marshaller.marshal(input);
+            }
+        };
+    }
+
+    private static <F, T> Function<T, F> createUnmarshallingFunction(final Marshaller<F, T> marshaller) {
+        return new Function<T, F>() {
+
+            @Override
+            public F apply(T input) {
+                return marshaller.unmarshal(input);
+            }
+        };
     }
 
     @SuppressWarnings("unchecked")
@@ -170,12 +187,12 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
 
     @Override
     public Map<C, V> row(R rowKey) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();   // TODO implement
     }
 
     @Override
     public Map<R, V> column(C columnKey) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();    // TODO implement
     }
 
     @Override
@@ -184,33 +201,34 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
                 backingTable.cellSet(),
                 toBaseCellFunction,
                 fromBaseCellFunction
-
         );
     }
 
     @Override
     public Set<R> rowKeySet() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();    // TODO implement
     }
 
     @Override
     public Set<C> columnKeySet() {
-        return ImmutableSet.copyOf(Iterables.transform(backingTable.columnKeySet(), columnUnmarshallingTransformation));
+        return new TransformingSet(
+                backingTable.columnKeySet(), columnUnmarshallingTransformation, columnUnmarshallingTransformation
+        );
     }
 
     @Override
     public Collection<V> values() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();    // TODO implement
     }
 
     @Override
     public Map<R, Map<C, V>> rowMap() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();    // TODO implement
     }
 
     @Override
     public Map<C, Map<R, V>> columnMap() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();     // TODO implement
     }
 
     public static interface Marshaller<F, T> {
