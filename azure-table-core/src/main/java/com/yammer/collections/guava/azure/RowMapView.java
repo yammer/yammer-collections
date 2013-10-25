@@ -87,8 +87,13 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
         }
     }
 
+    /**
+     * This methods breaks the contract in that the returned value is not the previous
+     * value, but the current value. This is because this class is only a view of a remote
+     * data store.
+     */
     @Override
-    public Map<C, V> put(R key, Map<C, V> value) {// TODO ret value breaks contract
+    public Map<C, V> put(R key, Map<C, V> value) {
         Map<C, V> oldValue = get(key);
         oldValue.clear();
         if (!value.isEmpty()) {
@@ -97,8 +102,13 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
         return oldValue;
     }
 
+    /**
+     * This methods breaks the contract in that the returned value is not the previous
+     * value, but the current value. This is because this class is only a view of a remote
+     * data store.
+     */
     @Override
-    public Map<C, V> remove(Object key) {// TODO ret value breaks contract
+    public Map<C, V> remove(Object key) {
         Map<C, V> oldValue = get(key);
         oldValue.clear();
         return oldValue;

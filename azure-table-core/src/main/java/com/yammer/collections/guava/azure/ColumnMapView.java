@@ -86,8 +86,13 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
         }
     }
 
+    /**
+     * This methods breaks the contract in that the returned value is not the previous
+     * value, but the current value. This is because this class is only a view of a remote
+     * data store.
+     */
     @Override
-    public Map<R, V> put(C key, Map<R, V> value) {// TODO ret value breaks contract
+    public Map<R, V> put(C key, Map<R, V> value) {
         Map<R, V> oldValue = get(key);
         oldValue.clear();
         if (!value.isEmpty()) {
@@ -96,8 +101,13 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
         return oldValue;
     }
 
+    /**
+     * This methods breaks the contract in that the returned value is not the previous
+     * value, but the current value. This is because this class is only a view of a remote
+     * data store.
+     */
     @Override
-    public Map<R, V> remove(Object key) {// TODO ret value breaks contract
+    public Map<R, V> remove(Object key) {
         Map<R, V> oldValue = get(key);
         oldValue.clear();
         return oldValue;

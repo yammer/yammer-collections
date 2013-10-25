@@ -170,14 +170,14 @@ public class BaseAzureTable implements Table<String, String, String> {
         return new CellSetMutableView(this, stringCloudTableClient, azureTableRequestFactory);
     }
 
-    @Override // TODO delete operations may make sense on these, decide
+    @Override
     public Set<String> rowKeySet() {
         return SetView.fromCollectionView(
                 new TableCollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, azureTableRequestFactory)
         );
     }
 
-    @Override // TODO delete operations may make sense on these, decide
+    @Override
     public Set<String> columnKeySet() {
         return SetView.fromCollectionView(
                 new TableCollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, azureTableRequestFactory)

@@ -99,9 +99,7 @@ public class RowView implements Map<String, String> {
 
     @Override
     public Set<String> keySet() {
-        // TODO this should have a view that is mutable (makes sense)
-        return
-                SetView.fromSetCollectionView(
+        return SetView.fromSetCollectionView(
                         new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_ROW_KEY, azureTableCloudClient, azureTableRequestFactory)
                 );
     }
@@ -112,7 +110,7 @@ public class RowView implements Map<String, String> {
     }
 
     @Override
-    public Set<Entry<String, String>> entrySet() { // TODO this should have a view that is mutable (makes sense)
+    public Set<Entry<String, String>> entrySet() {
         return SetView.fromSetCollectionView(
                 new RowMapSetView<>(baseAzureTable, columnKey, extractEntry, azureTableCloudClient, azureTableRequestFactory)
         );
