@@ -22,30 +22,30 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
                 return backingTable.column(key);
             }
         };
-        entryConstructor = new Function<C, Entry<C, Map<R, V>>>() {
-            @Override
-            public Entry<C, Map<R, V>> apply(final C input) {
-                return new Entry<C, Map<R, V>>() {
+        entryConstructor = new
+                Function<C, Entry<C, Map<R, V>>>() {
                     @Override
-                    public C getKey() {
-                        return input;
-                    }
+                    public Entry<C, Map<R, V>> apply(final C input) {
+                        return new Entry<C, Map<R, V>>() {
+                            @Override
+                            public C getKey() {
+                                return input;
+                            }
 
-                    @Override
-                    public Map<R, V> getValue() {
-                        return backingTable.column(input);
-                    }
+                            @Override
+                            public Map<R, V> getValue() {
+                                return backingTable.column(input);
+                            }
 
-                    @Override
-                    public Map<R, V> setValue(Map<R, V> value) {
-                        return put(input, value);
-                    }
+                            @Override
+                            public Map<R, V> setValue(Map<R, V> value) {
+                                return put(input, value);
+                            }
 
+                        };
+                    }
                 };
-            }
-        };
     }
-
 
     @Override
     public int size() {

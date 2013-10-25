@@ -23,6 +23,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
             }
         };
         entryCreator = new
+
                 Function<R, Entry<R, Map<C, V>>>() {
                     @Override
                     public Entry<R, Map<C, V>> apply(final R input) {
