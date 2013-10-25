@@ -33,7 +33,6 @@ public class CollectionViewTest {
     private static final String VALUE_2 = "value3";
     private static final Long L1 = 1L;
     private static final Long L2 = 2L;
-    private static final String TABLE_NAME = "secretie_table";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     private static final Function<AzureEntity, Long> LONG_EXTRACTOR = new Function<AzureEntity, Long>() {

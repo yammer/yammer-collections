@@ -137,7 +137,9 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
 
     @Override
     public void putAll(Table<? extends R, ? extends C, ? extends V> table) {
-        throw new UnsupportedOperationException();
+        for(Cell<? extends R, ? extends C, ? extends V> cell : table.cellSet()) {
+            put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
+        }
     }
 
     @Override
