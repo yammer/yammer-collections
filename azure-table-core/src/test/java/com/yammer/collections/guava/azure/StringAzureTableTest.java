@@ -1,11 +1,14 @@
 package com.yammer.collections.guava.azure;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -304,6 +307,41 @@ public class StringAzureTableTest {
         setAzureTableToContain(CELL_2);
 
         assertThat(stringAzureTable.containsColumn(COLUMN_KEY_1), is(equalTo(false)));
+    }
+
+    @Test
+    public void rowMap_returns_correct_map() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        Map<String, Map<String, String>> rowMap = stringAzureTable.rowMap();
+
+        assertThat(rowMap.size(), is(equalTo(2)));
+        // row 1
+        Map<String, String> rowKey1Map = rowMap.get(ROW_KEY_1);
+        assertThat(rowKey1Map.size(), is(equalTo(1)));
+        assertThat(rowKey1Map.get(COLUMN_KEY_1), is(equalTo(VALUE_1)));
+        // row 2
+        Map<String, String> rowKey2Map = rowMap.get(ROW_KEY_2);
+        assertThat(rowKey2Map.size(), is(equalTo(1)));
+        assertThat(rowKey2Map.get(COLUMN_KEY_2), is(equalTo(VALUE_2)));
+    }
+
+    @Ignore("waiting to be implemented")
+    @Test
+    public void columnMap_returns_correct_map() throws UnsupportedEncodingException, StorageException {
+        setAzureTableToContain(CELL_1, CELL_2);
+
+        Map<String, Map<String, String>> columnMap = stringAzureTable.columnMap();
+
+        assertThat(columnMap.size(), is(equalTo(2)));
+        // row 1
+        Map<String, String> columnKeyMap1 = columnMap.get(COLUMN_KEY_1);
+        assertThat(columnKeyMap1.size(), is(equalTo(1)));
+        assertThat(columnKeyMap1.get(ROW_KEY_1), is(equalTo(VALUE_1)));
+        // row 2
+        Map<String, String> columnKeyMap2 = columnMap.get(COLUMN_KEY_2);
+        assertThat(columnKeyMap2.size(), is(equalTo(1)));
+        assertThat(columnKeyMap2.get(ROW_KEY_2), is(equalTo(VALUE_2)));
     }
 
     //

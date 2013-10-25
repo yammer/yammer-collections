@@ -2,7 +2,9 @@ package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
@@ -13,9 +15,12 @@ import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.microsoft.windowsazure.services.core.storage.utils.Utility.assertNotNull;
 import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
 import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
@@ -212,12 +217,13 @@ public class StringAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, Map<String, String>> rowMap() {
-        throw new UnsupportedOperationException(); // TODO implement this
+        return new RowMap(this);
     }
 
     @Override
     public Map<String, Map<String, String>> columnMap() {
-        throw new UnsupportedOperationException(); // TODO implement this
+        // TODO didn't tdd this, didn't know how to spec it
+        return Tables.transpose(this).rowMap();
     }
 
     public String getTableName() {
