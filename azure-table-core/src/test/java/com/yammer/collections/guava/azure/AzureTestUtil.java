@@ -24,9 +24,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public final class AzureTestUtil {
-    static final Function<Table.Cell<String, String, String>, StringEntity> ENCODE_CELL = new Function<Table.Cell<String, String, String>, StringEntity>() {
+    static final Function<Table.Cell<String, String, String>, AzureEntity> ENCODE_CELL = new Function<Table.Cell<String, String, String>, AzureEntity>() {
         @Override
-        public StringEntity apply(Table.Cell<String, String, String> input) {
+        public AzureEntity apply(Table.Cell<String, String, String> input) {
             try {
                 return encodedStringEntity(input);
             } catch (UnsupportedEncodingException e) {
@@ -37,35 +37,35 @@ public final class AzureTestUtil {
     private static final String ENCODING = "UTF-8";
 
     static void setAzureTableToContain(String tableName,
-                                       StringTableRequestFactory stringTableRequestFactoryMock,
-                                       StringTableCloudClient stringTableCloudClientMock,
+                                       AzureTableRequestFactory azureTableRequestFactoryMock,
+                                       AzureTableCloudClient azureTableCloudClientMock,
                                        Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
         // retrieve setup in general
         TableOperation blanketRetrieveOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(any(String.class), any(String.class))).thenReturn(blanketRetrieveOperationMock);
+        when(azureTableRequestFactoryMock.retrieve(any(String.class), any(String.class))).thenReturn(blanketRetrieveOperationMock);
 
 
         // per entity setup
-        TableQuery<StringEntity> emptyQuery = mock(TableQuery.class);
-        when(stringTableRequestFactoryMock.containsValueQuery(anyString(), anyString())).thenReturn(emptyQuery);
-        when(stringTableCloudClientMock.execute(emptyQuery)).thenReturn(Collections.<StringEntity>emptyList());
-        Collection<StringEntity> encodedStringEntities = Lists.newArrayList();
+        TableQuery<AzureEntity> emptyQuery = mock(TableQuery.class);
+        when(azureTableRequestFactoryMock.containsValueQuery(anyString(), anyString())).thenReturn(emptyQuery);
+        when(azureTableCloudClientMock.execute(emptyQuery)).thenReturn(Collections.<AzureEntity>emptyList());
+        Collection<AzureEntity> encodedStringEntities = Lists.newArrayList();
         for (Table.Cell<String, String, String> cell : cells) {
             encodedStringEntities.add(encodedStringEntity(cell));
-            setAzureTableToRetrieve(tableName, stringTableRequestFactoryMock, stringTableCloudClientMock, cell);
+            setAzureTableToRetrieve(tableName, azureTableRequestFactoryMock, azureTableCloudClientMock, cell);
 
-            TableQuery<StringEntity> valueQuery = mock(TableQuery.class);
-            when(stringTableRequestFactoryMock.containsValueQuery(tableName, encode(cell.getValue()))).thenReturn(valueQuery);
-            when(stringTableCloudClientMock.execute(valueQuery)).thenReturn(Collections.singleton(ENCODE_CELL.apply(cell)));
+            TableQuery<AzureEntity> valueQuery = mock(TableQuery.class);
+            when(azureTableRequestFactoryMock.containsValueQuery(tableName, encode(cell.getValue()))).thenReturn(valueQuery);
+            when(azureTableCloudClientMock.execute(valueQuery)).thenReturn(Collections.singleton(ENCODE_CELL.apply(cell)));
         }
 
         // select query
-        TableQuery<StringEntity> tableQuery = mock(TableQuery.class);
-        when(stringTableRequestFactoryMock.selectAll(tableName)).thenReturn(tableQuery);
-        when(stringTableCloudClientMock.execute(tableQuery)).thenReturn(encodedStringEntities);
+        TableQuery<AzureEntity> tableQuery = mock(TableQuery.class);
+        when(azureTableRequestFactoryMock.selectAll(tableName)).thenReturn(tableQuery);
+        when(azureTableCloudClientMock.execute(tableQuery)).thenReturn(encodedStringEntities);
 
-        setupRowQueries(tableName, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
-        setupColumnQueries(tableName, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
+        setupRowQueries(tableName, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
+        setupColumnQueries(tableName, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
     }
 
     static String encode(String stringToBeEncoded) {
@@ -76,85 +76,85 @@ public final class AzureTestUtil {
         }
     }
 
-    static StringEntity encodedStringEntity(Table.Cell<String, String, String> unEncodedcell) throws UnsupportedEncodingException {
-        return new StringEntity(encode(unEncodedcell.getRowKey()), encode(unEncodedcell.getColumnKey()), encode(unEncodedcell.getValue()));
+    static AzureEntity encodedStringEntity(Table.Cell<String, String, String> unEncodedcell) throws UnsupportedEncodingException {
+        return new AzureEntity(encode(unEncodedcell.getRowKey()), encode(unEncodedcell.getColumnKey()), encode(unEncodedcell.getValue()));
     }
 
     private static void setAzureTableToRetrieve(
             String tableName,
-            StringTableRequestFactory stringTableRequestFactoryMock,
-            StringTableCloudClient stringTableCloudClientMock,
+            AzureTableRequestFactory azureTableRequestFactoryMock,
+            AzureTableCloudClient azureTableCloudClientMock,
             Table.Cell<String, String, String> cell) throws UnsupportedEncodingException, StorageException {
         TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
-        when(stringTableCloudClientMock.execute(tableName, retriveTableOperationMock)).thenReturn(encodedStringEntity(cell));
+        when(azureTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
+        when(azureTableCloudClientMock.execute(tableName, retriveTableOperationMock)).thenReturn(encodedStringEntity(cell));
     }
 
     private static void setupRowQueries(String tableName,
-                                        StringTableRequestFactory stringTableRequestFactoryMock,
-                                        StringTableCloudClient stringTableCloudClientMock,
+                                        AzureTableRequestFactory azureTableRequestFactoryMock,
+                                        AzureTableCloudClient azureTableCloudClientMock,
                                         Table.Cell<String, String, String>... cells) {
 
-        TableQuery<StringEntity> emptyQueryMock = mock(TableQuery.class);
-        when(stringTableRequestFactoryMock.selectAllForRow(anyString(), anyString())).thenReturn(emptyQueryMock);
-        when(stringTableRequestFactoryMock.containsValueForRowQuery(anyString(), anyString(), anyString())).thenReturn(emptyQueryMock);
-        when(stringTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<StringEntity>emptyList());
+        TableQuery<AzureEntity> emptyQueryMock = mock(TableQuery.class);
+        when(azureTableRequestFactoryMock.selectAllForRow(anyString(), anyString())).thenReturn(emptyQueryMock);
+        when(azureTableRequestFactoryMock.containsValueForRowQuery(anyString(), anyString(), anyString())).thenReturn(emptyQueryMock);
+        when(azureTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<AzureEntity>emptyList());
 
         Multimap<String, Table.Cell<String, String, String>> rowCellMap = HashMultimap.create();
         for (Table.Cell<String, String, String> cell : cells) {
             rowCellMap.put(cell.getRowKey(), cell);
 
-            TableQuery<StringEntity> rowValueQueryMock = mock(TableQuery.class);
+            TableQuery<AzureEntity> rowValueQueryMock = mock(TableQuery.class);
             when(
-                    stringTableRequestFactoryMock.containsValueForRowQuery(
+                    azureTableRequestFactoryMock.containsValueForRowQuery(
                             tableName,
                             encode(cell.getRowKey()),
                             encode(cell.getValue())
                     )
             ).thenReturn(rowValueQueryMock);
-            when(stringTableCloudClientMock.execute(rowValueQueryMock)).thenReturn(Collections.singletonList(ENCODE_CELL.apply(cell)));
+            when(azureTableCloudClientMock.execute(rowValueQueryMock)).thenReturn(Collections.singletonList(ENCODE_CELL.apply(cell)));
         }
 
         for (Map.Entry<String, Collection<Table.Cell<String, String, String>>> entry : rowCellMap.asMap().entrySet()) {
             // row query
-            TableQuery<StringEntity> rowQueryMock = mock(TableQuery.class);
-            when(stringTableRequestFactoryMock.selectAllForRow(tableName, encode(entry.getKey()))).
+            TableQuery<AzureEntity> rowQueryMock = mock(TableQuery.class);
+            when(azureTableRequestFactoryMock.selectAllForRow(tableName, encode(entry.getKey()))).
                     thenReturn(rowQueryMock);
-            when(stringTableCloudClientMock.execute(rowQueryMock)).thenReturn(Collections2.transform(entry.getValue(), ENCODE_CELL));
+            when(azureTableCloudClientMock.execute(rowQueryMock)).thenReturn(Collections2.transform(entry.getValue(), ENCODE_CELL));
         }
     }
 
     private static void setupColumnQueries(String tableName,
-                                        StringTableRequestFactory stringTableRequestFactoryMock,
-                                        StringTableCloudClient stringTableCloudClientMock,
+                                        AzureTableRequestFactory azureTableRequestFactoryMock,
+                                        AzureTableCloudClient azureTableCloudClientMock,
                                         Table.Cell<String, String, String>... cells) {
 
-        TableQuery<StringEntity> emptyQueryMock = mock(TableQuery.class);
-        when(stringTableRequestFactoryMock.selectAllForColumn(anyString(), anyString())).thenReturn(emptyQueryMock);
-        when(stringTableRequestFactoryMock.containsValueForColumnQuery(anyString(), anyString(), anyString())).thenReturn(emptyQueryMock);
-        when(stringTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<StringEntity>emptyList());
+        TableQuery<AzureEntity> emptyQueryMock = mock(TableQuery.class);
+        when(azureTableRequestFactoryMock.selectAllForColumn(anyString(), anyString())).thenReturn(emptyQueryMock);
+        when(azureTableRequestFactoryMock.containsValueForColumnQuery(anyString(), anyString(), anyString())).thenReturn(emptyQueryMock);
+        when(azureTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<AzureEntity>emptyList());
 
         Multimap<String, Table.Cell<String, String, String>> columnCellMap = HashMultimap.create();
         for (Table.Cell<String, String, String> cell : cells) {
             columnCellMap.put(cell.getColumnKey(), cell);
 
-            TableQuery<StringEntity> columnValueQueryMock = mock(TableQuery.class);
+            TableQuery<AzureEntity> columnValueQueryMock = mock(TableQuery.class);
             when(
-                    stringTableRequestFactoryMock.containsValueForColumnQuery(
+                    azureTableRequestFactoryMock.containsValueForColumnQuery(
                             tableName,
                             encode(cell.getColumnKey()),
                             encode(cell.getValue())
                     )
             ).thenReturn(columnValueQueryMock);
-            when(stringTableCloudClientMock.execute(columnValueQueryMock)).thenReturn(Collections.singletonList(ENCODE_CELL.apply(cell)));
+            when(azureTableCloudClientMock.execute(columnValueQueryMock)).thenReturn(Collections.singletonList(ENCODE_CELL.apply(cell)));
         }
 
         for (Map.Entry<String, Collection<Table.Cell<String, String, String>>> entry : columnCellMap.asMap().entrySet()) {
             // row query
-            TableQuery<StringEntity> columnQueryMock = mock(TableQuery.class);
-            when(stringTableRequestFactoryMock.selectAllForColumn(tableName, encode(entry.getKey()))).
+            TableQuery<AzureEntity> columnQueryMock = mock(TableQuery.class);
+            when(azureTableRequestFactoryMock.selectAllForColumn(tableName, encode(entry.getKey()))).
                     thenReturn(columnQueryMock);
-            when(stringTableCloudClientMock.execute(columnQueryMock)).thenReturn(Collections2.transform(entry.getValue(), ENCODE_CELL));
+            when(azureTableCloudClientMock.execute(columnQueryMock)).thenReturn(Collections2.transform(entry.getValue(), ENCODE_CELL));
         }
     }
 

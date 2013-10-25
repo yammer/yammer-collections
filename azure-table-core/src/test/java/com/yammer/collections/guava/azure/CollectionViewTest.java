@@ -16,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import static com.yammer.collections.guava.azure.AzureTestUtil.ENCODE_CELL;
-import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
+import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -36,9 +36,9 @@ public class CollectionViewTest {
     private static final String TABLE_NAME = "secretie_table";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
-    private static final Function<StringEntity, Long> LONG_EXTRACTOR = new Function<StringEntity, Long>() {
+    private static final Function<AzureEntity, Long> LONG_EXTRACTOR = new Function<AzureEntity, Long>() {
         @Override
-        public Long apply(StringEntity input) {
+        public Long apply(AzureEntity input) {
             String decoded = decode(input.getValue());
             if (decoded.equals(VALUE_1)) {
                 return L1;
@@ -48,7 +48,7 @@ public class CollectionViewTest {
         }
     };
     @Mock
-    private Iterable<StringEntity> stringEntityIterableMock;
+    private Iterable<AzureEntity> stringEntityIterableMock;
     private CollectionView<Long> collectionView;
 
     @Before
@@ -56,7 +56,7 @@ public class CollectionViewTest {
         collectionView = new CollectionView<Long>(
                 LONG_EXTRACTOR) {
             @Override
-            protected Iterable<StringEntity> getBackingIterable() {
+            protected Iterable<AzureEntity> getBackingIterable() {
                 return stringEntityIterableMock;
             }
         };

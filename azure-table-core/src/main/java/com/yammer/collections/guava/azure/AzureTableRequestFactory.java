@@ -4,35 +4,33 @@ import com.microsoft.windowsazure.services.table.client.TableConstants;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
-import java.util.Set;
-
-/* pacakge */class StringTableRequestFactory {
+/* pacakge */class AzureTableRequestFactory {
     public TableOperation put(String rowString, String columnString, String value) {
-        StringEntity secretieEntity = new StringEntity(rowString, columnString, value);
+        AzureEntity secretieEntity = new AzureEntity(rowString, columnString, value);
         return TableOperation.insertOrReplace(secretieEntity);
     }
 
     TableOperation retrieve(String row, String column) {
-        return TableOperation.retrieve(row, column, StringEntity.class);
+        return TableOperation.retrieve(row, column, AzureEntity.class);
     }
 
-    TableOperation delete(StringEntity entityToBeDeleted) {
+    TableOperation delete(AzureEntity entityToBeDeleted) {
         return TableOperation.delete(entityToBeDeleted);
     }
 
-    TableQuery<StringEntity> selectAll(String tableName) {
-        return TableQuery.from(tableName, StringEntity.class);
+    TableQuery<AzureEntity> selectAll(String tableName) {
+        return TableQuery.from(tableName, AzureEntity.class);
     }
 
-    TableQuery<StringEntity> containsValueQuery(String tableName, String value) {
+    TableQuery<AzureEntity> containsValueQuery(String tableName, String value) {
         return selectAll(tableName).where(generateValueFilter(value));
     }
 
-    TableQuery<StringEntity> selectAllForRow(String tableName, String rowKey) {
+    TableQuery<AzureEntity> selectAllForRow(String tableName, String rowKey) {
         return selectAll(tableName).where(generatePartitionFilter(rowKey));
     }
 
-    TableQuery<StringEntity> containsValueForRowQuery(String tableName, String rowKey, String value) {
+    TableQuery<AzureEntity> containsValueForRowQuery(String tableName, String rowKey, String value) {
         String rowValueFilter = TableQuery.combineFilters(
                 generatePartitionFilter(rowKey),
                 TableQuery.Operators.AND,
@@ -42,11 +40,11 @@ import java.util.Set;
     }
 
 
-    public TableQuery<StringEntity> selectAllForColumn(String tableName, String columnKey) {
+    public TableQuery<AzureEntity> selectAllForColumn(String tableName, String columnKey) {
         return selectAll(tableName).where(generateColumnFilter(columnKey));
     }
 
-    TableQuery<StringEntity> containsValueForColumnQuery(String tableName, String columnKey, String value) {
+    TableQuery<AzureEntity> containsValueForColumnQuery(String tableName, String columnKey, String value) {
         String columnValueFilter = TableQuery.combineFilters(
                 generateColumnFilter(columnKey),
                 TableQuery.Operators.AND,
@@ -71,7 +69,7 @@ import java.util.Set;
 
     private String generateValueFilter(String value) {
         return TableQuery.generateFilterCondition(
-                StringEntity.VALUE,
+                AzureEntity.VALUE,
                 TableQuery.QueryComparisons.EQUAL,
                 value);
     }

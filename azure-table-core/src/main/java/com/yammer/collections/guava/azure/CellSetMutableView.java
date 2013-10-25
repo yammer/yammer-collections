@@ -12,15 +12,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
+import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
 /**
  * This class implements the set interface, however it does not enforce it as it only a view.
  */
 class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>> implements Set<Table.Cell<String, String, String>> {
-    private static final Function<StringEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
-            new Function<StringEntity, Table.Cell<String, String, String>>() {
+    private static final Function<AzureEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
+            new Function<AzureEntity, Table.Cell<String, String, String>>() {
                 @Override
-                public Table.Cell<String, String, String> apply(StringEntity input) {
+                public Table.Cell<String, String, String> apply(AzureEntity input) {
                     return Tables.immutableCell(
                             decode(input.getPartitionKey()),
                             decode(input.getRowKey()),
@@ -28,15 +28,15 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
                 }
             };
     private final BaseAzureTable baseAzureTable;
-    private final StringTableCloudClient stringCloudTableClient;
-    private final StringTableRequestFactory stringTableRequestFactory;
+    private final AzureTableCloudClient stringCloudTableClient;
+    private final AzureTableRequestFactory azureTableRequestFactory;
 
     CellSetMutableView(BaseAzureTable azureTable,
-                       StringTableCloudClient stringCloudTableClient,
-                       StringTableRequestFactory stringTableRequestFactory) {
+                       AzureTableCloudClient stringCloudTableClient,
+                       AzureTableRequestFactory azureTableRequestFactory) {
         baseAzureTable = azureTable;
         this.stringCloudTableClient = stringCloudTableClient;
-        this.stringTableRequestFactory = stringTableRequestFactory;
+        this.azureTableRequestFactory = azureTableRequestFactory;
     }
 
     @Override
@@ -59,8 +59,8 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
         return false;
     }
 
-    private Iterable<StringEntity> getBackingIterable() {
-        TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(baseAzureTable.getTableName());
+    private Iterable<AzureEntity> getBackingIterable() {
+        TableQuery<AzureEntity> query = azureTableRequestFactory.selectAll(baseAzureTable.getTableName());
         return stringCloudTableClient.execute(query);
     }
 

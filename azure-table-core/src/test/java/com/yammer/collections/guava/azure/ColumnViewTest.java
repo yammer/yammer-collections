@@ -44,9 +44,9 @@ public class ColumnViewTest {
         }
     };
     @Mock
-    private StringTableCloudClient stringTableCloudClientMock;
+    private AzureTableCloudClient azureTableCloudClientMock;
     @Mock
-    private StringTableRequestFactory stringTableRequestFactoryMock;
+    private AzureTableRequestFactory azureTableRequestFactoryMock;
     @Mock
     private BaseAzureTable baseAzureTable;
     private ColumnView columnView;
@@ -54,7 +54,7 @@ public class ColumnViewTest {
     @Before
     public void setUp() {
         when(baseAzureTable.getTableName()).thenReturn(TABLE_NAME);
-        columnView = new ColumnView(baseAzureTable, ROW_KEY, stringTableCloudClientMock, stringTableRequestFactoryMock);
+        columnView = new ColumnView(baseAzureTable, ROW_KEY, azureTableCloudClientMock, azureTableRequestFactoryMock);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class ColumnViewTest {
         for (Table.Cell<String, String, String> cell : cells) {
             when(baseAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
         }
-        AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
+        AzureTestUtil.setAzureTableToContain(TABLE_NAME, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
     }
 
     private static class TestMapEntry implements Map.Entry<String, String> {

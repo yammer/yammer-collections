@@ -35,15 +35,15 @@ public class CellSetMutableViewTest {
     @Mock
     private BaseAzureTable baseAzureTable;
     @Mock
-    private StringTableCloudClient stringTableCloudClientMock;
+    private AzureTableCloudClient azureTableCloudClientMock;
     @Mock
-    private StringTableRequestFactory stringTableRequestFactoryMock;
+    private AzureTableRequestFactory azureTableRequestFactoryMock;
     private CellSetMutableView set;
 
     @Before
     public void setUp() {
         when(baseAzureTable.getTableName()).thenReturn(TABLE_NAME);
-        set = new CellSetMutableView(baseAzureTable, stringTableCloudClientMock, stringTableRequestFactoryMock);
+        set = new CellSetMutableView(baseAzureTable, azureTableCloudClientMock, azureTableRequestFactoryMock);
     }
 
     @Test
@@ -217,7 +217,7 @@ public class CellSetMutableViewTest {
             when(baseAzureTable.remove(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
 
         }
-        AzureTestUtil.setAzureTableToContain(TABLE_NAME, stringTableRequestFactoryMock, stringTableCloudClientMock, cells);
+        AzureTestUtil.setAzureTableToContain(TABLE_NAME, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
     }
 
 

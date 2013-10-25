@@ -5,18 +5,18 @@ import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
-/*package*/ class StringTableCloudClient {
+/*package*/ class AzureTableCloudClient {
     private final CloudTableClient delegate;
 
-    StringTableCloudClient(CloudTableClient delegateClient) {
+    AzureTableCloudClient(CloudTableClient delegateClient) {
         delegate = delegateClient;
     }
 
-    StringEntity execute(String tableName, TableOperation tableOperation) throws StorageException {
+    AzureEntity execute(String tableName, TableOperation tableOperation) throws StorageException {
         return delegate.execute(tableName, tableOperation).getResultAsType();
     }
 
-    Iterable<StringEntity> execute(TableQuery<StringEntity> query) {
+    Iterable<AzureEntity> execute(TableQuery<AzureEntity> query) {
         return delegate.execute(query);
     }
 }

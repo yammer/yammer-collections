@@ -9,10 +9,10 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public abstract class CollectionView<E> extends AbstractCollection<E> {
-    private final Function<StringEntity, E> typeExtractor;
+    private final Function<AzureEntity, E> typeExtractor;
 
     public CollectionView(
-            Function<StringEntity, E> typeExtractor
+            Function<AzureEntity, E> typeExtractor
     ) {
         this.typeExtractor = typeExtractor;
     }
@@ -34,7 +34,7 @@ public abstract class CollectionView<E> extends AbstractCollection<E> {
                 o);
     }
 
-    protected abstract Iterable<StringEntity> getBackingIterable();
+    protected abstract Iterable<AzureEntity> getBackingIterable();
 
     @Override
     public Iterator<E> iterator() {

@@ -8,35 +8,35 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
-import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
-import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
+import static com.yammer.collections.guava.azure.AzureEntityUtil.EXTRACT_VALUE;
+import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
+import static com.yammer.collections.guava.azure.AzureEntityUtil.encode;
 
 public class RowView implements Map<String, String> {
-    private static final Function<StringEntity, String> EXTRACT_ROW_KEY = new Function<StringEntity, String>() {
+    private static final Function<AzureEntity, String> EXTRACT_ROW_KEY = new Function<AzureEntity, String>() {
         @Override
-        public String apply(StringEntity input) {
+        public String apply(AzureEntity input) {
             return decode(input.getPartitionKey());
         }
     };
     private final BaseAzureTable baseAzureTable;
     private final String columnKey;
-    private final StringTableCloudClient stringTableCloudClient;
-    private final StringTableRequestFactory stringTableRequestFactory;
-    private final Function<StringEntity, Entry<String, String>> extractEntry;
+    private final AzureTableCloudClient azureTableCloudClient;
+    private final AzureTableRequestFactory azureTableRequestFactory;
+    private final Function<AzureEntity, Entry<String, String>> extractEntry;
 
     public RowView(
             final BaseAzureTable baseAzureTable,
             final String columnKey,
-            StringTableCloudClient stringTableCloudClient,
-            StringTableRequestFactory stringTableRequestFactory) {
+            AzureTableCloudClient azureTableCloudClient,
+            AzureTableRequestFactory azureTableRequestFactory) {
         this.baseAzureTable = baseAzureTable;
         this.columnKey = columnKey;
-        this.stringTableCloudClient = stringTableCloudClient;
-        this.stringTableRequestFactory = stringTableRequestFactory;
-        extractEntry = new Function<StringEntity, Entry<String, String>>() {
+        this.azureTableCloudClient = azureTableCloudClient;
+        this.azureTableRequestFactory = azureTableRequestFactory;
+        extractEntry = new Function<AzureEntity, Entry<String, String>>() {
             @Override
-            public Entry<String, String> apply(StringEntity input) {
+            public Entry<String, String> apply(AzureEntity input) {
                 return new RowMapEntry(decode(input.getPartitionKey()), columnKey, baseAzureTable);
             }
         };
@@ -63,9 +63,9 @@ public class RowView implements Map<String, String> {
             return false;
         }
 
-        TableQuery<StringEntity> valueQuery = stringTableRequestFactory.containsValueForColumnQuery(baseAzureTable.getTableName(), encode(columnKey),
+        TableQuery<AzureEntity> valueQuery = azureTableRequestFactory.containsValueForColumnQuery(baseAzureTable.getTableName(), encode(columnKey),
                 encode((String) value));
-        return stringTableCloudClient.execute(valueQuery).iterator().hasNext();
+        return azureTableCloudClient.execute(valueQuery).iterator().hasNext();
     }
 
     @Override
@@ -102,19 +102,19 @@ public class RowView implements Map<String, String> {
         // TODO this should have a view that is mutable (makes sense)
         return
                 SetView.fromSetCollectionView(
-                        new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_ROW_KEY, stringTableCloudClient, stringTableRequestFactory)
+                        new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_ROW_KEY, azureTableCloudClient, azureTableRequestFactory)
                 );
     }
 
     @Override
     public Collection<String> values() {
-        return new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_VALUE, stringTableCloudClient, stringTableRequestFactory);
+        return new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_VALUE, azureTableCloudClient, azureTableRequestFactory);
     }
 
     @Override
     public Set<Entry<String, String>> entrySet() { // TODO this should have a view that is mutable (makes sense)
         return SetView.fromSetCollectionView(
-                new RowMapSetView<>(baseAzureTable, columnKey, extractEntry, stringTableCloudClient, stringTableRequestFactory)
+                new RowMapSetView<>(baseAzureTable, columnKey, extractEntry, azureTableCloudClient, azureTableRequestFactory)
         );
     }
 
@@ -148,26 +148,26 @@ public class RowView implements Map<String, String> {
     private static class RowMapSetView<E> extends CollectionView<E> {
         private final BaseAzureTable baseAzureTable;
         private final String columnKey;
-        private final StringTableCloudClient stringTableCloudClient;
-        private final StringTableRequestFactory stringTableRequestFactory;
+        private final AzureTableCloudClient azureTableCloudClient;
+        private final AzureTableRequestFactory azureTableRequestFactory;
 
         public RowMapSetView(
                 BaseAzureTable baseAzureTable,
                 String columnKey,
-                Function<StringEntity, E> typeExtractor,
-                StringTableCloudClient stringTableCloudClient,
-                StringTableRequestFactory stringTableRequestFactory) {
+                Function<AzureEntity, E> typeExtractor,
+                AzureTableCloudClient azureTableCloudClient,
+                AzureTableRequestFactory azureTableRequestFactory) {
             super(typeExtractor);
             this.baseAzureTable = baseAzureTable;
             this.columnKey = columnKey;
-            this.stringTableCloudClient = stringTableCloudClient;
-            this.stringTableRequestFactory = stringTableRequestFactory;
+            this.azureTableCloudClient = azureTableCloudClient;
+            this.azureTableRequestFactory = azureTableRequestFactory;
         }
 
         @Override
-        protected Iterable<StringEntity> getBackingIterable() {
-            TableQuery<StringEntity> selectAllForRowQuery = stringTableRequestFactory.selectAllForColumn(baseAzureTable.getTableName(), encode(columnKey));
-            return stringTableCloudClient.execute(selectAllForRowQuery);
+        protected Iterable<AzureEntity> getBackingIterable() {
+            TableQuery<AzureEntity> selectAllForRowQuery = azureTableRequestFactory.selectAllForColumn(baseAzureTable.getTableName(), encode(columnKey));
+            return azureTableCloudClient.execute(selectAllForRowQuery);
         }
     }
 

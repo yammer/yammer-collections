@@ -18,40 +18,40 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.yammer.collections.guava.azure.StringEntityUtil.EXTRACT_VALUE;
-import static com.yammer.collections.guava.azure.StringEntityUtil.decode;
-import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
+import static com.yammer.collections.guava.azure.AzureEntityUtil.EXTRACT_VALUE;
+import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
+import static com.yammer.collections.guava.azure.AzureEntityUtil.encode;
 // TODO this should be renamed to azure table
 
 public class BaseAzureTable implements Table<String, String, String> {
     private static final Timer GET_TIMER = createTimerFor("get"); // TODO remove metrics dep
     private static final Timer PUT_TIMER = createTimerFor("put");
     private static final Timer REMOVE_TIMER = createTimerFor("remove");
-    private static final Function<StringEntity, String> COLUMN_KEY_EXTRACTOR = new Function<StringEntity, String>() {
+    private static final Function<AzureEntity, String> COLUMN_KEY_EXTRACTOR = new Function<AzureEntity, String>() {
         @Override
-        public String apply(StringEntity input) {
+        public String apply(AzureEntity input) {
             return decode(input.getRowKey());
         }
     };
-    private static final Function<StringEntity, String> ROW_KEY_EXTRACTOR = new Function<StringEntity, String>() {
+    private static final Function<AzureEntity, String> ROW_KEY_EXTRACTOR = new Function<AzureEntity, String>() {
         @Override
-        public String apply(StringEntity input) {
+        public String apply(AzureEntity input) {
             return decode(input.getPartitionKey());
         }
     };
     ;
     private final String tableName;
-    private final StringTableCloudClient stringCloudTableClient;
-    private final StringTableRequestFactory stringTableRequestFactory;
+    private final AzureTableCloudClient stringCloudTableClient;
+    private final AzureTableRequestFactory azureTableRequestFactory;
 
-    /* package */ BaseAzureTable(String tableName, StringTableCloudClient stringCloudTableClient, StringTableRequestFactory stringTableRequestFactory) {
+    /* package */ BaseAzureTable(String tableName, AzureTableCloudClient stringCloudTableClient, AzureTableRequestFactory azureTableRequestFactory) {
         this.tableName = tableName;
         this.stringCloudTableClient = stringCloudTableClient;
-        this.stringTableRequestFactory = stringTableRequestFactory;
+        this.azureTableRequestFactory = azureTableRequestFactory;
     }
 
     public BaseAzureTable(String secretieTableName, CloudTableClient tableClient) {
-        this(secretieTableName, new StringTableCloudClient(tableClient), new StringTableRequestFactory());
+        this(secretieTableName, new AzureTableCloudClient(tableClient), new AzureTableRequestFactory());
     }
 
     private static Timer createTimerFor(String name) {
@@ -79,7 +79,7 @@ public class BaseAzureTable implements Table<String, String, String> {
             return false;
         }
 
-        TableQuery<StringEntity> valueQuery = stringTableRequestFactory.containsValueQuery(tableName, encode((String) value));
+        TableQuery<AzureEntity> valueQuery = azureTableRequestFactory.containsValueQuery(tableName, encode((String) value));
         return stringCloudTableClient.execute(valueQuery).iterator().hasNext();
     }
 
@@ -88,11 +88,11 @@ public class BaseAzureTable implements Table<String, String, String> {
         return entityToValue(rawGet(rowString, columnString));
     }
 
-    private String entityToValue(StringEntity stringEntity) {
-        return stringEntity == null ? null : decode(stringEntity.getValue());
+    private String entityToValue(AzureEntity azureEntity) {
+        return azureEntity == null ? null : decode(azureEntity.getValue());
     }
 
-    private StringEntity rawGet(Object rowString, Object columnString) {
+    private AzureEntity rawGet(Object rowString, Object columnString) {
         if (!(rowString instanceof String && columnString instanceof String)) {
             return null;
         }
@@ -100,7 +100,7 @@ public class BaseAzureTable implements Table<String, String, String> {
         String row = encode((String) rowString);
         String column = encode((String) columnString);
 
-        TableOperation retrieveEntityOperation = stringTableRequestFactory.retrieve(row, column);
+        TableOperation retrieveEntityOperation = azureTableRequestFactory.retrieve(row, column);
 
         try {
             return timedTableOperation(GET_TIMER, retrieveEntityOperation);
@@ -109,7 +109,7 @@ public class BaseAzureTable implements Table<String, String, String> {
         }
     }
 
-    private StringEntity timedTableOperation(Timer contextSpecificTimer, TableOperation tableOperation) throws StorageException {
+    private AzureEntity timedTableOperation(Timer contextSpecificTimer, TableOperation tableOperation) throws StorageException {
         TimerContext context = contextSpecificTimer.time();
         try {
             return stringCloudTableClient.execute(tableName, tableOperation);
@@ -137,7 +137,7 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public String put(String rowString, String columnString, String value) {
-        TableOperation putStringieOperation = stringTableRequestFactory.put(encode(rowString), encode(columnString), encode(value));
+        TableOperation putStringieOperation = azureTableRequestFactory.put(encode(rowString), encode(columnString), encode(value));
 
         try {
             return entityToValue(timedTableOperation(PUT_TIMER, putStringieOperation));
@@ -155,13 +155,13 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public String remove(Object rowString, Object columnString) {
-        StringEntity entityToBeDeleted = rawGet(rowString, columnString);
+        AzureEntity entityToBeDeleted = rawGet(rowString, columnString);
 
         if (entityToBeDeleted == null) {
             return null;
         }
 
-        TableOperation deleteStringieOperation = stringTableRequestFactory.delete(entityToBeDeleted);
+        TableOperation deleteStringieOperation = azureTableRequestFactory.delete(entityToBeDeleted);
 
         try {
             return entityToValue(timedTableOperation(REMOVE_TIMER, deleteStringieOperation));
@@ -180,36 +180,36 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, String> row(String rowString) {
-        return new ColumnView(this, rowString, stringCloudTableClient, stringTableRequestFactory);
+        return new ColumnView(this, rowString, stringCloudTableClient, azureTableRequestFactory);
     }
 
     @Override
     public Map<String, String> column(String columnString) {
-        return new RowView(this, columnString, stringCloudTableClient, stringTableRequestFactory);
+        return new RowView(this, columnString, stringCloudTableClient, azureTableRequestFactory);
     }
 
     @Override
     public Set<Cell<String, String, String>> cellSet() {
-        return new CellSetMutableView(this, stringCloudTableClient, stringTableRequestFactory);
+        return new CellSetMutableView(this, stringCloudTableClient, azureTableRequestFactory);
     }
 
     @Override // TODO delete operations may make sense on these, decide
     public Set<String> rowKeySet() {
         return SetView.fromCollectionView(
-                new TableCollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory)
+                new TableCollectionView<>(this, ROW_KEY_EXTRACTOR, stringCloudTableClient, azureTableRequestFactory)
         );
     }
 
     @Override // TODO delete operations may make sense on these, decide
     public Set<String> columnKeySet() {
         return SetView.fromCollectionView(
-                new TableCollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, stringTableRequestFactory)
+                new TableCollectionView<>(this, COLUMN_KEY_EXTRACTOR, stringCloudTableClient, azureTableRequestFactory)
         );
     }
 
     @Override
     public Collection<String> values() {
-        return new TableCollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, stringTableRequestFactory);
+        return new TableCollectionView<>(this, EXTRACT_VALUE, stringCloudTableClient, azureTableRequestFactory);
     }
 
     @Override
@@ -229,19 +229,19 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     private static final class TableCollectionView<E> extends CollectionView<E> {
         private final BaseAzureTable baseAzureTable;
-        private final StringTableCloudClient stringTableCloudClient;
-        private final StringTableRequestFactory stringTableRequestFactory;
+        private final AzureTableCloudClient azureTableCloudClient;
+        private final AzureTableRequestFactory azureTableRequestFactory;
 
-        public TableCollectionView(BaseAzureTable baseAzureTable, Function<StringEntity, E> typeExtractor, StringTableCloudClient stringTableCloudClient, StringTableRequestFactory stringTableRequestFactory) {
+        public TableCollectionView(BaseAzureTable baseAzureTable, Function<AzureEntity, E> typeExtractor, AzureTableCloudClient azureTableCloudClient, AzureTableRequestFactory azureTableRequestFactory) {
             super(typeExtractor);
             this.baseAzureTable = baseAzureTable;
-            this.stringTableCloudClient = stringTableCloudClient;
-            this.stringTableRequestFactory = stringTableRequestFactory;
+            this.azureTableCloudClient = azureTableCloudClient;
+            this.azureTableRequestFactory = azureTableRequestFactory;
         }
 
-        protected Iterable<StringEntity> getBackingIterable() {
-            TableQuery<StringEntity> query = stringTableRequestFactory.selectAll(baseAzureTable.getTableName());
-            return stringTableCloudClient.execute(query);
+        protected Iterable<AzureEntity> getBackingIterable() {
+            TableQuery<AzureEntity> query = azureTableRequestFactory.selectAll(baseAzureTable.getTableName());
+            return azureTableCloudClient.execute(query);
         }
     }
 }
