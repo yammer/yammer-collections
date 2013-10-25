@@ -22,7 +22,7 @@ import static com.yammer.collections.guava.azure.StringEntityUtil.encode;
 // TODO this should be renamed to azure table
 
 public class StringAzureTable implements Table<String, String, String> {
-    private static final Timer GET_TIMER = createTimerFor("get");
+    private static final Timer GET_TIMER = createTimerFor("get"); // TODO remove metrics dep
     private static final Timer PUT_TIMER = createTimerFor("put");
     private static final Timer REMOVE_TIMER = createTimerFor("remove");
     private static final Function<StringEntity, String> COLUMN_KEY_EXTRACTOR = new Function<StringEntity, String>() {
