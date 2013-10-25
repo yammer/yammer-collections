@@ -9,16 +9,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
+public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
     private final Table<R, C, V> backingTable;
 
-    public RowMapView(Table<R, C, V> backingTable) {
+    public ColumnMapView(Table<R, C, V> backingTable) {
         this.backingTable = backingTable;
     }
 
+
     @Override
     public int size() {
-        return backingTable.rowKeySet().size();
+        return backingTable.columnKeySet().size();
     }
 
     @Override
@@ -28,7 +29,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
     @Override
     public boolean containsKey(Object key) {
-        return backingTable.containsRow(key);
+        return backingTable.containsColumn(key);
     }
 
     @Override
@@ -39,16 +40,16 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
         Entry<?, ?> entry = (Entry<?, ?>) value;
         try {
-            return backingTable.column((C) entry.getKey()).containsValue(entry.getValue());
+            return backingTable.row((R) entry.getKey()).containsValue(entry.getValue());
         } catch (ClassCastException c) {
             return false;
         }
     }
 
     @Override
-    public Map<C, V> get(Object key) {
+    public Map<R, V> get(Object key) {
         try {
-            Map<C, V> mapForRow = backingTable.row((R) key);
+            Map<R, V> mapForRow = backingTable.column((C) key);
             return mapForRow.isEmpty() ? null : mapForRow;
         } catch (ClassCastException e) {
             return null;
@@ -56,26 +57,26 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
     }
 
     @Override
-    public Map<C, V> put(R key, Map<C, V> value) {// TODO ret value breaks contract
-        Map<C, V> oldValue = get(key);
+    public Map<R, V> put(C key, Map<R, V> value) {// TODO ret value breaks contract
+        Map<R, V> oldValue = get(key);
         oldValue.clear();
         if (!value.isEmpty()) {
-            backingTable.row(key).putAll(value);
+            backingTable.column(key).putAll(value);
         }
         return oldValue;
     }
 
     @Override
-    public Map<C, V> remove(Object key) {// TODO ret value breaks contract
-        Map<C, V> oldValue = get(key);
+    public Map<R, V> remove(Object key) {// TODO ret value breaks contract
+        Map<R, V> oldValue = get(key);
         oldValue.clear();
         return oldValue;
     }
 
     @Override
-    public void putAll(Map<? extends R, ? extends Map<C, V>> m) {
-        for (Entry<? extends R, ? extends Map<C, V>> entry : m.entrySet()) {
-            backingTable.row(entry.getKey()).putAll(entry.getValue());
+    public void putAll(Map<? extends C, ? extends Map<R, V>> m) {
+        for (Entry<? extends C, ? extends Map<R, V>> entry : m.entrySet()) {
+            backingTable.column(entry.getKey()).putAll(entry.getValue());
         }
     }
 
@@ -85,47 +86,47 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
     }
 
     @Override
-    public Set<R> keySet() {
-        return backingTable.rowKeySet();
+    public Set<C> keySet() {
+        return backingTable.columnKeySet();
     }
 
     @Override
-    public Collection<Map<C, V>> values() {
+    public Collection<Map<R, V>> values() {
         // TODO make this static or at least once per instance
         return Collections2.transform(
                 keySet(),
-                new Function<R, Map<C, V>>() {
+                new Function<C, Map<R, V>>() {
                     @Override
-                    public Map<C, V> apply(final R key) {
-                        return backingTable.row(key);
+                    public Map<R, V> apply(final C key) {
+                        return backingTable.column(key);
                     }
                 }
         );
     }
 
     @Override
-    public Set<Entry<R, Map<C, V>>> entrySet() {
+    public Set<Entry<C, Map<R, V>>> entrySet() {
         // TODO make this static or at least once per instance
         return new HashSet<>(// TODO this is temporary, materializes
                 Collections2.transform(
                         keySet(),
-                        new Function<R, Entry<R, Map<C, V>>>() {
+                        new Function<C, Entry<C, Map<R, V>>>() {
                             @Override
-                            public Entry<R, Map<C, V>> apply(final R input) {
+                            public Entry<C, Map<R, V>> apply(final C input) {
                                 // TODO make it static
-                                return new Entry<R, Map<C, V>>() {
+                                return new Entry<C, Map<R, V>>() {
                                     @Override
-                                    public R getKey() {
+                                    public C getKey() {
                                         return input;
                                     }
 
                                     @Override
-                                    public Map<C, V> getValue() {
-                                        return backingTable.row(input);
+                                    public Map<R, V> getValue() {
+                                        return backingTable.column(input);
                                     }
 
                                     @Override
-                                    public Map<C, V> setValue(Map<C, V> value) {
+                                    public Map<R, V> setValue(Map<R, V> value) {
                                         return put(input, value);
                                     }
 

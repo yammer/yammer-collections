@@ -219,8 +219,7 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, Map<String, String>> columnMap() {
-        // TODO didn't tdd this, didn't know how to spec it
-        return Tables.transpose(this).rowMap();
+       return new ColumnMapView<>(this);
     }
 
     public String getTableName() {

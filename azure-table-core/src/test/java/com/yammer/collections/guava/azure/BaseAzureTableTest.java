@@ -6,7 +6,6 @@ import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class StringAzureTableTest {
+public class BaseAzureTableTest {
     private static final String ROW_KEY_1 = "rown_name_1";
     private static final String ROW_KEY_2 = "row_name_2";
     private static final String COLUMN_KEY_1 = "column_key_1";
@@ -324,7 +323,6 @@ public class StringAzureTableTest {
         assertThat(rowKey2Map.get(COLUMN_KEY_2), is(equalTo(VALUE_2)));
     }
 
-    @Ignore("need to implement")
     @Test
     public void columnMap_returns_correct_map() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
@@ -371,7 +369,7 @@ public class StringAzureTableTest {
         when(azureTableCloudClientMock.execute(TABLE_NAME, tableOperationMock)).thenThrow(storageExceptionMock);
     }
 
-    private TableOperation mockDeleteTableOperation(Table.Cell<String, String, String> cell) throws  StorageException {
+    private TableOperation mockDeleteTableOperation(Table.Cell<String, String, String> cell) throws StorageException {
         TableOperation retrieveOperation = azureTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()));
         AzureEntity result = azureTableCloudClientMock.execute(TABLE_NAME, retrieveOperation);
         TableOperation deleteTableOperationMock = mock(TableOperation.class);
