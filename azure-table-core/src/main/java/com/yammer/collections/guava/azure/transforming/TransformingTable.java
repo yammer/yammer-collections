@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.guava.azure.transforming;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Table;
@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.
  */
 // TODO transforming table, make it really agnostic of the target
-public class AzureTable<R, C, V> implements Table<R, C, V> {
+public class TransformingTable<R, C, V> implements Table<R, C, V> {
     private final Function<Cell<R, C, V>, Cell<String, String, String>> toBaseCellFunction = new Function<Cell<R, C, V>, Cell<String, String, String>>() {
         @Override
         public Cell<String, String, String> apply(Cell<R, C, V> input) {
@@ -44,10 +44,10 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
     private final Marshaller<V, String> valueMarshaller;
     private final Table<String, String, String> backingTable;
 
-    public AzureTable(final Marshaller<R, String> rowKeyMarshaller,
-                      final Marshaller<C, String> columnKeyMarshaller,
-                      final Marshaller<V, String> valueMarshaller,
-                      Table<String, String, String> backingTable) {
+    public TransformingTable(final Marshaller<R, String> rowKeyMarshaller,
+                             final Marshaller<C, String> columnKeyMarshaller,
+                             final Marshaller<V, String> valueMarshaller,
+                             Table<String, String, String> backingTable) {
         this.rowKeyMarshaller = rowKeyMarshaller;
         this.columnKeyMarshaller = columnKeyMarshaller;
         this.valueMarshaller = valueMarshaller;
