@@ -11,12 +11,23 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * In early stages of implementation. Built for the Secretie project, which deals with small data sets that can be trivially sent
  * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.
  */
 public class AzureTable<R, C, V> implements Table<R, C, V> {
-    private final Function<Cell<String, String, String>, Cell<R, C, V>> cellUnmarshallingTransformation =
+    private final Function<Cell<R, C, V>, Cell<String, String, String>> toBaseCellFunction = new Function<Cell<R, C, V>, Cell<String, String, String>>() {
+        @Override
+        public Cell<String, String, String> apply(Cell<R, C, V> input) {
+            return Tables.immutableCell(
+                    rowKeyMarshaller.marshal(input.getRowKey()),
+                    columnKeyMarshaller.marshal(input.getColumnKey()),
+                    valueMarshaller.marshal(input.getValue())
+            );
+        }
+    };
+    private final Function<Cell<String, String, String>, Cell<R, C, V>> fromBaseCellFunction =
             new Function<Cell<String, String, String>, Cell<R, C, V>>() {
                 @Override
                 public Cell<R, C, V> apply(Cell<String, String, String> input) {
@@ -33,7 +44,6 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
             return columnKeyMarshaller.unmarshal(input);
         }
     };
-
     private final Marshaller<R, String> rowKeyMarshaller;
     private final Marshaller<C, String> columnKeyMarshaller;
     private final Marshaller<V, String> valueMarshaller;
@@ -137,7 +147,7 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
 
     @Override
     public void putAll(Table<? extends R, ? extends C, ? extends V> table) {
-        for(Cell<? extends R, ? extends C, ? extends V> cell : table.cellSet()) {
+        for (Cell<? extends R, ? extends C, ? extends V> cell : table.cellSet()) {
             put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
         }
     }
@@ -169,8 +179,13 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
     }
 
     @Override
-    public Set<Cell<R, C, V>> cellSet() { // TODO very simple implementatin: not live, not mutable
-        return ImmutableSet.copyOf(Iterables.transform(backingTable.cellSet(), cellUnmarshallingTransformation));
+    public Set<Cell<R, C, V>> cellSet() {
+        return new TransformingSet<>(
+                backingTable.cellSet(),
+                toBaseCellFunction,
+                fromBaseCellFunction
+
+        );
     }
 
     @Override
