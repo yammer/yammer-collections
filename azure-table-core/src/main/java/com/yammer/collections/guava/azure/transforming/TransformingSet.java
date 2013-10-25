@@ -12,9 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class TransformingSet<F, T> extends AbstractSet<F> implements Set<F> {
-    private final Set<T> backingSet;
-    private final Function<F, T> toFunction;
-    private final Function<T, F> fromFunction;
+    private Collection<F> collectionWhichIsASet;
 
     /**
      * This implementation will break if the following is not satisfied:
@@ -25,61 +23,47 @@ public class TransformingSet<F, T> extends AbstractSet<F> implements Set<F> {
      * i.e., fromFunction is a bijection and the toFunction is its reverse
      */
     public TransformingSet(Set<T> backingSet, Function<F, T> toFunction, Function<T, F> fromFunction) {
-        this.backingSet = backingSet;
-        this.toFunction = toFunction;
-        this.fromFunction = fromFunction;
+        collectionWhichIsASet = new TransformingCollection<>(backingSet, toFunction, fromFunction);
     }
 
     @Override
     public int size() {
-        return backingSet.size();
+        return collectionWhichIsASet.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return backingSet.isEmpty();
+        return collectionWhichIsASet.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
-        try {
-            return backingSet.contains(toFunction.apply((F) o));
-        } catch (ClassCastException e) {
-            return false;
-        }
+            return collectionWhichIsASet.contains(o);
     }
 
     @Override
     public Iterator<F> iterator() {
-        return Iterators.transform(backingSet.iterator(), fromFunction);
+        return collectionWhichIsASet.iterator();
     }
 
     @Override
     public boolean add(F f) {
-        return backingSet.add(toFunction.apply(f));
+        return collectionWhichIsASet.add(f);
     }
 
     @Override
     public boolean remove(Object o) {
-        try {
-            return backingSet.remove(toFunction.apply((F) o));
-        } catch (ClassCastException e) {
-            return false;
-        }
+        return collectionWhichIsASet.remove(o);
     }
 
     @Override
     public void clear() {
-       backingSet.clear();
+        collectionWhichIsASet.clear();
     }
 
     @Override
     public int hashCode() {
-        HashCodeBuilder builder = new HashCodeBuilder(43, 17);
-        for(F f : this) {
-            builder.append(f);
-        }
-        return builder.build();
+        return collectionWhichIsASet.hashCode();
     }
 
     @Override
@@ -87,17 +71,7 @@ public class TransformingSet<F, T> extends AbstractSet<F> implements Set<F> {
         if (o == null) { return false; }
         if (o == this) { return true; }
         if (!(o instanceof Set)) {return false;}
-        Set s = (Set) o;
 
-
-
-        Iterator<?> i = s.iterator();
-        for(F f : this) {
-            if(!i.hasNext() || !f.equals(i.next())) {
-                return false;
-            }
-        }
-
-        return !i.hasNext();
+        return collectionWhichIsASet.equals(o);
     }
 }
