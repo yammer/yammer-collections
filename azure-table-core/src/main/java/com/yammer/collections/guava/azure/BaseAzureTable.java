@@ -3,30 +3,21 @@ package com.yammer.collections.guava.azure;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Timer;
-import com.yammer.metrics.core.TimerContext;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.guava.azure.AzureEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
 import static com.yammer.collections.guava.azure.AzureEntityUtil.encode;
-// TODO this should be renamed to azure table
 
 public class BaseAzureTable implements Table<String, String, String> {
-    private static final Timer GET_TIMER = createTimerFor("get"); // TODO remove metrics dep
-    private static final Timer PUT_TIMER = createTimerFor("put");
-    private static final Timer REMOVE_TIMER = createTimerFor("remove");
     private static final Function<AzureEntity, String> COLUMN_KEY_EXTRACTOR = new Function<AzureEntity, String>() {
         @Override
         public String apply(AzureEntity input) {
@@ -39,7 +30,6 @@ public class BaseAzureTable implements Table<String, String, String> {
             return decode(input.getPartitionKey());
         }
     };
-    ;
     private final String tableName;
     private final AzureTableCloudClient stringCloudTableClient;
     private final AzureTableRequestFactory azureTableRequestFactory;
@@ -54,8 +44,13 @@ public class BaseAzureTable implements Table<String, String, String> {
         this(secretieTableName, new AzureTableCloudClient(tableClient), new AzureTableRequestFactory());
     }
 
-    private static Timer createTimerFor(String name) {
-        return Metrics.newTimer(BaseAzureTable.class, name);
+    private static String entityToValue(AzureEntity azureEntity) {
+        return azureEntity == null ? null : decode(azureEntity.getValue());
+    }
+
+    private static boolean notFound(StorageException e) {
+        return StorageErrorCode.RESOURCE_NOT_FOUND.toString().equals(e.getErrorCode())
+                || "ResourceNotFound".equals(e.getErrorCode());
     }
 
     @Override
@@ -65,12 +60,12 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public boolean containsRow(Object rowString) {
-        return (rowString instanceof String) && !row((String) rowString).isEmpty();
+        return rowString instanceof String && !row((String) rowString).isEmpty();
     }
 
     @Override
     public boolean containsColumn(Object columnString) {
-        return (columnString instanceof String) && !column((String) columnString).isEmpty();
+        return columnString instanceof String && !column((String) columnString).isEmpty();
     }
 
     @Override
@@ -88,10 +83,6 @@ public class BaseAzureTable implements Table<String, String, String> {
         return entityToValue(rawGet(rowString, columnString));
     }
 
-    private String entityToValue(AzureEntity azureEntity) {
-        return azureEntity == null ? null : decode(azureEntity.getValue());
-    }
-
     private AzureEntity rawGet(Object rowString, Object columnString) {
         if (!(rowString instanceof String && columnString instanceof String)) {
             return null;
@@ -103,18 +94,9 @@ public class BaseAzureTable implements Table<String, String, String> {
         TableOperation retrieveEntityOperation = azureTableRequestFactory.retrieve(row, column);
 
         try {
-            return timedTableOperation(GET_TIMER, retrieveEntityOperation);
+            return stringCloudTableClient.execute(tableName, retrieveEntityOperation);
         } catch (StorageException e) {
             throw Throwables.propagate(e);
-        }
-    }
-
-    private AzureEntity timedTableOperation(Timer contextSpecificTimer, TableOperation tableOperation) throws StorageException {
-        TimerContext context = contextSpecificTimer.time();
-        try {
-            return stringCloudTableClient.execute(tableName, tableOperation);
-        } finally {
-            context.stop();
         }
     }
 
@@ -129,7 +111,7 @@ public class BaseAzureTable implements Table<String, String, String> {
     }
 
     @Override
-    public void clear() { // TODO do a javadoc
+    public void clear() {
         for (Cell<String, String, String> cell : cellSet()) {
             remove(cell.getRowKey(), cell.getColumnKey());
         }
@@ -140,7 +122,7 @@ public class BaseAzureTable implements Table<String, String, String> {
         TableOperation putStringieOperation = azureTableRequestFactory.put(encode(rowString), encode(columnString), encode(value));
 
         try {
-            return entityToValue(timedTableOperation(PUT_TIMER, putStringieOperation));
+            return entityToValue(stringCloudTableClient.execute(tableName, putStringieOperation));
         } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
@@ -164,18 +146,13 @@ public class BaseAzureTable implements Table<String, String, String> {
         TableOperation deleteStringieOperation = azureTableRequestFactory.delete(entityToBeDeleted);
 
         try {
-            return entityToValue(timedTableOperation(REMOVE_TIMER, deleteStringieOperation));
+            return entityToValue(stringCloudTableClient.execute(tableName, deleteStringieOperation));
         } catch (StorageException e) {
             if (notFound(e)) {
                 return null;
             }
             throw Throwables.propagate(e);
         }
-    }
-
-    private boolean notFound(StorageException e) {
-        return StorageErrorCode.RESOURCE_NOT_FOUND.toString().equals(e.getErrorCode())
-                || "ResourceNotFound".equals(e.getErrorCode());
     }
 
     @Override
@@ -219,7 +196,7 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, Map<String, String>> columnMap() {
-       return new ColumnMapView<>(this);
+        return new ColumnMapView<>(this);
     }
 
     public String getTableName() {
@@ -238,6 +215,7 @@ public class BaseAzureTable implements Table<String, String, String> {
             this.azureTableRequestFactory = azureTableRequestFactory;
         }
 
+        @Override
         protected Iterable<AzureEntity> getBackingIterable() {
             TableQuery<AzureEntity> query = azureTableRequestFactory.selectAll(baseAzureTable.getTableName());
             return azureTableCloudClient.execute(query);

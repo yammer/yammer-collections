@@ -2,7 +2,6 @@ package com.yammer.collections.guava.azure;
 
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -11,12 +10,19 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-// TODO make to variants, one that trusts the underyling collection and one that doesn't
 public class SetView<E> extends AbstractSet<E> {
     private final CollectionView<E> collectionView;
 
     private SetView(CollectionView<E> collectionView) {
         this.collectionView = collectionView;
+    }
+
+    public static <E> SetView<E> fromSetCollectionView(CollectionView<E> colletionView) {
+        return new SetView<>(colletionView);
+    }
+
+    public static <E> SetView<E> fromCollectionView(CollectionView<E> colletionView) {
+        return new NonSetCollectionBasedSetView<>(colletionView);
     }
 
     @Override
@@ -56,17 +62,8 @@ public class SetView<E> extends AbstractSet<E> {
 
     @Override
     public void clear() {
-       throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
-
-    public static <E> SetView<E> fromSetCollectionView(CollectionView<E> colletionView) {
-        return new SetView<>(colletionView);
-    }
-
-    public static <E> SetView<E> fromCollectionView(CollectionView<E> colletionView) {
-        return new NonSetCollectionBasedSetView<>(colletionView);
-    }
-
 
     private static class NonSetCollectionBasedSetView<E> extends SetView<E> {
         private final CollectionView<E> collectionView;
@@ -79,7 +76,7 @@ public class SetView<E> extends AbstractSet<E> {
         @Override
         public int size() {
             int size = 0;
-            for(E e : this) {
+            for (E e : this) {
                 size++;
             }
             return size;
@@ -105,7 +102,7 @@ public class SetView<E> extends AbstractSet<E> {
 
         @Override
         public boolean hasNext() {
-            if(!next.isPresent()) {
+            if (!next.isPresent()) {
                 next = internalNext();
             }
             return next.isPresent();
@@ -113,7 +110,7 @@ public class SetView<E> extends AbstractSet<E> {
 
         @Override
         public E next() {
-            if(!hasNext()) {
+            if (!hasNext()) {
                 throw new NoSuchElementException();
             }
 
@@ -125,11 +122,11 @@ public class SetView<E> extends AbstractSet<E> {
         private Optional<E> internalNext() {
             E candiateNext;
             do {
-                if(!baseIterator.hasNext()) {
+                if (!baseIterator.hasNext()) {
                     return Optional.absent();
                 }
                 candiateNext = baseIterator.next();
-            } while(!occurences.add(candiateNext));
+            } while (!occurences.add(candiateNext));
 
             return Optional.of(candiateNext);
         }

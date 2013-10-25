@@ -12,9 +12,7 @@ import static com.yammer.collections.guava.azure.AzureEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
 import static com.yammer.collections.guava.azure.AzureEntityUtil.encode;
 
-// TODO no timers here as of yet
 class ColumnView implements Map<String, String> {
-    // TODO these are probably extractable
     private static final Function<AzureEntity, String> EXTRACT_COLUMN_KEY = new Function<AzureEntity, String>() {
         @Override
         public String apply(AzureEntity input) {
@@ -43,7 +41,7 @@ class ColumnView implements Map<String, String> {
         };
     }
 
-    @Override // TODO this requires a javadoc to explain that this is a very expensive operation
+    @Override
     public int size() {
         return entrySet().size();
     }
