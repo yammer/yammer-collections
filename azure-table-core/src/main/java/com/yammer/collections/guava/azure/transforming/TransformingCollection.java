@@ -7,9 +7,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
-public class TransformingCollection<F,T> extends AbstractCollection<F> {
+public class TransformingCollection<F, T> extends AbstractCollection<F> {
     private final Collection<T> backingCollection;
     private final Function<F, T> toFunction;
     private final Function<T, F> fromFunction;
@@ -74,7 +73,7 @@ public class TransformingCollection<F,T> extends AbstractCollection<F> {
     @Override
     public int hashCode() {
         HashCodeBuilder builder = new HashCodeBuilder(43, 17);
-        for(F f : this) {
+        for (F f : this) {
             builder.append(f);
         }
         return builder.build();
@@ -82,14 +81,20 @@ public class TransformingCollection<F,T> extends AbstractCollection<F> {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null) { return false; }
-        if (o == this) { return true; }
-        if (!(o instanceof Collection)) {return false;}
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Collection)) {
+            return false;
+        }
         Collection s = (Collection) o;
 
         Iterator<?> i = s.iterator();
-        for(F f : this) {
-            if(!i.hasNext() || !f.equals(i.next())) {
+        for (F f : this) {
+            if (!i.hasNext() || !f.equals(i.next())) {
                 return false;
             }
         }

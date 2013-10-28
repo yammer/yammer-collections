@@ -1,0 +1,226 @@
+package com.yammer.collections.guava.azure.transforming;
+
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Map;
+
+import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class TransformingMapTest {
+    private static final Integer F_KEY_1 = 11;
+    private static final Integer F_KEY_2 = 22;
+    private static final Float F_VALUE_1 = 0.5f;
+    private static final Float F_VALUE_2 = 0.8f;
+    private static final Float F_VALUE_OTHER = 99.33f;
+    private static final String T_KEY_1 = F_KEY_1.toString();
+    private static final String T_KEY_2 = F_KEY_2.toString();
+    private static final String T_VALUE_1 = F_VALUE_1.toString();
+    private static final String T_VALUE_2 = F_VALUE_2.toString();
+    private static final String T_VALUE_OTHER = F_VALUE_OTHER.toString();
+
+
+    private static final Function<Integer, String> TO_KEY_FUNCTION = new Function<Integer, String>() {
+        @Override
+        public String apply(Integer input) {
+            return input.toString();
+        }
+    };
+    private static final Function<String, Integer> FROM_KEY_FUNCTION = new Function<String, Integer>() {
+        @Override
+        public Integer apply(String input) {
+            return Integer.parseInt(input);
+        }
+    };
+    private static final Function<Float, String> TO_VALUE_FUNCTION =  new Function<Float, String>() {
+        @Override
+        public String apply(Float input) {
+            return input.toString();
+        }
+    };;
+    private static final Function<String,Float> FROM_VALUE_FUNCTION = new Function<String, Float>() {
+        @Override
+        public Float apply(String input) {
+            return Float.parseFloat(input);
+        }
+    };
+    @Mock
+    private Map<String, String> backingMapMock;
+    private Map<Integer, Float> transfromingMap;
+
+    @Before
+    public void setUp() {
+        transfromingMap = new TransformingMap<>(
+                backingMapMock,
+                TO_KEY_FUNCTION,
+                FROM_KEY_FUNCTION,
+                TO_VALUE_FUNCTION,
+                FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test
+    public void size_delegates() {
+        when(backingMapMock.size()).thenReturn(2);
+
+        assertThat(transfromingMap.size(), is(equalTo(2)));
+    }
+
+    @Test
+    public void isEmpty_delegates() {
+        when(backingMapMock.isEmpty()).thenReturn(true);
+
+        assertThat(transfromingMap.isEmpty(), is(equalTo(true)));
+    }
+
+    @Test
+    public void containsValue_delegates() {
+        when(backingMapMock.containsValue(T_VALUE_1)).thenReturn(true);
+
+        assertThat(transfromingMap.containsValue(F_VALUE_1), is(equalTo(true)));
+    }
+
+    @Test
+    public void contains_value_returns_false_if_object_of_wrong_type() {
+        when(backingMapMock.containsValue(T_VALUE_1)).thenReturn(true);
+
+        assertThat(transfromingMap.containsValue("ala"), is(equalTo(false)));
+    }
+
+    @Test
+    public void containsKey_delegates() {
+        when(backingMapMock.containsKey(T_KEY_1)).thenReturn(true);
+
+        assertThat(transfromingMap.containsKey(F_KEY_1), is(equalTo(true)));
+    }
+
+    @Test
+    public void containsKey_returns_false_if_object_of_wrong_type() {
+        when(backingMapMock.containsKey(T_KEY_1)).thenReturn(true);
+
+        assertThat(transfromingMap.containsKey(11.0f), is(equalTo(false)));
+    }
+
+  // TODO  add missing tests, i.e., for generated methods but not covered by this template
+
+    @Test
+    public void keySet_delegates() {
+        when(backingMapMock.keySet()).thenReturn(ImmutableSet.of(T_KEY_1, T_KEY_2));
+
+        assertThat(transfromingMap.keySet(), containsInAnyOrder(F_KEY_1, F_KEY_2));
+    }
+
+    @Test
+    public void values_delegates() {
+        when(backingMapMock.values()).thenReturn(ImmutableList.of(T_VALUE_1, T_VALUE_2, T_VALUE_2));
+
+        assertThat(transfromingMap.values(), containsInAnyOrder(F_VALUE_1, F_VALUE_2, F_VALUE_2));
+    }
+
+    @Test
+    public void put_delegats() {
+        when(backingMapMock.put(T_KEY_1, T_VALUE_1)).thenReturn(T_VALUE_OTHER);
+
+        assertThat(transfromingMap.put(F_KEY_1, F_VALUE_1), is(equalTo(F_VALUE_OTHER)));
+    }
+
+    @Test
+    public void put_returns_null_when_delegate_returns_null() {
+        when(backingMapMock.put(T_KEY_1, T_VALUE_1)).thenReturn(null);
+
+        assertThat(transfromingMap.put(F_KEY_1, F_VALUE_1), is(nullValue()));
+    }
+
+    @Test
+    public void remove_delegates() {
+        when(backingMapMock.remove(T_KEY_1)).thenReturn(T_VALUE_1);
+
+        assertThat(transfromingMap.remove(F_KEY_1), is(equalTo(F_VALUE_1)));
+    }
+
+    @Test
+    public void remove_returns_null_when_delegate_returns_null() {
+        when(backingMapMock.remove(T_KEY_1)).thenReturn(null);
+
+        assertThat(transfromingMap.remove(F_KEY_1), is(nullValue()));
+    }
+
+    @Test
+    public void remove_of_wrong_type_returns_null() {
+        when(backingMapMock.remove(T_KEY_1)).thenReturn(T_VALUE_1);
+
+        assertThat(transfromingMap.remove(11.0f), is(nullValue()));
+    }
+
+    @Test
+    public void get_delegates() {
+        when(backingMapMock.get(T_KEY_1)).thenReturn(T_VALUE_1);
+
+        assertThat(transfromingMap.get(F_KEY_1), is(equalTo(F_VALUE_1)));
+    }
+
+    @Test
+    public void get_returns_null_when_delegate_returns_null() {
+        when(backingMapMock.remove(T_KEY_1)).thenReturn(null);
+
+        assertThat(transfromingMap.get(F_KEY_1), is(nullValue()));
+    }
+
+    @Test
+    public void get_of_wrong_type_returns_null() {
+        when(backingMapMock.get(T_KEY_1)).thenReturn(T_VALUE_1);
+
+        assertThat(transfromingMap.get(11.0f), is(nullValue()));
+    }
+
+    @Test
+    public void clear_delegates() {
+        transfromingMap.clear();
+
+        verify(backingMapMock).clear();
+    }
+   // TODO here, make the entry class public
+//    @Test
+//    public void equals_returns_true_on_equal_collection() {
+//        when(backingMapMock.entrySet()).thenReturn(asList(T_KEY_1, T_KEY_2).iterator());
+//
+//        assertThat(transfromingMap.equals(ImmutableSet.of(F_KEY_1, F_KEY_2)), is(equalTo(true)));
+//    }
+//
+//    @Test
+//    public void equals_returns_false_on_nonequal_collection() {
+//        when(backingMapMock.iterator()).thenReturn(asList(T_KEY_1, T_KEY_2).iterator());
+//
+//        assertThat(transfromingMap.equals(ImmutableSet.of(F_KEY_1, F_VALUE_OTHER)), is(equalTo(false)));
+//    }
+//
+//    @Test
+//    public void equals_returns_false_on_shorter_collection() {
+//        when(backingMapMock.iterator()).thenReturn(asList(T_KEY_1, T_KEY_2).iterator());
+//
+//        assertThat(transfromingMap.equals(ImmutableSet.of(F_KEY_1)), is(equalTo(false)));
+//    }
+//
+//    @Test
+//    public void equals_returns_false_on_longer_collection() {
+//        when(backingMapMock.iterator()).thenReturn(asList(T_KEY_1, T_KEY_2).iterator());
+//
+//        assertThat(transfromingMap.equals(ImmutableSet.of(F_KEY_1, F_KEY_2, F_VALUE_OTHER)), is(equalTo(false)));
+//    }
+
+   // TODO entry tests
+}
