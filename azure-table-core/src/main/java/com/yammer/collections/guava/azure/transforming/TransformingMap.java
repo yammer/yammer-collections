@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
+
 public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     private final Map<K1, V1> backingMap;
     private final Function<K, K1> toKeyFunction;
@@ -54,10 +56,6 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
                         );
                     }
                 };
-    }
-
-    private static <F, T> T safeTransform(F from, Function<F, T> conversionFunction) {// TODO probably extractable, as most collections will use it
-        return from == null ? null : conversionFunction.apply(from);
     }
 
     @Override
