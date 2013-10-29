@@ -9,10 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
 
 // TODO : change null handling policy to be consistent (remove null handling in other classes)
-// TODO : change type handling policy to be consistent
-// TODO : remove duplication, use safe transform
 
 
 /**
@@ -105,7 +104,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     }
 
     @SuppressWarnings("unchecked")
-    private <F, T> T tryTransforming(Object o, Function<F, T> transfromingFunction) {// TODO take this out, and reuse, add not-null check here?
+    private <F, T> T tryTransforming(Object o, Function<F, T> transfromingFunction) {
         try {
             return transfromingFunction.apply((F) o);
         } catch (ClassCastException e) {
@@ -156,9 +155,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
             return null;
         }
 
-        V1 mValue = backingTable.get(mRowKey, mColumnKey);
-
-        return mValue == null ? null : fromValueFunction.apply(mValue);
+        return safeTransform(backingTable.get(mRowKey, mColumnKey), fromValueFunction);
     }
 
     @Override
@@ -182,13 +179,12 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
         checkNotNull(columnKey);
         checkNotNull(value);
 
-        final V1 mValue = backingTable.put(
-                toRowFunction.apply(rowKey),
-                toColumnFunction.apply(columnKey),
-                toValueFunction.apply(value)
-        );
-
-        return mValue == null ? null : fromValueFunction.apply(mValue);
+        return safeTransform(
+                backingTable.put(
+                        toRowFunction.apply(rowKey),
+                        toColumnFunction.apply(columnKey),
+                        toValueFunction.apply(value)),
+                fromValueFunction);
     }
 
     @Override
@@ -210,9 +206,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
             return null;
         }
 
-        final V1 mValue = backingTable.remove(mRowKey, mColumnKey);
-
-        return mValue == null ? null : fromValueFunction.apply(mValue);
+        return safeTransform(backingTable.remove(mRowKey, mColumnKey), fromValueFunction);
     }
 
     @Override
@@ -286,13 +280,5 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
                 toColumnMapValueFunction,
                 fromColumnMapValueFunction
         );
-    }
-
-    public static interface Marshaller<F, T> {
-        T marshal(F unmarshalled);
-
-        F unmarshal(T marshalled);
-
-        Class<F> getType();
     }
 }
