@@ -1,5 +1,6 @@
 package com.yammer.collections.guava.azure.transforming;
 
+import com.google.common.base.Function;
 import com.google.common.collect.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,13 +35,54 @@ public class TransformingTableTest {
     private static final String STRING_ROW_KEY_2 = ROW_KEY_2.toString();
     private static final String STRING_COLUMN_KEY_2 = COLUMN_KEY_2.toString();
     private static final String STRING_VALUE_2 = VALUE_2.toString();
+    private static final Function<Float, String> TO_ROW_FUNCTION = new Function<Float, String>() {
+        @Override
+        public String apply(Float aFloat) {
+            return aFloat.toString();
+        }
+    };
+    private static final Function<Long, String> TO_COLUMN_FUNCTION = new Function<Long, String>() {
+        @Override
+        public String apply(Long aLong) {
+            return aLong.toString();
+        }
+    };
+    private static final Function<Integer, String> TO_VALUE_FUNCTION = new Function<Integer, String>() {
+        @Override
+        public String apply(Integer anInteger) {
+            return anInteger.toString();
+        }
+    };
+    private static final Function<String, Float> FROM_ROW_FUNCTION = new Function<String, Float>() {
+        @Override
+        public Float apply(String aFloat) {
+            return Float.valueOf(aFloat);
+        }
+    };
+    private static final Function<String, Long> FROM_COLUMN_FUNCTION = new Function<String, Long>() {
+        @Override
+        public Long apply(String aLong) {
+            return Long.valueOf(aLong);
+        }
+    };
+    private static final Function<String, Integer> FROM_VALUE_FUNCTION = new Function<String, Integer>() {
+        @Override
+        public Integer apply(String anInteger) {
+            return Integer.valueOf(anInteger);
+        }
+    };
+
     private TransformingTable<Float, Long, Integer, String, String, String> transformingTable;
     @Mock
     private Table<String, String, String> backingTableMock;
 
     @Before
     public void setUp() {
-        transformingTable = new TransformingTable<>(new FloatMarshaller(), new LongMarshaller(), new IntegerMarshaller(), backingTableMock);
+        transformingTable = new TransformingTable<>(
+                backingTableMock,
+                TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
+                TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
+                TO_VALUE_FUNCTION, FROM_VALUE_FUNCTION);
     }
 
     // contains
@@ -277,7 +319,7 @@ public class TransformingTableTest {
     // put all delegates
     @Test
     public void put_all_delegates() {
-        Table<Float, Long, Integer> tableToPut = new ImmutableTable.Builder().
+        Table<Float, Long, Integer> tableToPut = new ImmutableTable.Builder<Float, Long, Integer>().
                 put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1).
                 put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2).build();
 
@@ -354,57 +396,4 @@ public class TransformingTableTest {
         transformingTable.column(null);
     }
 
-    // ----- stubs ----
-
-    private class FloatMarshaller implements TransformingTable.Marshaller<Float, String> {
-        @Override
-        public String marshal(Float unmarshalled) {
-            return unmarshalled.toString();
-        }
-
-        @Override
-        public Float unmarshal(String marshalled) {
-            return Float.parseFloat(marshalled);
-        }
-
-        @Override
-        public Class<Float> getType() {
-            return Float.class;
-        }
-    }
-
-    private class LongMarshaller implements TransformingTable.Marshaller<Long, String> {
-
-        @Override
-        public String marshal(Long unmarshalled) {
-            return unmarshalled.toString();
-        }
-
-        @Override
-        public Long unmarshal(String marshalled) {
-            return Long.parseLong(marshalled);
-        }
-
-        @Override
-        public Class<Long> getType() {
-            return Long.class;
-        }
-    }
-
-    private class IntegerMarshaller implements TransformingTable.Marshaller<Integer, String> {
-        @Override
-        public String marshal(Integer unmarshalled) {
-            return unmarshalled.toString();
-        }
-
-        @Override
-        public Integer unmarshal(String marshalled) {
-            return Integer.parseInt(marshalled);
-        }
-
-        @Override
-        public Class<Integer> getType() {
-            return Integer.class;
-        }
-    }
 }
