@@ -213,6 +213,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public void putAll(Table<? extends R, ? extends C, ? extends V> table) {
+        checkNotNull(table);
         for (Cell<? extends R, ? extends C, ? extends V> cell : table.cellSet()) {
             put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
         }
@@ -236,12 +237,22 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public Map<C, V> row(R rowKey) {
-        throw new UnsupportedOperationException();   // TODO implement
+        checkNotNull(rowKey);
+        return new TransformingMap<>(
+                backingTable.row(rowMarshallingTransformation.apply(rowKey)),
+                columnMarshallingTransformation, columnUnmarshallingTransformation,
+                valueMarshallingTransformation, valueUnmarshallingTransformation
+        );
     }
 
     @Override
     public Map<R, V> column(C columnKey) {
-        throw new UnsupportedOperationException();    // TODO implement
+        checkNotNull(columnKey);
+        return new TransformingMap<>(
+                backingTable.column(columnMarshallingTransformation.apply(columnKey)),
+                rowMarshallingTransformation, rowUnmarshallingTransformation,
+                valueMarshallingTransformation, valueUnmarshallingTransformation
+        );
     }
 
     @Override

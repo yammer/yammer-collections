@@ -287,6 +287,11 @@ public class TransformingTableTest {
         verify(backingTableMock).put(STRING_ROW_KEY_2, STRING_COLUMN_KEY_2, STRING_VALUE_2);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void put_all_errors_on_null() {
+        transformingTable.putAll(null);
+    }
+
     // row map
     @Test
     public void rowMap_delegates() {
@@ -321,7 +326,33 @@ public class TransformingTableTest {
         )));
     }
 
+    @Test
+    public void row_delegates() {
+        when(backingTableMock.row(STRING_ROW_KEY_1)).thenReturn(ImmutableMap.of(STRING_COLUMN_KEY_1, STRING_VALUE_1));
 
+        assertThat(transformingTable.row(ROW_KEY_1), is(equalTo(
+                (Map<Long, Integer>) ImmutableMap.of(COLUMN_KEY_1, VALUE_1)
+        )));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void when_row_null_then_error() {
+        transformingTable.row(null);
+    }
+
+    @Test
+    public void column_delegates() {
+        when(backingTableMock.column(STRING_COLUMN_KEY_1)).thenReturn(ImmutableMap.of(STRING_ROW_KEY_1, STRING_VALUE_1));
+
+        assertThat(transformingTable.column(COLUMN_KEY_1), is(equalTo(
+                (Map<Float, Integer>) ImmutableMap.of(ROW_KEY_1, VALUE_1)
+        )));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void when_column_null_then_error() {
+        transformingTable.column(null);
+    }
 
     // ----- stubs ----
 
