@@ -10,6 +10,11 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+// TODO : remove marshallers (and notion of marshaling), use the function interface throughout
+// TODO : change null handling policy to be consistent
+// TODO : change type handling policy to be consistent
+
+
 /**
  * In early stages of implementation. Built for the Secretie project, which deals with small data sets that can be trivially sent
  * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.
@@ -46,6 +51,8 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     private final Marshaller<C, C1> columnKeyMarshaller;
     private final Marshaller<V, V1> valueMarshaller;
     private final Table<R1, C1, V1> backingTable;
+    private final Function<Map<C, V>, Map<C1, V1>> toRowMapValueFunction;
+    private final Function<Map<C1, V1>, Map<C, V>> fromRowMapValueFunction;
 
     public TransformingTable(final Marshaller<R, R1> rowKeyMarshaller,
                              final Marshaller<C, C1> columnKeyMarshaller,
@@ -61,6 +68,26 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
         rowUnmarshallingTransformation = createUnmarshallingFunction(rowKeyMarshaller);
         valueMarshallingTransformation = createMarshallingFunction(valueMarshaller);
         valueUnmarshallingTransformation = createUnmarshallingFunction(valueMarshaller);
+        toRowMapValueFunction = new Function<Map<C, V>, Map<C1, V1>>() {
+            @Override
+            public Map<C1, V1> apply(java.util.Map<C, V> cvMap) {// TODO this is wrong, needs optimization as we end up rewarpping the wrapper
+                return new TransformingMap<>(
+                    cvMap,
+                    columnUnmarshallingTransformation, columnMarshallingTransformation,
+                    valueUnmarshallingTransformation, valueMarshallingTransformation
+                );
+            }
+        };
+        fromRowMapValueFunction = new Function<Map<C1, V1>, Map<C, V>>() {
+            @Override
+            public Map<C, V> apply(java.util.Map<C1, V1> c1V1Map) {
+                return new TransformingMap<>(
+                        c1V1Map,
+                        columnMarshallingTransformation, columnUnmarshallingTransformation,
+                        valueMarshallingTransformation, valueUnmarshallingTransformation
+                );
+            }
+        };
     }
 
     private static <F, T> Function<F, T> createMarshallingFunction(final Marshaller<F, T> marshaller) {
@@ -213,14 +240,14 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public Set<R> rowKeySet() {
-        return new TransformingSet(
+        return new TransformingSet<>(
                 backingTable.rowKeySet(), rowMarshallingTransformation, rowUnmarshallingTransformation
         );
     }
 
     @Override
     public Set<C> columnKeySet() {
-        return new TransformingSet(
+        return new TransformingSet<>(
                 backingTable.columnKeySet(), columnMarshallingTransformation, columnUnmarshallingTransformation
         );
     }
@@ -234,7 +261,13 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public Map<R, Map<C, V>> rowMap() {
-        throw new UnsupportedOperationException();    // TODO implement
+        return new TransformingMap<>(
+            backingTable.rowMap(),
+            rowMarshallingTransformation,
+            rowUnmarshallingTransformation,
+            toRowMapValueFunction,
+            fromRowMapValueFunction
+        );
     }
 
     @Override

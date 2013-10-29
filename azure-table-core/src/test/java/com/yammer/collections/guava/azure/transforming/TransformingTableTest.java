@@ -1,9 +1,6 @@
 package com.yammer.collections.guava.azure.transforming;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
+import com.google.common.collect.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -38,11 +36,11 @@ public class TransformingTableTest {
     private static final String STRING_VALUE_2 = VALUE_2.toString();
     private TransformingTable<Float, Long, Integer, String, String, String> transformingTable;
     @Mock
-    private Table<String, String, String> baseTableMock;
+    private Table<String, String, String> backingTableMock;
 
     @Before
     public void setUp() {
-        transformingTable = new TransformingTable<>(new FloatMarshaller(), new LongMarshaller(), new IntegerMarshaller(), baseTableMock);
+        transformingTable = new TransformingTable<>(new FloatMarshaller(), new LongMarshaller(), new IntegerMarshaller(), backingTableMock);
     }
 
     // contains
@@ -69,7 +67,7 @@ public class TransformingTableTest {
 
     @Test
     public void contains_delegates_to_backing_table() {
-        when(baseTableMock.contains(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1)).thenReturn(true);
+        when(backingTableMock.contains(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1)).thenReturn(true);
 
         assertThat(transformingTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(true)));
     }
@@ -88,7 +86,7 @@ public class TransformingTableTest {
 
     @Test
     public void containsRow_delegates_to_backing_table() {
-        when(baseTableMock.containsRow(STRING_ROW_KEY_1)).thenReturn(true);
+        when(backingTableMock.containsRow(STRING_ROW_KEY_1)).thenReturn(true);
 
         assertThat(transformingTable.containsRow(ROW_KEY_1), is(equalTo(true)));
     }
@@ -107,7 +105,7 @@ public class TransformingTableTest {
 
     @Test
     public void containsColumn_delegates_to_backing_table() {
-        when(baseTableMock.containsColumn(STRING_COLUMN_KEY_1)).thenReturn(true);
+        when(backingTableMock.containsColumn(STRING_COLUMN_KEY_1)).thenReturn(true);
 
         assertThat(transformingTable.containsColumn(COLUMN_KEY_1), is(equalTo(true)));
     }
@@ -127,7 +125,7 @@ public class TransformingTableTest {
 
     @Test
     public void containsValue_delegates_to_backing_table() {
-        when(baseTableMock.containsValue(STRING_VALUE_1)).thenReturn(true);
+        when(backingTableMock.containsValue(STRING_VALUE_1)).thenReturn(true);
 
         assertThat(transformingTable.containsValue(VALUE_1), is(equalTo(true)));
     }
@@ -156,7 +154,7 @@ public class TransformingTableTest {
 
     @Test
     public void get_delegates_to_backing_table() {
-        when(baseTableMock.get(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1)).thenReturn(STRING_VALUE_1);
+        when(backingTableMock.get(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1)).thenReturn(STRING_VALUE_1);
 
         assertThat(transformingTable.get(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(VALUE_1)));
     }
@@ -164,7 +162,7 @@ public class TransformingTableTest {
     // isEmpty
 
     public void isEmpty_delegates() {
-        when(baseTableMock.isEmpty()).thenReturn(true);
+        when(backingTableMock.isEmpty()).thenReturn(true);
 
         assertThat(transformingTable.isEmpty(), is(equalTo(true)));
     }
@@ -172,7 +170,7 @@ public class TransformingTableTest {
     // size
 
     public void size_delegates() {
-        when(baseTableMock.size()).thenReturn(10);
+        when(backingTableMock.size()).thenReturn(10);
 
         assertThat(transformingTable.size(), is(equalTo(10)));
     }
@@ -182,7 +180,7 @@ public class TransformingTableTest {
     public void clear_delegates() {
         transformingTable.clear();
 
-        verify(baseTableMock).clear();
+        verify(backingTableMock).clear();
     }
 
     // put
@@ -204,7 +202,7 @@ public class TransformingTableTest {
 
     @Test
     public void put_delegates_to_backing_table() {
-        when(baseTableMock.put(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1, STRING_VALUE_1)).thenReturn(STRING_VALUE_1);
+        when(backingTableMock.put(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1, STRING_VALUE_1)).thenReturn(STRING_VALUE_1);
 
         assertThat(transformingTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1), is(equalTo(VALUE_1)));
     }
@@ -233,7 +231,7 @@ public class TransformingTableTest {
 
     @Test
     public void remove_delegates_to_backing_table() {
-        when(baseTableMock.remove(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1)).thenReturn(STRING_VALUE_1);
+        when(backingTableMock.remove(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1)).thenReturn(STRING_VALUE_1);
 
         assertThat(transformingTable.remove(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(VALUE_1)));
     }
@@ -241,7 +239,7 @@ public class TransformingTableTest {
     // cell set
     public void cellSet_delegates_to_backing_table() {
         Set<Table.Cell<String, String, String>> cellSet = Collections.singleton(Tables.immutableCell(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1, STRING_VALUE_1));
-        when(baseTableMock.cellSet()).thenReturn(cellSet);
+        when(backingTableMock.cellSet()).thenReturn(cellSet);
 
         Table.Cell<Float, Long, Integer> expectedCell = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
 
@@ -253,7 +251,7 @@ public class TransformingTableTest {
 
     @Test
     public void columnKeySet_delegates_to_backing_table() throws UnsupportedEncodingException {
-        when(baseTableMock.columnKeySet()).thenReturn(ImmutableSet.of(STRING_COLUMN_KEY_1, STRING_COLUMN_KEY_2));
+        when(backingTableMock.columnKeySet()).thenReturn(ImmutableSet.of(STRING_COLUMN_KEY_1, STRING_COLUMN_KEY_2));
 
         assertThat(transformingTable.columnKeySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
     }
@@ -262,7 +260,7 @@ public class TransformingTableTest {
 
     @Test
     public void rowKeySet_delegates_to_backing_table() throws UnsupportedEncodingException {
-        when(baseTableMock.rowKeySet()).thenReturn(ImmutableSet.of(STRING_ROW_KEY_1, STRING_ROW_KEY_2));
+        when(backingTableMock.rowKeySet()).thenReturn(ImmutableSet.of(STRING_ROW_KEY_1, STRING_ROW_KEY_2));
 
         assertThat(transformingTable.rowKeySet(), containsInAnyOrder(ROW_KEY_1, ROW_KEY_2));
     }
@@ -271,7 +269,7 @@ public class TransformingTableTest {
 
     @Test
     public void value_delegates_to_backing_table() throws UnsupportedEncodingException {
-        when(baseTableMock.values()).thenReturn(ImmutableSet.of(STRING_VALUE_1, STRING_VALUE_2));
+        when(backingTableMock.values()).thenReturn(ImmutableSet.of(STRING_VALUE_1, STRING_VALUE_2));
 
         assertThat(transformingTable.values(), containsInAnyOrder(VALUE_1, VALUE_2));
     }
@@ -285,8 +283,25 @@ public class TransformingTableTest {
 
         transformingTable.putAll(tableToPut);
 
-        verify(baseTableMock).put(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1, STRING_VALUE_1);
-        verify(baseTableMock).put(STRING_ROW_KEY_2, STRING_COLUMN_KEY_2, STRING_VALUE_2);
+        verify(backingTableMock).put(STRING_ROW_KEY_1, STRING_COLUMN_KEY_1, STRING_VALUE_1);
+        verify(backingTableMock).put(STRING_ROW_KEY_2, STRING_COLUMN_KEY_2, STRING_VALUE_2);
+    }
+
+    // row map
+    @Test
+    public void rowMap_delegates() {
+        Map<String, Map<String, String>> backingRowMap = ImmutableMap.of(
+                STRING_ROW_KEY_1, (Map<String, String>) ImmutableMap.of(STRING_COLUMN_KEY_1, STRING_VALUE_1),
+                STRING_ROW_KEY_2, ImmutableMap.of(STRING_COLUMN_KEY_1, STRING_VALUE_2)
+        );
+
+        when(backingTableMock.rowMap()).thenReturn(backingRowMap);
+
+        assertThat(transformingTable.rowMap(), is(equalTo(
+                (Map<Float, Map<Long, Integer>>) ImmutableMap.of(
+                        ROW_KEY_1, (Map<Long, Integer>) ImmutableMap.of(COLUMN_KEY_1, VALUE_1),
+                        ROW_KEY_2, ImmutableMap.of(COLUMN_KEY_1, VALUE_2))
+        )));
     }
 
 
