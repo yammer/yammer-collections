@@ -34,22 +34,29 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
             public Entry<K1, V1> apply(java.util.Map.Entry<K, V> kvEntry) {
                 return new TransformingEntry<>(
                         kvEntry,
-                        fromKeyFunction, toKeyFunction,
-                        fromValueFunction, toValueFunction
+                        toKeyFunction,
+                        fromValueFunction,
+                        toValueFunction
                 );
             }
         };
         this.fromEntryFunction = new
+
                 Function<Entry<K1, V1>, Entry<K, V>>() {
                     @Override
                     public Entry<K, V> apply(java.util.Map.Entry<K1, V1> kvEntry) {
                         return new TransformingEntry<>(
                                 kvEntry,
-                                toKeyFunction, fromKeyFunction,
-                                toValueFunction, fromValueFunction
+                                fromKeyFunction,
+                                toValueFunction,
+                                fromValueFunction
                         );
                     }
                 };
+    }
+
+    private static <F, T> T safeTransform(F from, Function<F, T> conversionFunction) {// TODO probably extractable, as most collections will use it
+        return from == null ? null : conversionFunction.apply(from);
     }
 
     @Override
@@ -130,18 +137,15 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
 
     public static class TransformingEntry<K, V, K1, V1> implements Entry<K, V> {
         private final Entry<K1, V1> backingEntry;
-        private final Function<K, K1> toKeyFunction;
         private final Function<K1, K> fromKeyFunction;
         private final Function<V, V1> toValueFunction;
         private final Function<V1, V> fromValueFunction;
 
         public TransformingEntry(Entry<K1, V1> backingEntry,
-                                 Function<K, K1> toKeyFunction,
                                  Function<K1, K> fromKeyFunction,
                                  Function<V, V1> toValueFunction,
                                  Function<V1, V> fromValueFunction) {
             this.backingEntry = backingEntry;
-            this.toKeyFunction = toKeyFunction;
             this.fromKeyFunction = fromKeyFunction;
             this.toValueFunction = toValueFunction;
             this.fromValueFunction = fromValueFunction;
@@ -149,21 +153,20 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
 
         @Override
         public K getKey() {
-            K1 retKey = backingEntry.getKey();
-            return retKey == null ? null : fromKeyFunction.apply(retKey);
+            return safeTransform(backingEntry.getKey(), fromKeyFunction);
         }
 
         @Override
         public V getValue() {
-            V1 retValue = backingEntry.getValue();
-            return retValue == null ? null : fromValueFunction.apply(retValue);
+            return safeTransform(backingEntry.getValue(), fromValueFunction);
         }
 
         @Override
         public V setValue(V value) {
-            V1 valueToBeSet = (value == null) ? null : toValueFunction.apply(value);
-            V1 retValue = backingEntry.setValue(valueToBeSet);
-            return retValue == null ? null : fromValueFunction.apply(retValue);
+            return safeTransform(
+                    backingEntry.setValue(safeTransform(value, toValueFunction)),
+                    fromValueFunction
+            );
         }
     }
 }
