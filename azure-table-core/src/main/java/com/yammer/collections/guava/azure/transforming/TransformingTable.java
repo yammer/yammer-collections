@@ -11,9 +11,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
 
-// TODO : change null handling policy to be consistent (remove null handling in other classes)
-
-
 /**
  * // TODO update this doc
  * In early stages of implementation. Built for the Secretie project, which deals with small data sets that can be trivially sent
