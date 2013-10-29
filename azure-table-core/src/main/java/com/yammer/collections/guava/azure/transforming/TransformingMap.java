@@ -14,8 +14,8 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     private final Function<K1, K> fromKeyFunction;
     private final Function<V, V1> toValueFunction;
     private final Function<V1, V> fromValueFunction;
-    private final Function<Entry<K,V>, Entry<K1, V1>> toEntryFunction;
-    private final Function<Entry<K1,V1>, Entry<K, V>> fromEntryFunction;
+    private final Function<Entry<K, V>, Entry<K1, V1>> toEntryFunction;
+    private final Function<Entry<K1, V1>, Entry<K, V>> fromEntryFunction;
 
     public TransformingMap(
             Map<K1, V1> backingMap,
@@ -33,22 +33,23 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
             @Override
             public Entry<K1, V1> apply(java.util.Map.Entry<K, V> kvEntry) {
                 return new TransformingEntry<>(
-                    kvEntry,
-                    fromKeyFunction, toKeyFunction,
-                    fromValueFunction, toValueFunction
-                );
-            }
-        };
-        this.fromEntryFunction = new Function<Entry<K1, V1>, Entry<K, V>>() {
-            @Override
-            public Entry<K, V> apply(java.util.Map.Entry<K1, V1> kvEntry) {
-                return new TransformingEntry<>(
                         kvEntry,
-                        toKeyFunction, fromKeyFunction,
-                        toValueFunction, fromValueFunction
+                        fromKeyFunction, toKeyFunction,
+                        fromValueFunction, toValueFunction
                 );
             }
         };
+        this.fromEntryFunction = new
+                Function<Entry<K1, V1>, Entry<K, V>>() {
+                    @Override
+                    public Entry<K, V> apply(java.util.Map.Entry<K1, V1> kvEntry) {
+                        return new TransformingEntry<>(
+                                kvEntry,
+                                toKeyFunction, fromKeyFunction,
+                                toValueFunction, fromValueFunction
+                        );
+                    }
+                };
     }
 
     @Override
@@ -64,7 +65,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @Override
     public Set<Entry<K, V>> entrySet() {
         return new TransformingSet(
-            backingMap.entrySet(),
+                backingMap.entrySet(),
                 toEntryFunction,
                 fromEntryFunction
         );
@@ -90,8 +91,8 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
 
     public V get(Object key) {
         try {
-           V1 retValue = backingMap.get(toKeyFunction.apply((K) key));
-           return retValue != null? fromValueFunction.apply(retValue):null;
+            V1 retValue = backingMap.get(toKeyFunction.apply((K) key));
+            return retValue != null ? fromValueFunction.apply(retValue) : null;
         } catch (ClassCastException e) {
             return null;
         }
@@ -99,13 +100,13 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
 
     public V put(K key, V value) {
         V1 retValue = backingMap.put(toKeyFunction.apply(key), toValueFunction.apply(value));
-        return retValue != null? fromValueFunction.apply(retValue):null;
+        return retValue != null ? fromValueFunction.apply(retValue) : null;
     }
 
     public V remove(Object key) {
         try {
             V1 retValue = backingMap.remove(toKeyFunction.apply((K) key));
-            return retValue != null? fromValueFunction.apply(retValue):null;
+            return retValue != null ? fromValueFunction.apply(retValue) : null;
         } catch (ClassCastException e) {
             return null;
         }
@@ -123,7 +124,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
 
     public Collection<V> values() {
         return new TransformingCollection<>(
-            backingMap.values(), toValueFunction, fromValueFunction
+                backingMap.values(), toValueFunction, fromValueFunction
         );
     }
 
@@ -148,17 +149,21 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
 
         @Override
         public K getKey() {
-            return fromKeyFunction.apply(backingEntry.getKey());
+            K1 retKey = backingEntry.getKey();
+            return retKey == null ? null : fromKeyFunction.apply(retKey);
         }
 
         @Override
         public V getValue() {
-            return fromValueFunction.apply(backingEntry.getValue());
+            V1 retValue = backingEntry.getValue();
+            return retValue == null ? null : fromValueFunction.apply(retValue);
         }
 
         @Override
         public V setValue(V value) {
-            return null;  //TODO implement this
+            V1 valueToBeSet = (value == null) ? null : toValueFunction.apply(value);
+            V1 retValue = backingEntry.setValue(valueToBeSet);
+            return retValue == null ? null : fromValueFunction.apply(retValue);
         }
     }
 }

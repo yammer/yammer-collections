@@ -3,6 +3,7 @@ package com.yammer.collections.guava.azure.transforming;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +22,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,6 +71,8 @@ public class TransformingMapTest {
     };
     @Mock
     private Map<String, String> backingMapMock;
+    @Mock
+    private Map.Entry<String, String> backingEntryMock;
     private Map<Integer, Float> transfromingMap;
 
     @Before
@@ -122,8 +127,6 @@ public class TransformingMapTest {
 
         assertThat(transfromingMap.containsKey(11.0f), is(equalTo(false)));
     }
-
-    // TODO  add missing tests, i.e., for generated methods but not covered by this template
 
     @Test
     public void keySet_delegates() {
@@ -218,12 +221,84 @@ public class TransformingMapTest {
         );
     }
 
-    // TODO getKey
+    @Test
+    public void getKey_on_entry_delegates() {
+        when(backingEntryMock.getKey()).thenReturn(T_KEY_1);
+        when(backingMapMock.entrySet()).thenReturn(Collections.singleton(backingEntryMock));
 
-    // TODO getValue
+        Map.Entry<Integer, Float> transformingEntry = Iterables.getFirst(transfromingMap.entrySet(), null);
 
 
-    // TODO setValue
+        assertThat(transformingEntry.getKey(), is(equalTo(F_KEY_1)));
+    }
+
+    @Test
+    public void getKey_on_entry_returns_null_when_delegateEntry_returns_null() {
+        when(backingEntryMock.getKey()).thenReturn(null);
+        when(backingMapMock.entrySet()).thenReturn(Collections.singleton(backingEntryMock));
+
+        Map.Entry<Integer, Float> transformingEntry = Iterables.getFirst(transfromingMap.entrySet(), null);
+
+
+        assertThat(transformingEntry.getKey(), is(nullValue()));
+    }
+
+    @Test
+    public void getValue_on_entry_delegates() {
+        when(backingEntryMock.getValue()).thenReturn(T_VALUE_1);
+        when(backingMapMock.entrySet()).thenReturn(Collections.singleton(backingEntryMock));
+
+        Map.Entry<Integer, Float> transformingEntry = Iterables.getFirst(transfromingMap.entrySet(), null);
+
+
+        assertThat(transformingEntry.getValue(), is(equalTo(F_VALUE_1)));
+    }
+
+    @Test
+    public void getValue_on_entry_returns_null_when_delegateEntry_returns_null() {
+        when(backingEntryMock.getValue()).thenReturn(null);
+        when(backingMapMock.entrySet()).thenReturn(Collections.singleton(backingEntryMock));
+
+        Map.Entry<Integer, Float> transformingEntry = Iterables.getFirst(transfromingMap.entrySet(), null);
+
+
+        assertThat(transformingEntry.getValue(), is(nullValue()));
+    }
+
+
+    @Test
+    public void setValue_on_entry_delegates() {
+        when(backingEntryMock.setValue(T_VALUE_2)).thenReturn(T_VALUE_1);
+        when(backingMapMock.entrySet()).thenReturn(Collections.singleton(backingEntryMock));
+
+        Map.Entry<Integer, Float> transformingEntry = Iterables.getFirst(transfromingMap.entrySet(), null);
+
+
+        assertThat(transformingEntry.setValue(F_VALUE_2), is(equalTo(F_VALUE_1)));
+    }
+
+    @Test
+    public void setValue_on_entry_returns_null_when_delegateEntry_returns_null() {
+        when(backingEntryMock.setValue(T_VALUE_2)).thenReturn(null);
+        when(backingMapMock.entrySet()).thenReturn(Collections.singleton(backingEntryMock));
+
+        Map.Entry<Integer, Float> transformingEntry = Iterables.getFirst(transfromingMap.entrySet(), null);
+
+
+        assertThat(transformingEntry.setValue(F_VALUE_2), is(nullValue()));
+    }
+
+    @Test
+    public void setNullValue_on_entry_delegates() {
+        when(backingEntryMock.setValue(null)).thenReturn(T_VALUE_1);
+        when(backingMapMock.entrySet()).thenReturn(Collections.singleton(backingEntryMock));
+
+        Map.Entry<Integer, Float> transformingEntry = Iterables.getFirst(transfromingMap.entrySet(), null);
+
+
+        assertThat(transformingEntry.setValue(null), is(equalTo(F_VALUE_1)));
+    }
+
 
 
     private final static class TestEntry<K, V> implements Map.Entry<K, V> {
