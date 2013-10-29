@@ -53,6 +53,8 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     private final Table<R1, C1, V1> backingTable;
     private final Function<Map<C, V>, Map<C1, V1>> toRowMapValueFunction;
     private final Function<Map<C1, V1>, Map<C, V>> fromRowMapValueFunction;
+    private final Function<Map<R, V>, Map<R1, V1>> toColumnMapValueFunction;
+    private final Function<Map<R1, V1>, Map<R, V>> fromColumnMapValueFunction;
 
     public TransformingTable(final Marshaller<R, R1> rowKeyMarshaller,
                              final Marshaller<C, C1> columnKeyMarshaller,
@@ -70,7 +72,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
         valueUnmarshallingTransformation = createUnmarshallingFunction(valueMarshaller);
         toRowMapValueFunction = new Function<Map<C, V>, Map<C1, V1>>() {
             @Override
-            public Map<C1, V1> apply(java.util.Map<C, V> cvMap) {// TODO this is wrong, needs optimization as we end up rewarpping the wrapper
+            public Map<C1, V1> apply(java.util.Map<C, V> cvMap) {
                 return new TransformingMap<>(
                     cvMap,
                     columnUnmarshallingTransformation, columnMarshallingTransformation,
@@ -84,6 +86,26 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
                 return new TransformingMap<>(
                         c1V1Map,
                         columnMarshallingTransformation, columnUnmarshallingTransformation,
+                        valueMarshallingTransformation, valueUnmarshallingTransformation
+                );
+            }
+        };
+        toColumnMapValueFunction = new Function<Map<R, V>, Map<R1, V1>>() {
+            @Override
+            public Map<R1, V1> apply(java.util.Map<R, V> rvMap) {
+                return new TransformingMap<>(
+                        rvMap,
+                        rowUnmarshallingTransformation, rowMarshallingTransformation,
+                        valueUnmarshallingTransformation, valueMarshallingTransformation
+                );
+            }
+        };
+        fromColumnMapValueFunction = new Function<Map<R1, V1>, Map<R, V>>() {
+            @Override
+            public Map<R, V> apply(java.util.Map<R1, V1> r1V1Map) {
+                return new TransformingMap<>(
+                        r1V1Map,
+                        rowMarshallingTransformation, rowUnmarshallingTransformation,
                         valueMarshallingTransformation, valueUnmarshallingTransformation
                 );
             }
@@ -272,7 +294,14 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public Map<C, Map<R, V>> columnMap() {
-        throw new UnsupportedOperationException();     // TODO implement
+
+        return new TransformingMap<>(
+                backingTable.columnMap(),
+                columnMarshallingTransformation,
+                columnUnmarshallingTransformation,
+                toColumnMapValueFunction,
+                fromColumnMapValueFunction
+        );
     }
 
     public static interface Marshaller<F, T> {

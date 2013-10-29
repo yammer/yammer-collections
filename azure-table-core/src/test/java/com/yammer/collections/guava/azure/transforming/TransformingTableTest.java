@@ -304,6 +304,24 @@ public class TransformingTableTest {
         )));
     }
 
+    // column map
+    @Test
+    public void columnMap_delegates() {
+        Map<String, Map<String, String>> backingRowMap = ImmutableMap.of(
+                STRING_COLUMN_KEY_1, (Map<String, String>) ImmutableMap.of(STRING_ROW_KEY_1, STRING_VALUE_1),
+                STRING_COLUMN_KEY_2, ImmutableMap.of(STRING_ROW_KEY_1, STRING_VALUE_2)
+        );
+
+        when(backingTableMock.columnMap()).thenReturn(backingRowMap);
+
+        assertThat(transformingTable.columnMap(), is(equalTo(
+                (Map<Long, Map<Float, Integer>>) ImmutableMap.of(
+                        COLUMN_KEY_1, (Map<Float, Integer>) ImmutableMap.of(ROW_KEY_1, VALUE_1),
+                        COLUMN_KEY_2, ImmutableMap.of(ROW_KEY_1, VALUE_2))
+        )));
+    }
+
+
 
     // ----- stubs ----
 
