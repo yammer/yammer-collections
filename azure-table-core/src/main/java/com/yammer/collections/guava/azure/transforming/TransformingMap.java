@@ -2,6 +2,7 @@ package com.yammer.collections.guava.azure.transforming;
 
 
 import com.google.common.base.Function;
+import com.sun.istack.NotNull;
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -71,49 +72,61 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        return new TransformingSet(
+        return new TransformingSet<>(
                 backingMap.entrySet(),
                 toEntryFunction,
                 fromEntryFunction
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean containsValue(Object o) {
         try {
-            return backingMap.containsValue(toValueFunction.apply((V) o));
+            return backingMap.containsValue(safeTransform((V) o, toValueFunction));
         } catch (ClassCastException e) {
             return false;
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean containsKey(Object key) {
         try {
-            return backingMap.containsKey(toKeyFunction.apply((K) key));
+            return backingMap.containsKey(safeTransform((K) key, toKeyFunction));
         } catch (ClassCastException e) {
             return false;
         }
     }
 
+    @SuppressWarnings("unchecked")
     public V get(Object key) {
         try {
-            V1 retValue = backingMap.get(toKeyFunction.apply((K) key));
-            return retValue != null ? fromValueFunction.apply(retValue) : null;
+            return safeTransform(
+                    backingMap.get(safeTransform((K) key, toKeyFunction)),
+                    fromValueFunction
+            );
         } catch (ClassCastException e) {
             return null;
         }
     }
 
     public V put(K key, V value) {
-        V1 retValue = backingMap.put(toKeyFunction.apply(key), toValueFunction.apply(value));
-        return retValue != null ? fromValueFunction.apply(retValue) : null;
+        K1 tKey = safeTransform(key, toKeyFunction);
+        V1 tValue = safeTransform(value, toValueFunction);
+        return safeTransform(
+                backingMap.put(tKey, tValue),
+                fromValueFunction
+        );
     }
 
+    @SuppressWarnings("unchecked")
     public V remove(Object key) {
         try {
-            V1 retValue = backingMap.remove(toKeyFunction.apply((K) key));
-            return retValue != null ? fromValueFunction.apply(retValue) : null;
+            return safeTransform(
+                    backingMap.remove(safeTransform((K) key, toKeyFunction)),
+                    fromValueFunction
+            );
         } catch (ClassCastException e) {
             return null;
         }
@@ -123,13 +136,15 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
         backingMap.clear();
     }
 
+    @Override
     public Set<K> keySet() {
         return new TransformingSet<>(
                 backingMap.keySet(), toKeyFunction, fromKeyFunction
         );
     }
 
-    public Collection<V> values() {
+    @Override
+    public  Collection<V> values() {
         return new TransformingCollection<>(
                 backingMap.values(), toValueFunction, fromValueFunction
         );

@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,15 +13,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,17 +29,15 @@ public class TransformingMapTest {
     private static final Float F_VALUE_1 = 0.5f;
     private static final Float F_VALUE_2 = 0.8f;
     private static final Float F_VALUE_OTHER = 99.33f;
-    private static final Map.Entry<Integer, Float> F_ENTRY_1 = new TestEntry(F_KEY_1, F_VALUE_1);
-    private static final Map.Entry<Integer, Float> F_ENTRY_2 = new TestEntry(F_KEY_2, F_VALUE_2);
+    private static final Map.Entry<Integer, Float> F_ENTRY_1 = new TestEntry<>(F_KEY_1, F_VALUE_1);
+    private static final Map.Entry<Integer, Float> F_ENTRY_2 = new TestEntry<>(F_KEY_2, F_VALUE_2);
     private static final String T_KEY_1 = F_KEY_1.toString();
     private static final String T_KEY_2 = F_KEY_2.toString();
     private static final String T_VALUE_1 = F_VALUE_1.toString();
     private static final String T_VALUE_2 = F_VALUE_2.toString();
     private static final String T_VALUE_OTHER = F_VALUE_OTHER.toString();
-    private static final Map.Entry<String, String> T_ENTRY_1 = new TestEntry(T_KEY_1, T_VALUE_1);
-    private static final Map.Entry<String, String> T_ENTRY_2 = new TestEntry(T_KEY_2, T_VALUE_2);
-
-
+    private static final Map.Entry<String, String> T_ENTRY_1 = new TestEntry<>(T_KEY_1, T_VALUE_1);
+    private static final Map.Entry<String, String> T_ENTRY_2 = new TestEntry<>(T_KEY_2, T_VALUE_2);
     private static final Function<Integer, String> TO_KEY_FUNCTION = new Function<Integer, String>() {
         @Override
         public String apply(Integer input) {
@@ -62,7 +56,6 @@ public class TransformingMapTest {
             return input.toString();
         }
     };
-    ;
     private static final Function<String, Float> FROM_VALUE_FUNCTION = new Function<String, Float>() {
         @Override
         public Float apply(String input) {
@@ -108,6 +101,13 @@ public class TransformingMapTest {
     }
 
     @Test
+    public void containsValue_delegates_on_null_argument() {
+        when(backingMapMock.containsValue(null)).thenReturn(true);
+
+        assertThat(transfromingMap.containsValue(null), is(equalTo(true)));
+    }
+
+    @Test
     public void contains_value_returns_false_if_object_of_wrong_type() {
         when(backingMapMock.containsValue(T_VALUE_1)).thenReturn(true);
 
@@ -126,6 +126,13 @@ public class TransformingMapTest {
         when(backingMapMock.containsKey(T_KEY_1)).thenReturn(true);
 
         assertThat(transfromingMap.containsKey(11.0f), is(equalTo(false)));
+    }
+
+    @Test
+    public void containsKey_delegates_on_null_argument() {
+        when(backingMapMock.containsKey(null)).thenReturn(true);
+
+        assertThat(transfromingMap.containsKey(null), is(equalTo(true)));
     }
 
     @Test
@@ -150,6 +157,20 @@ public class TransformingMapTest {
     }
 
     @Test
+    public void put_on_null_key_delegates() {
+        when(backingMapMock.put(null, T_VALUE_1)).thenReturn(T_VALUE_OTHER);
+
+        assertThat(transfromingMap.put(null, F_VALUE_1), is(equalTo(F_VALUE_OTHER)));
+    }
+
+    @Test
+    public void put_on_null_value_delegates() {
+        when(backingMapMock.put(T_KEY_1, null)).thenReturn(T_VALUE_OTHER);
+
+        assertThat(transfromingMap.put(F_KEY_1, null), is(equalTo(F_VALUE_OTHER)));
+    }
+
+    @Test
     public void put_returns_null_when_delegate_returns_null() {
         when(backingMapMock.put(T_KEY_1, T_VALUE_1)).thenReturn(null);
 
@@ -161,6 +182,13 @@ public class TransformingMapTest {
         when(backingMapMock.remove(T_KEY_1)).thenReturn(T_VALUE_1);
 
         assertThat(transfromingMap.remove(F_KEY_1), is(equalTo(F_VALUE_1)));
+    }
+
+    @Test
+    public void remove_on_null_key_delegates() {
+        when(backingMapMock.remove(null)).thenReturn(T_VALUE_1);
+
+        assertThat(transfromingMap.remove(null), is(equalTo(F_VALUE_1)));
     }
 
     @Test
@@ -182,6 +210,13 @@ public class TransformingMapTest {
         when(backingMapMock.get(T_KEY_1)).thenReturn(T_VALUE_1);
 
         assertThat(transfromingMap.get(F_KEY_1), is(equalTo(F_VALUE_1)));
+    }
+
+    @Test
+    public void get_on_null_key_delegates() {
+        when(backingMapMock.get(null)).thenReturn(T_VALUE_1);
+
+        assertThat(transfromingMap.get(null), is(equalTo(F_VALUE_1)));
     }
 
     @Test
@@ -265,7 +300,6 @@ public class TransformingMapTest {
         assertThat(transformingEntry.getValue(), is(nullValue()));
     }
 
-
     @Test
     public void setValue_on_entry_delegates() {
         when(backingEntryMock.setValue(T_VALUE_2)).thenReturn(T_VALUE_1);
@@ -298,8 +332,6 @@ public class TransformingMapTest {
 
         assertThat(transformingEntry.setValue(null), is(equalTo(F_VALUE_1)));
     }
-
-
 
     private final static class TestEntry<K, V> implements Map.Entry<K, V> {
         private final K key;
