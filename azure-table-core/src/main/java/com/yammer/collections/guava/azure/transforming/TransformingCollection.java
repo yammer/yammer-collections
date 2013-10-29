@@ -8,6 +8,8 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
+
 public class TransformingCollection<F, T> extends AbstractCollection<F> {
     private final Collection<T> backingCollection;
     private final Function<F, T> toFunction;
@@ -37,10 +39,11 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
         return backingCollection.isEmpty();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean contains(Object o) {
         try {
-            return backingCollection.contains(toFunction.apply((F) o));
+            return backingCollection.contains(safeTransform((F) o, toFunction));
         } catch (ClassCastException e) {
             return false;
         }
@@ -53,13 +56,14 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
 
     @Override
     public boolean add(F f) {
-        return backingCollection.add(toFunction.apply(f));
+        return backingCollection.add(safeTransform(f, toFunction));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean remove(Object o) {
         try {
-            return backingCollection.remove(toFunction.apply((F) o));
+            return backingCollection.remove(safeTransform((F) o, toFunction));
         } catch (ClassCastException e) {
             return false;
         }

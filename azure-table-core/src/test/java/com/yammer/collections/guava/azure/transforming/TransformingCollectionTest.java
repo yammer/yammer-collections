@@ -69,6 +69,13 @@ public class TransformingCollectionTest {
     }
 
     @Test
+    public void contains_null_delegates() {
+        when(backingCollectionMock.contains(null)).thenReturn(true);
+
+        assertThat(transformingCollection.contains(null), is(equalTo(true)));
+    }
+
+    @Test
     public void contains_returns_false_if_object_of_wrong_type() {
         when(backingCollectionMock.contains(T_VALUE_1)).thenReturn(true);
 
@@ -90,10 +97,24 @@ public class TransformingCollectionTest {
     }
 
     @Test
+    public void add_null_delegats() {
+        when(backingCollectionMock.add(null)).thenReturn(true);
+
+        assertThat(transformingCollection.add(null), is(equalTo(true)));
+    }
+
+    @Test
     public void remove_delegates() {
         when(backingCollectionMock.remove(T_VALUE_1)).thenReturn(true);
 
         assertThat(transformingCollection.remove(F_VALUE_1), is(equalTo(true)));
+    }
+
+    @Test
+    public void remove_null_delegates() {
+        when(backingCollectionMock.remove(null)).thenReturn(true);
+
+        assertThat(transformingCollection.remove(null), is(equalTo(true)));
     }
 
     @Test
