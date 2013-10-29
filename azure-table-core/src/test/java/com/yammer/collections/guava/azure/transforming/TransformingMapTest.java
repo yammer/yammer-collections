@@ -3,13 +3,16 @@ package com.yammer.collections.guava.azure.transforming;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -27,11 +30,15 @@ public class TransformingMapTest {
     private static final Float F_VALUE_1 = 0.5f;
     private static final Float F_VALUE_2 = 0.8f;
     private static final Float F_VALUE_OTHER = 99.33f;
+    private static final Map.Entry<Integer, Float> F_ENTRY_1 = new TestEntry(F_KEY_1, F_VALUE_1);
+    private static final Map.Entry<Integer, Float> F_ENTRY_2 = new TestEntry(F_KEY_2, F_VALUE_2);
     private static final String T_KEY_1 = F_KEY_1.toString();
     private static final String T_KEY_2 = F_KEY_2.toString();
     private static final String T_VALUE_1 = F_VALUE_1.toString();
     private static final String T_VALUE_2 = F_VALUE_2.toString();
     private static final String T_VALUE_OTHER = F_VALUE_OTHER.toString();
+    private static final Map.Entry<String, String> T_ENTRY_1 = new TestEntry(T_KEY_1, T_VALUE_1);
+    private static final Map.Entry<String, String> T_ENTRY_2 = new TestEntry(T_KEY_2, T_VALUE_2);
 
 
     private static final Function<Integer, String> TO_KEY_FUNCTION = new Function<Integer, String>() {
@@ -46,13 +53,14 @@ public class TransformingMapTest {
             return Integer.parseInt(input);
         }
     };
-    private static final Function<Float, String> TO_VALUE_FUNCTION =  new Function<Float, String>() {
+    private static final Function<Float, String> TO_VALUE_FUNCTION = new Function<Float, String>() {
         @Override
         public String apply(Float input) {
             return input.toString();
         }
-    };;
-    private static final Function<String,Float> FROM_VALUE_FUNCTION = new Function<String, Float>() {
+    };
+    ;
+    private static final Function<String, Float> FROM_VALUE_FUNCTION = new Function<String, Float>() {
         @Override
         public Float apply(String input) {
             return Float.parseFloat(input);
@@ -115,7 +123,7 @@ public class TransformingMapTest {
         assertThat(transfromingMap.containsKey(11.0f), is(equalTo(false)));
     }
 
-  // TODO  add missing tests, i.e., for generated methods but not covered by this template
+    // TODO  add missing tests, i.e., for generated methods but not covered by this template
 
     @Test
     public void keySet_delegates() {
@@ -193,34 +201,75 @@ public class TransformingMapTest {
 
         verify(backingMapMock).clear();
     }
-   // TODO here, make the entry class public
-//    @Test
-//    public void equals_returns_true_on_equal_collection() {
-//        when(backingMapMock.entrySet()).thenReturn(asList(T_KEY_1, T_KEY_2).iterator());
-//
-//        assertThat(transfromingMap.equals(ImmutableSet.of(F_KEY_1, F_KEY_2)), is(equalTo(true)));
-//    }
-//
-//    @Test
-//    public void equals_returns_false_on_nonequal_collection() {
-//        when(backingMapMock.iterator()).thenReturn(asList(T_KEY_1, T_KEY_2).iterator());
-//
-//        assertThat(transfromingMap.equals(ImmutableSet.of(F_KEY_1, F_VALUE_OTHER)), is(equalTo(false)));
-//    }
-//
-//    @Test
-//    public void equals_returns_false_on_shorter_collection() {
-//        when(backingMapMock.iterator()).thenReturn(asList(T_KEY_1, T_KEY_2).iterator());
-//
-//        assertThat(transfromingMap.equals(ImmutableSet.of(F_KEY_1)), is(equalTo(false)));
-//    }
-//
-//    @Test
-//    public void equals_returns_false_on_longer_collection() {
-//        when(backingMapMock.iterator()).thenReturn(asList(T_KEY_1, T_KEY_2).iterator());
-//
-//        assertThat(transfromingMap.equals(ImmutableSet.of(F_KEY_1, F_KEY_2, F_VALUE_OTHER)), is(equalTo(false)));
-//    }
 
-   // TODO entry tests
+    @Test
+    public void entrySet_delegates() {
+        when(backingMapMock.entrySet()).thenReturn(ImmutableSet.of(T_ENTRY_1, T_ENTRY_2));
+
+        Iterator<Map.Entry<Integer, Float>> entries = transfromingMap.entrySet().iterator();
+        Map.Entry<Integer, Float> entry1 = entries.next();
+        Map.Entry<Integer, Float> entry2 = entries.next();
+
+        assertThat(entries.hasNext(), is(equalTo(false)));
+        assertThat(
+                (F_ENTRY_1.equals(entry1) && F_ENTRY_2.equals(entry2)) ||
+                        (F_ENTRY_1.equals(entry2) && F_ENTRY_2.equals(entry1)),
+                is(equalTo(true))
+        );
+    }
+
+    // TODO getKey
+
+    // TODO getValue
+
+
+    // TODO setValue
+
+
+    private final static class TestEntry<K, V> implements Map.Entry<K, V> {
+        private final K key;
+        private final V value;
+
+
+        private TestEntry(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public K getKey() {
+            return key;
+        }
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public V setValue(V value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof Map.Entry)) return false;
+
+            Map.Entry entry = (Map.Entry) o;
+
+            if (key != null ? !key.equals(entry.getKey()) : entry.getKey() != null) return false;
+            if (value != null ? !value.equals(entry.getValue()) : entry.getValue() != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = key != null ? key.hashCode() : 0;
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+            return result;
+        }
+    }
+
 }
