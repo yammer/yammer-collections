@@ -70,43 +70,36 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
         rowUnmarshallingTransformation = createUnmarshallingFunction(rowKeyMarshaller);
         valueMarshallingTransformation = createMarshallingFunction(valueMarshaller);
         valueUnmarshallingTransformation = createUnmarshallingFunction(valueMarshaller);
-        toRowMapValueFunction = new Function<Map<C, V>, Map<C1, V1>>() {
+        toRowMapValueFunction = createMapTransformation(
+                columnUnmarshallingTransformation, columnMarshallingTransformation,
+                valueUnmarshallingTransformation, valueMarshallingTransformation
+        );
+        fromRowMapValueFunction = createMapTransformation(
+                columnMarshallingTransformation, columnUnmarshallingTransformation,
+                valueMarshallingTransformation, valueUnmarshallingTransformation
+        );
+        toColumnMapValueFunction = createMapTransformation(
+                rowUnmarshallingTransformation, rowMarshallingTransformation,
+                valueUnmarshallingTransformation, valueMarshallingTransformation
+        );
+        fromColumnMapValueFunction = createMapTransformation(
+                rowMarshallingTransformation, rowUnmarshallingTransformation,
+                valueMarshallingTransformation, valueUnmarshallingTransformation
+        );
+    }
+
+    private static <K, V, K1, V1> Function<Map<K, V>, Map<K1, V1>> createMapTransformation(
+            final Function<K1, K> toKeyFunction,
+            final Function<K, K1> fromKeyFunction,
+            final Function<V1, V> toValueFunction,
+            final Function<V, V1> fromValueFunction) {
+        return new Function<Map<K, V>, Map<K1, V1>>() {
             @Override
-            public Map<C1, V1> apply(java.util.Map<C, V> cvMap) {
+            public Map<K1, V1> apply(java.util.Map<K, V> cvMap) {
                 return new TransformingMap<>(
-                    cvMap,
-                    columnUnmarshallingTransformation, columnMarshallingTransformation,
-                    valueUnmarshallingTransformation, valueMarshallingTransformation
-                );
-            }
-        };
-        fromRowMapValueFunction = new Function<Map<C1, V1>, Map<C, V>>() {
-            @Override
-            public Map<C, V> apply(java.util.Map<C1, V1> c1V1Map) {
-                return new TransformingMap<>(
-                        c1V1Map,
-                        columnMarshallingTransformation, columnUnmarshallingTransformation,
-                        valueMarshallingTransformation, valueUnmarshallingTransformation
-                );
-            }
-        };
-        toColumnMapValueFunction = new Function<Map<R, V>, Map<R1, V1>>() {
-            @Override
-            public Map<R1, V1> apply(java.util.Map<R, V> rvMap) {
-                return new TransformingMap<>(
-                        rvMap,
-                        rowUnmarshallingTransformation, rowMarshallingTransformation,
-                        valueUnmarshallingTransformation, valueMarshallingTransformation
-                );
-            }
-        };
-        fromColumnMapValueFunction = new Function<Map<R1, V1>, Map<R, V>>() {
-            @Override
-            public Map<R, V> apply(java.util.Map<R1, V1> r1V1Map) {
-                return new TransformingMap<>(
-                        r1V1Map,
-                        rowMarshallingTransformation, rowUnmarshallingTransformation,
-                        valueMarshallingTransformation, valueUnmarshallingTransformation
+                        cvMap,
+                        toKeyFunction, fromKeyFunction,
+                        toValueFunction, fromValueFunction
                 );
             }
         };
@@ -284,11 +277,11 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     @Override
     public Map<R, Map<C, V>> rowMap() {
         return new TransformingMap<>(
-            backingTable.rowMap(),
-            rowMarshallingTransformation,
-            rowUnmarshallingTransformation,
-            toRowMapValueFunction,
-            fromRowMapValueFunction
+                backingTable.rowMap(),
+                rowMarshallingTransformation,
+                rowUnmarshallingTransformation,
+                toRowMapValueFunction,
+                fromRowMapValueFunction
         );
     }
 
