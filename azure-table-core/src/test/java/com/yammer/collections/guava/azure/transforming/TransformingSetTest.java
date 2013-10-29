@@ -1,6 +1,7 @@
 package com.yammer.collections.guava.azure.transforming;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.yammer.collections.guava.azure.transforming.TransformingSet;
 import org.junit.Before;
@@ -66,6 +67,13 @@ public class TransformingSetTest {
         when(backingSetMock.iterator()).thenReturn(asList(T_VALUE_1, T_VALUE_2).iterator());
 
         assertThat(transformingSet.equals(ImmutableSet.of(F_VALUE_1, F_VALUE_2, F_VALUE_OTHER)), is(equalTo(false)));
+    }
+
+    @Test
+    public void equals_returns_false_on_different_collection_type() {
+        when(backingSetMock.iterator()).thenReturn(asList(T_VALUE_1, T_VALUE_2).iterator());
+
+        assertThat(transformingSet.equals(ImmutableList.of(F_VALUE_1, F_VALUE_2)), is(equalTo(false)));
     }
 
 
