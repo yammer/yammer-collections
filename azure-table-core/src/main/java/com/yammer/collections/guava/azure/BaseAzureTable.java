@@ -203,7 +203,7 @@ public class BaseAzureTable implements Table<String, String, String> {
         return tableName;
     }
 
-    private static final class TableCollectionView<E> extends CollectionView<E> {
+    private static final class TableCollectionView<E> extends AbstractCollectionView<E> {
         private final BaseAzureTable baseAzureTable;
         private final AzureTableCloudClient azureTableCloudClient;
         private final AzureTableRequestFactory azureTableRequestFactory;

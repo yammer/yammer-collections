@@ -8,10 +8,10 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 
-public abstract class CollectionView<E> extends AbstractCollection<E> {
+public abstract class AbstractCollectionView<E> extends AbstractCollection<E> {
     private final Function<AzureEntity, E> typeExtractor;
 
-    public CollectionView(
+    public AbstractCollectionView(
             Function<AzureEntity, E> typeExtractor
     ) {
         this.typeExtractor = typeExtractor;

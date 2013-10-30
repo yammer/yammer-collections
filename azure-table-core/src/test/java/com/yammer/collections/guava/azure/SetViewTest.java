@@ -23,45 +23,45 @@ public class SetViewTest {
     private static final Long L1_DUPLICATE = 1L;
     private static final Integer SIZE = 2;
     @Mock
-    private CollectionView<Long> collectionViewMock;
+    private AbstractCollectionView<Long> abstractCollectionViewMock;
     private SetView<Long> setView;
 
     @Before
     public void setUp() {
-        setView = SetView.fromSetCollectionView(collectionViewMock);
+        setView = SetView.fromSetCollectionView(abstractCollectionViewMock);
     }
 
     @Test
     public void size_delegates() {
-        when(collectionViewMock.size()).thenReturn(SIZE);
+        when(abstractCollectionViewMock.size()).thenReturn(SIZE);
 
         assertThat(setView.size(), is(equalTo(SIZE)));
     }
 
     @Test
     public void isEmpty_delegates() {
-        when(collectionViewMock.isEmpty()).thenReturn(true);
+        when(abstractCollectionViewMock.isEmpty()).thenReturn(true);
 
         assertThat(setView.isEmpty(), is(equalTo(true)));
     }
 
     @Test
     public void contains_delegates() {
-        when(collectionViewMock.contains(L1)).thenReturn(true);
+        when(abstractCollectionViewMock.contains(L1)).thenReturn(true);
 
         assertThat(setView.contains(L1), is(equalTo(true)));
     }
 
     @Test
     public void iterator_delegates() {
-        when(collectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2).iterator());
+        when(abstractCollectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2).iterator());
 
         assertThat(setView, containsInAnyOrder(L1, L2));
     }
 
     @Test
     public void if_underlying_collection_is_a_multiset_then_this_collection_does_not_guarantee_contract() {
-        when(collectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2, L1_DUPLICATE).iterator());
+        when(abstractCollectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2, L1_DUPLICATE).iterator());
 
         assertThat(setView, containsInAnyOrder(L1, L2, L1_DUPLICATE));
     }
@@ -80,7 +80,7 @@ public class SetViewTest {
 
     @Test
     public void when_contains_all_delegates() {
-        when(collectionViewMock.containsAll(Arrays.asList(L1, L2))).thenReturn(true);
+        when(abstractCollectionViewMock.containsAll(Arrays.asList(L1, L2))).thenReturn(true);
 
         assertThat(setView.containsAll(Arrays.asList(L1, L2)), is(equalTo(true)));
     }

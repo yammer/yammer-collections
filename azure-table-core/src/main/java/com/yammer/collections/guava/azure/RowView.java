@@ -143,7 +143,7 @@ public class RowView implements Map<String, String> {
         }
     }
 
-    private static class RowMapSetView<E> extends CollectionView<E> {
+    private static class RowMapSetView<E> extends AbstractCollectionView<E> {
         private final BaseAzureTable baseAzureTable;
         private final String columnKey;
         private final AzureTableCloudClient azureTableCloudClient;
