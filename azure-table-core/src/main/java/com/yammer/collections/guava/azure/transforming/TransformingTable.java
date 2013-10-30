@@ -50,6 +50,28 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     private final Function<Map<R, V>, Map<R1, V1>> toColumnMapValueFunction;
     private final Function<Map<R1, V1>, Map<R, V>> fromColumnMapValueFunction;
 
+    public static <R,C,V,R1,C1,V1>
+    TransformingTable<R, C, V, R1, C1, V1> create(
+            Table<R1, C1, V1> backingTable,
+            Function<R, R1> toRowFunction,
+            Function<R1, R> fromRowFunction,
+            Function<C, C1> toColumnFunction,
+            Function<C1, C> fromColumnFunction,
+            Function<V, V1> toValueFunction,
+            Function<V1, V> fromValueFunction
+    ) {
+        return new TransformingTable<>(
+                backingTable,
+                toRowFunction,
+                fromRowFunction,
+                toColumnFunction,
+                fromColumnFunction,
+                toValueFunction,
+                fromValueFunction
+        );
+    }
+
+    // TODO make private (all constructors)
     public TransformingTable(
             Table<R1, C1, V1> backingTable,
             Function<R, R1> toRowFunction,

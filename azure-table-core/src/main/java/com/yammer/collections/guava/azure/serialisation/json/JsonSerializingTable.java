@@ -8,28 +8,34 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 
-// TODO extends? or compose, make classes final and factory method created (transforming classes)
 public class JsonSerializingTable<R, C, V> extends TransformingTable<R, C, V, String, String, String> {
 
     public JsonSerializingTable(
             Table<String, String, String> backingTable,
             Class<R> rowClass, Class<C> columnClass, Class<V> valueClass) {
-        super(backingTable,
-                JsonSerializingTable.<R>createSerializationFunction(),
-                JsonSerializingTable.<R>createDeserializationFunction(rowClass),
-                JsonSerializingTable.<C>createSerializationFunction(),
-                JsonSerializingTable.<C>createDeserializationFunction(columnClass),
-                JsonSerializingTable.<V>createSerializationFunction(),
-                JsonSerializingTable.<V>createDeserializationFunction(valueClass)
-        );
+        this(backingTable, rowClass, columnClass, valueClass, new ObjectMapper());
     }
 
-    private static <F> Function<F, String> createSerializationFunction() {
+    public JsonSerializingTable(
+            Table<String, String, String> backingTable,
+            Class<R> rowClass, Class<C> columnClass, Class<V> valueClass,
+            ObjectMapper objectMapper) {
+        super(backingTable,
+                JsonSerializingTable.<R>createSerializationFunction(objectMapper),
+                JsonSerializingTable.<R>createDeserializationFunction(objectMapper, rowClass),
+                JsonSerializingTable.<C>createSerializationFunction(objectMapper),
+                JsonSerializingTable.<C>createDeserializationFunction(objectMapper, columnClass),
+                JsonSerializingTable.<V>createSerializationFunction(objectMapper),
+                JsonSerializingTable.<V>createDeserializationFunction(objectMapper, valueClass)
+        );
+
+    }
+
+    private static <F> Function<F, String> createSerializationFunction(final ObjectMapper om) {
         return new Function<F, String>() {
             @Override
             public String apply(F f) {
                 try {
-                    ObjectMapper om = new ObjectMapper(); // TODO can we have a shared one?
                     return om.writeValueAsString(f);
                 } catch (IOException e) {
                     throw Throwables.propagate(e);
@@ -38,12 +44,11 @@ public class JsonSerializingTable<R, C, V> extends TransformingTable<R, C, V, St
         };
     }
 
-    private static <T> Function<String, T> createDeserializationFunction(final Class<T> klass) {
+    private static <T> Function<String, T> createDeserializationFunction(final ObjectMapper om, final Class<T> klass) {
         return new Function<String, T>() {
             @Override
             public T apply(String t) {
                 try {
-                    ObjectMapper om = new ObjectMapper(); // TODO can we have a shared one?
                     return om.readValue(t, klass);
                 } catch (IOException e) {
                     throw Throwables.propagate(e);
