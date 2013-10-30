@@ -84,7 +84,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @Override
     public boolean containsValue(Object o) {
         try {
-            return backingMap.containsValue(safeTransform((V) o, toValueFunction));
+            return backingMap.containsValue(safeTransform((V) checkNotNull(o), toValueFunction));
         } catch (ClassCastException e) {
             return false;
         }
@@ -94,7 +94,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @Override
     public boolean containsKey(Object key) {
         try {
-            return backingMap.containsKey(safeTransform((K) key, toKeyFunction));
+            return backingMap.containsKey(safeTransform((K) checkNotNull(key), toKeyFunction));
         } catch (ClassCastException e) {
             return false;
         }
@@ -104,7 +104,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     public V get(Object key) {
         try {
             return safeTransform(
-                    backingMap.get(safeTransform((K) key, toKeyFunction)),
+                    backingMap.get(safeTransform((K) checkNotNull(key), toKeyFunction)),
                     fromValueFunction
             );
         } catch (ClassCastException e) {
@@ -113,8 +113,8 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     }
 
     public V put(K key, V value) {
-        K1 tKey = safeTransform(key, toKeyFunction);
-        V1 tValue = safeTransform(value, toValueFunction);
+        K1 tKey = safeTransform(checkNotNull(key), toKeyFunction);
+        V1 tValue = safeTransform(checkNotNull(value), toValueFunction);
         return safeTransform(
                 backingMap.put(tKey, tValue),
                 fromValueFunction
@@ -125,7 +125,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     public V remove(Object key) {
         try {
             return safeTransform(
-                    backingMap.remove(safeTransform((K) key, toKeyFunction)),
+                    backingMap.remove(safeTransform((K) checkNotNull(key), toKeyFunction)),
                     fromValueFunction
             );
         } catch (ClassCastException e) {
@@ -180,7 +180,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
         @Override
         public V setValue(V value) {
             return safeTransform(
-                    backingEntry.setValue(safeTransform(value, toValueFunction)),
+                    backingEntry.setValue(safeTransform(checkNotNull(value), toValueFunction)),
                     fromValueFunction
             );
         }

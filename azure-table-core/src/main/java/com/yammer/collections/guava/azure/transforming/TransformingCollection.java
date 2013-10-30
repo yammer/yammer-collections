@@ -46,7 +46,7 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
     @Override
     public boolean contains(Object o) {
         try {
-            return backingCollection.contains(safeTransform((F) o, toFunction));
+            return backingCollection.contains(safeTransform(checkNotNull((F) o), toFunction));
         } catch (ClassCastException e) {
             return false;
         }
@@ -59,14 +59,14 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
 
     @Override
     public boolean add(F f) {
-        return backingCollection.add(safeTransform(f, toFunction));
+        return backingCollection.add(safeTransform(checkNotNull(f), toFunction));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean remove(Object o) {
         try {
-            return backingCollection.remove(safeTransform((F) o, toFunction));
+            return backingCollection.remove(safeTransform(checkNotNull((F) o), toFunction));
         } catch (ClassCastException e) {
             return false;
         }

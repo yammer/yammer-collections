@@ -85,11 +85,9 @@ public class TransformingCollectionTest {
         assertThat(transformingCollection.contains(F_VALUE_1), is(equalTo(true)));
     }
 
-    @Test
-    public void contains_null_delegates() {
-        when(backingCollectionMock.contains(null)).thenReturn(true);
-
-        assertThat(transformingCollection.contains(null), is(equalTo(true)));
+    @Test(expected = NullPointerException.class)
+    public void contains_null_notAllowed() {
+        transformingCollection.contains(null);
     }
 
     @Test
@@ -113,11 +111,9 @@ public class TransformingCollectionTest {
         assertThat(transformingCollection.add(F_VALUE_1), is(equalTo(true)));
     }
 
-    @Test
-    public void add_null_delegats() {
-        when(backingCollectionMock.add(null)).thenReturn(true);
-
-        assertThat(transformingCollection.add(null), is(equalTo(true)));
+    @Test(expected = NullPointerException.class)
+    public void add_null_not_allowed() {
+        transformingCollection.add(null);
     }
 
     @Test
@@ -127,11 +123,9 @@ public class TransformingCollectionTest {
         assertThat(transformingCollection.remove(F_VALUE_1), is(equalTo(true)));
     }
 
-    @Test
-    public void remove_null_delegates() {
-        when(backingCollectionMock.remove(null)).thenReturn(true);
-
-        assertThat(transformingCollection.remove(null), is(equalTo(true)));
+    @Test(expected = NullPointerException.class)
+    public void remove_null_not_allowed() {
+        transformingCollection.remove(null);
     }
 
     @Test

@@ -155,11 +155,9 @@ public class TransformingMapTest {
         assertThat(transfromingMap.containsValue(F_VALUE_1), is(equalTo(true)));
     }
 
-    @Test
-    public void containsValue_delegates_on_null_argument() {
-        when(backingMapMock.containsValue(null)).thenReturn(true);
-
-        assertThat(transfromingMap.containsValue(null), is(equalTo(true)));
+    @Test(expected = NullPointerException.class)
+    public void containsValue_null_not_allowed() {
+        transfromingMap.containsValue(null);
     }
 
     @Test
@@ -183,11 +181,9 @@ public class TransformingMapTest {
         assertThat(transfromingMap.containsKey(11.0f), is(equalTo(false)));
     }
 
-    @Test
-    public void containsKey_delegates_on_null_argument() {
-        when(backingMapMock.containsKey(null)).thenReturn(true);
-
-        assertThat(transfromingMap.containsKey(null), is(equalTo(true)));
+    @Test(expected = NullPointerException.class)
+    public void containsKey_on_null_not_allowed() {
+        transfromingMap.containsKey(null);
     }
 
     @Test
@@ -211,18 +207,14 @@ public class TransformingMapTest {
         assertThat(transfromingMap.put(F_KEY_1, F_VALUE_1), is(equalTo(F_VALUE_OTHER)));
     }
 
-    @Test
-    public void put_on_null_key_delegates() {
-        when(backingMapMock.put(null, T_VALUE_1)).thenReturn(T_VALUE_OTHER);
-
-        assertThat(transfromingMap.put(null, F_VALUE_1), is(equalTo(F_VALUE_OTHER)));
+    @Test(expected = NullPointerException.class)
+    public void put_on_null_key_not_allowed() {
+        transfromingMap.put(null, F_VALUE_1);
     }
 
-    @Test
-    public void put_on_null_value_delegates() {
-        when(backingMapMock.put(T_KEY_1, null)).thenReturn(T_VALUE_OTHER);
-
-        assertThat(transfromingMap.put(F_KEY_1, null), is(equalTo(F_VALUE_OTHER)));
+    @Test(expected = NullPointerException.class)
+    public void put_null_not_allowed() {
+        transfromingMap.put(F_KEY_1, null);
     }
 
     @Test
@@ -239,11 +231,9 @@ public class TransformingMapTest {
         assertThat(transfromingMap.remove(F_KEY_1), is(equalTo(F_VALUE_1)));
     }
 
-    @Test
-    public void remove_on_null_key_delegates() {
-        when(backingMapMock.remove(null)).thenReturn(T_VALUE_1);
-
-        assertThat(transfromingMap.remove(null), is(equalTo(F_VALUE_1)));
+    @Test(expected = NullPointerException.class)
+    public void remove_null_not_allowed() {
+        transfromingMap.remove(null);
     }
 
     @Test
@@ -267,11 +257,9 @@ public class TransformingMapTest {
         assertThat(transfromingMap.get(F_KEY_1), is(equalTo(F_VALUE_1)));
     }
 
-    @Test
-    public void get_on_null_key_delegates() {
-        when(backingMapMock.get(null)).thenReturn(T_VALUE_1);
-
-        assertThat(transfromingMap.get(null), is(equalTo(F_VALUE_1)));
+    @Test(expected = NullPointerException.class)
+    public void get_on_null_key_not_allowed() {
+        transfromingMap.get(null);
     }
 
     @Test
@@ -377,15 +365,13 @@ public class TransformingMapTest {
         assertThat(transformingEntry.setValue(F_VALUE_2), is(nullValue()));
     }
 
-    @Test
-    public void setNullValue_on_entry_delegates() {
-        when(backingEntryMock.setValue(null)).thenReturn(T_VALUE_1);
+    @Test(expected = NullPointerException.class)
+    public void setNullValue_on_entry_not_allowed() {
         when(backingMapMock.entrySet()).thenReturn(Collections.singleton(backingEntryMock));
 
         Map.Entry<Integer, Float> transformingEntry = Iterables.getFirst(transfromingMap.entrySet(), null);
 
-
-        assertThat(transformingEntry.setValue(null), is(equalTo(F_VALUE_1)));
+        transformingEntry.setValue(null);
     }
 
     private final static class TestEntry<K, V> implements Map.Entry<K, V> {
