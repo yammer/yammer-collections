@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
 
 // TODO : change null handling policy to be consistent (remove null handling in other classes)
@@ -29,11 +30,11 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
             final Function<V, V1> toValueFunction,
             final Function<V1, V> fromValueFunction
     ) {
-        this.backingMap = backingMap;
-        this.toKeyFunction = toKeyFunction;
-        this.fromKeyFunction = fromKeyFunction;
-        this.toValueFunction = toValueFunction;
-        this.fromValueFunction = fromValueFunction;
+        this.backingMap = checkNotNull(backingMap);
+        this.toKeyFunction = checkNotNull(toKeyFunction);
+        this.fromKeyFunction = checkNotNull(fromKeyFunction);
+        this.toValueFunction = checkNotNull(toValueFunction);
+        this.fromValueFunction = checkNotNull(fromValueFunction);
         this.toEntryFunction = new Function<Entry<K, V>, Entry<K1, V1>>() {
             @Override
             public Entry<K1, V1> apply(java.util.Map.Entry<K, V> kvEntry) {

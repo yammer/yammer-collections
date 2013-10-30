@@ -58,13 +58,13 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
             Function<C1, C> fromColumnFunction,
             Function<V, V1> toValueFunction,
             Function<V1, V> fromValueFunction) {
-        this.backingTable = backingTable;
-        this.toRowFunction = toRowFunction;
-        this.fromRowFunction = fromRowFunction;
-        this.toColumnFunction = toColumnFunction;
-        this.fromColumnFunction = fromColumnFunction;
-        this.toValueFunction = toValueFunction;
-        this.fromValueFunction = fromValueFunction;
+        this.backingTable = checkNotNull(backingTable);
+        this.toRowFunction = checkNotNull(toRowFunction);
+        this.fromRowFunction = checkNotNull(fromRowFunction);
+        this.toColumnFunction = checkNotNull(toColumnFunction);
+        this.fromColumnFunction = checkNotNull(fromColumnFunction);
+        this.toValueFunction = checkNotNull(toValueFunction);
+        this.fromValueFunction = checkNotNull(fromValueFunction);
         toRowMapValueFunction = createMapTransformation(
                 fromColumnFunction, toColumnFunction,
                 fromValueFunction, toValueFunction

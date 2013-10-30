@@ -71,7 +71,6 @@ public class TransformingTableTest {
             return Integer.valueOf(anInteger);
         }
     };
-
     private TransformingTable<Float, Long, Integer, String, String, String> transformingTable;
     @Mock
     private Table<String, String, String> backingTableMock;
@@ -83,6 +82,78 @@ public class TransformingTableTest {
                 TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
                 TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
                 TO_VALUE_FUNCTION, FROM_VALUE_FUNCTION);
+    }
+
+    // Constructor checks
+
+    @Test(expected = NullPointerException.class)
+    public void backingTable_cannot_be_null() {
+        new TransformingTable<>(
+                null,
+                TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
+                TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
+                TO_VALUE_FUNCTION, FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void toRowFunction_cannot_be_null() {
+        new TransformingTable<>(
+                backingTableMock,
+                null, FROM_ROW_FUNCTION,
+                TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
+                TO_VALUE_FUNCTION, FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void fromRowFunction_cannot_be_null() {
+        new TransformingTable<>(
+                backingTableMock,
+                TO_ROW_FUNCTION, null,
+                TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
+                TO_VALUE_FUNCTION, FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void toColumnFunction_cannot_be_null() {
+        new TransformingTable<>(
+                backingTableMock,
+                TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
+                null, FROM_COLUMN_FUNCTION,
+                TO_VALUE_FUNCTION, FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void fromColumnFunction_cannot_be_null() {
+        new TransformingTable<>(
+                backingTableMock,
+                TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
+                TO_COLUMN_FUNCTION, null,
+                TO_VALUE_FUNCTION, FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void toValueFunction_cannot_be_null() {
+        new TransformingTable<>(
+                backingTableMock,
+                TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
+                TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
+                null, FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void fromValueFunction_cannot_be_null() {
+        new TransformingTable<>(
+                backingTableMock,
+                TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
+                TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
+                TO_VALUE_FUNCTION, null
+        );
     }
 
     // contains

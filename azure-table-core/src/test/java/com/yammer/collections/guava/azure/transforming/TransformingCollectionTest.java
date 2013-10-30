@@ -47,6 +47,23 @@ public class TransformingCollectionTest {
         transformingCollection = new TransformingCollection<>(backingCollectionMock, TO_FUNCTION, FROM_FUNCTION);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void backingCollection_cannot_be_null() {
+        new TransformingCollection<>(null, TO_FUNCTION, FROM_FUNCTION);
+    }
+
+
+    @Test(expected = NullPointerException.class)
+    public void toFunction_cannot_be_null() {
+        new TransformingCollection<>(backingCollectionMock, null, FROM_FUNCTION);
+    }
+
+
+    @Test(expected = NullPointerException.class)
+    public void fromFunction_cannot_be_null() {
+        new TransformingCollection<>(backingCollectionMock, TO_FUNCTION, null);
+    }
+
     @Test
     public void size_delegates() {
         when(backingCollectionMock.size()).thenReturn(2);

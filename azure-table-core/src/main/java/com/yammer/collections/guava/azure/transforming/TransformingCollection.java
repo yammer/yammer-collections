@@ -8,6 +8,7 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
 
 // TODO : change null handling policy to be consistent (remove null handling in other classes)
@@ -26,9 +27,9 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
      * i.e., fromFunction is a bijection and the toFunction is its reverse
      */
     public TransformingCollection(Collection<T> backingCollection, Function<F, T> toFunction, Function<T, F> fromFunction) {
-        this.backingCollection = backingCollection;
-        this.toFunction = toFunction;
-        this.fromFunction = fromFunction;
+        this.backingCollection = checkNotNull(backingCollection);
+        this.toFunction = checkNotNull(toFunction);
+        this.fromFunction = checkNotNull(fromFunction);
     }
 
     @Override

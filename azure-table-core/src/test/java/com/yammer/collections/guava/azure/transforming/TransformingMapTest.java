@@ -79,6 +79,61 @@ public class TransformingMapTest {
         );
     }
 
+    @Test(expected = NullPointerException.class)
+    public void backingMap_cannot_be_null() {
+        new TransformingMap<>(
+                null,
+                TO_KEY_FUNCTION,
+                FROM_KEY_FUNCTION,
+                TO_VALUE_FUNCTION,
+                FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void toKeyFunction_cannot_be_null() {
+        new TransformingMap<>(
+                backingMapMock,
+                null,
+                FROM_KEY_FUNCTION,
+                TO_VALUE_FUNCTION,
+                FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void fromKeyFunction_cannot_be_null() {
+        new TransformingMap<>(
+                backingMapMock,
+                TO_KEY_FUNCTION,
+                null,
+                TO_VALUE_FUNCTION,
+                FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void toValueFunction_cannot_be_null() {
+        new TransformingMap<>(
+                backingMapMock,
+                TO_KEY_FUNCTION,
+                FROM_KEY_FUNCTION,
+                null,
+                FROM_VALUE_FUNCTION
+        );
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void fromValueFunction_cannot_be_null() {
+        new TransformingMap<>(
+                backingMapMock,
+                TO_KEY_FUNCTION,
+                FROM_KEY_FUNCTION,
+                TO_VALUE_FUNCTION,
+                null
+        );
+    }
+
     @Test
     public void size_delegates() {
         when(backingMapMock.size()).thenReturn(2);
