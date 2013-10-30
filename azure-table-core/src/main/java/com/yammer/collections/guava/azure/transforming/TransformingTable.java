@@ -17,7 +17,7 @@ import static com.yammer.collections.guava.azure.transforming.TransformationUtil
  * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.
  */
 public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
-    private final Function<Cell<R, C, V>, Cell<R1, C1, V1>> toBaseCellFunction = new Function<Cell<R, C, V>, Cell<R1, C1, V1>>() {
+    private final Function<Cell<R, C, V>, Cell<R1, C1, V1>> toBackingCellFunction = new Function<Cell<R, C, V>, Cell<R1, C1, V1>>() {
         @Override
         public Cell<R1, C1, V1> apply(Cell<R, C, V> input) {
             return Tables.immutableCell(
@@ -27,7 +27,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
             );
         }
     };
-    private final Function<Cell<R1, C1, V1>, Cell<R, C, V>> fromBaseCellFunction =
+    private final Function<Cell<R1, C1, V1>, Cell<R, C, V>> fromBackingCellFunction =
             new Function<Cell<R1, C1, V1>, Cell<R, C, V>>() {
                 @Override
                 public Cell<R, C, V> apply(Cell<R1, C1, V1> input) {
@@ -230,8 +230,8 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     public Set<Cell<R, C, V>> cellSet() {
         return new TransformingSet<>(
                 backingTable.cellSet(),
-                toBaseCellFunction,
-                fromBaseCellFunction
+                toBackingCellFunction,
+                fromBackingCellFunction
         );
     }
 
