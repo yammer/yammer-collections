@@ -151,7 +151,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
         );
     }
 
-    public static class TransformingEntry<K, V, K1, V1> implements Entry<K, V> {
+    private static class TransformingEntry<K, V, K1, V1> implements Entry<K, V> {
         private final Entry<K1, V1> backingEntry;
         private final Function<K1, K> fromKeyFunction;
         private final Function<V, V1> toValueFunction;
