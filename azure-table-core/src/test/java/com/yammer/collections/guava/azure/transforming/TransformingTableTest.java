@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -363,7 +362,7 @@ public class TransformingTableTest {
     // column key set
 
     @Test
-    public void columnKeySet_delegates_to_backing_table() throws UnsupportedEncodingException {
+    public void columnKeySet_delegates_to_backing_table() {
         when(backingTableMock.columnKeySet()).thenReturn(ImmutableSet.of(STRING_COLUMN_KEY_1, STRING_COLUMN_KEY_2));
 
         assertThat(transformingTable.columnKeySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
@@ -372,7 +371,7 @@ public class TransformingTableTest {
     // row key set
 
     @Test
-    public void rowKeySet_delegates_to_backing_table() throws UnsupportedEncodingException {
+    public void rowKeySet_delegates_to_backing_table() {
         when(backingTableMock.rowKeySet()).thenReturn(ImmutableSet.of(STRING_ROW_KEY_1, STRING_ROW_KEY_2));
 
         assertThat(transformingTable.rowKeySet(), containsInAnyOrder(ROW_KEY_1, ROW_KEY_2));
@@ -381,7 +380,7 @@ public class TransformingTableTest {
     // values
 
     @Test
-    public void value_delegates_to_backing_table() throws UnsupportedEncodingException {
+    public void value_delegates_to_backing_table() {
         when(backingTableMock.values()).thenReturn(ImmutableSet.of(STRING_VALUE_1, STRING_VALUE_2));
 
         assertThat(transformingTable.values(), containsInAnyOrder(VALUE_1, VALUE_2));
@@ -425,12 +424,12 @@ public class TransformingTableTest {
     // column map
     @Test
     public void columnMap_delegates() {
-        Map<String, Map<String, String>> backingRowMap = ImmutableMap.of(
+        Map<String, Map<String, String>> backingColumnMap = ImmutableMap.of(
                 STRING_COLUMN_KEY_1, (Map<String, String>) ImmutableMap.of(STRING_ROW_KEY_1, STRING_VALUE_1),
                 STRING_COLUMN_KEY_2, ImmutableMap.of(STRING_ROW_KEY_1, STRING_VALUE_2)
         );
 
-        when(backingTableMock.columnMap()).thenReturn(backingRowMap);
+        when(backingTableMock.columnMap()).thenReturn(backingColumnMap);
 
         assertThat(transformingTable.columnMap(), is(equalTo(
                 (Map<Long, Map<Float, Integer>>) ImmutableMap.of(
