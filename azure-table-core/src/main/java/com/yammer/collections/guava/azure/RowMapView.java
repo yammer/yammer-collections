@@ -17,7 +17,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
         this.backingTable = backingTable;
         valueCreator = new Function<R, Map<C, V>>() {
             @Override
-            public Map<C, V> apply(final R key) {
+            public Map<C, V> apply(R key) {
                 return backingTable.row(key);
             }
         };
@@ -25,27 +25,10 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
                 Function<R, Entry<R, Map<C, V>>>() {
                     @Override
-                    public Entry<R, Map<C, V>> apply(final R input) {
-                        return new Entry<R, Map<C, V>>() {
-                            @Override
-                            public R getKey() {
-                                return input;
-                            }
-
-                            @Override
-                            public Map<C, V> getValue() {
-                                return backingTable.row(input);
-                            }
-
-                            @Override
-                            public Map<C, V> setValue(Map<C, V> value) {
-                                return put(input, value);
-                            }
-
-                        };
+                    public Entry<R, Map<C, V>> apply(R input) {
+                        return new RowMapViewEntry<>(backingTable, RowMapView.this, input);
                     }
                 };
-
     }
 
     @Override
@@ -72,7 +55,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
         Entry<?, ?> entry = (Entry<?, ?>) value;
         try {
             return backingTable.column((C) entry.getKey()).containsValue(entry.getValue());
-        } catch (ClassCastException c) {
+        } catch (ClassCastException ignored) {
             return false;
         }
     }
@@ -82,7 +65,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
         try {
             Map<C, V> mapForRow = backingTable.row((R) key);
             return mapForRow.isEmpty() ? null : mapForRow;
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return null;
         }
     }
@@ -114,6 +97,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
         return oldValue;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public void putAll(Map<? extends R, ? extends Map<C, V>> m) {
         for (Entry<? extends R, ? extends Map<C, V>> entry : m.entrySet()) {
@@ -126,11 +110,13 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
         backingTable.clear();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<R> keySet() {
         return backingTable.rowKeySet();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Collection<Map<C, V>> values() {
         return Collections2.transform(
@@ -139,6 +125,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
         );
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<R, Map<C, V>>> entrySet() {
         return SetView.fromSetCollectionView(
@@ -146,5 +133,33 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
                         keySet(),
                         entryCreator
                 ));
+    }
+
+    private static final class RowMapViewEntry<R, C, V> implements Entry<R, Map<C, V>> {
+        private final Table<R, C, V> backingTable;
+        private final Map<R, Map<C, V>> backingMap;
+        private final R key;
+
+
+        private RowMapViewEntry(Table<R, C, V> backingTable, Map<R, Map<C, V>> backingMap, R key) {
+            this.backingTable = backingTable;
+            this.backingMap = backingMap;
+            this.key = key;
+        }
+
+        @Override
+        public R getKey() {
+            return key;
+        }
+
+        @Override
+        public Map<C, V> getValue() {
+            return backingTable.row(key);
+        }
+
+        @Override
+        public Map<C, V> setValue(Map<C, V> value) {
+            return backingMap.put(key, value);
+        }
     }
 }

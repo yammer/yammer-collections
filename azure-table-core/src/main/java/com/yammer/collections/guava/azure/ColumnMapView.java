@@ -22,27 +22,11 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
             }
         };
         entryConstructor = new
-           // TODO : extract and deal with warnings in this class
+
                 Function<C, Entry<C, Map<R, V>>>() {
                     @Override
-                    public Entry<C, Map<R, V>> apply(final C input) {
-                        return new Entry<C, Map<R, V>>() {
-                            @Override
-                            public C getKey() {
-                                return input;
-                            }
-
-                            @Override
-                            public Map<R, V> getValue() {
-                                return backingTable.column(input);
-                            }
-
-                            @Override
-                            public Map<R, V> setValue(Map<R, V> value) {
-                                return put(input, value);
-                            }
-
-                        };
+                    public Entry<C, Map<R, V>> apply(C input) {
+                        return new ColumnMapViewEntry<>(backingTable, ColumnMapView.this, input);
                     }
                 };
     }
@@ -71,7 +55,7 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
         Entry<?, ?> entry = (Entry<?, ?>) value;
         try {
             return backingTable.row((R) entry.getKey()).containsValue(entry.getValue());
-        } catch (ClassCastException c) {
+        } catch (ClassCastException ignored) {
             return false;
         }
     }
@@ -81,7 +65,7 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
         try {
             Map<R, V> mapForRow = backingTable.column((C) key);
             return mapForRow.isEmpty() ? null : mapForRow;
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return null;
         }
     }
@@ -113,6 +97,7 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
         return oldValue;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public void putAll(Map<? extends C, ? extends Map<R, V>> m) {
         for (Entry<? extends C, ? extends Map<R, V>> entry : m.entrySet()) {
@@ -125,11 +110,13 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
         backingTable.clear();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<C> keySet() {
         return backingTable.columnKeySet();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Collection<Map<R, V>> values() {
         return Collections2.transform(
@@ -138,6 +125,7 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
         );
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<C, Map<R, V>>> entrySet() {
         return SetView.fromSetCollectionView(
@@ -146,5 +134,33 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
                         entryConstructor
                 )
         );
+    }
+
+    private static final class ColumnMapViewEntry<R, C, V> implements Entry<C, Map<R, V>> {
+        private final Table<R, C, V> backingTable;
+        private final Map<C, Map<R, V>> backingMap;
+        private final C key;
+
+
+        private ColumnMapViewEntry(Table<R, C, V> backingTable, Map<C, Map<R, V>> backingMap, C key) {
+            this.backingTable = backingTable;
+            this.backingMap = backingMap;
+            this.key = key;
+        }
+
+        @Override
+        public C getKey() {
+            return key;
+        }
+
+        @Override
+        public Map<R, V> getValue() {
+            return backingTable.column(key);
+        }
+
+        @Override
+        public Map<R, V> setValue(Map<R, V> value) {
+            return backingMap.put(key, value);
+        }
     }
 }
