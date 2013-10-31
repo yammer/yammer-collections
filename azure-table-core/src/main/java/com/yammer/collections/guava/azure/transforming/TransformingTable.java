@@ -1,6 +1,7 @@
 package com.yammer.collections.guava.azure.transforming;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 
@@ -11,11 +12,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
 
-/**
- * // TODO update this doc
- * In early stages of implementation. Built for the Secretie project, which deals with small data sets that can be trivially sent
- * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.
- */
 public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     private final Function<Cell<R, C, V>, Cell<R1, C1, V1>> toBackingCellFunction = new Function<Cell<R, C, V>, Cell<R1, C1, V1>>() {
         @Override
@@ -50,7 +46,41 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     private final Function<Map<R, V>, Map<R1, V1>> toColumnMapValueFunction;
     private final Function<Map<R1, V1>, Map<R, V>> fromColumnMapValueFunction;
 
-    public static <R,C,V,R1,C1,V1>
+    // TODO make private (all constructors)
+    public TransformingTable(
+            Table<R1, C1, V1> backingTable,
+            Function<R, R1> toRowFunction,
+            Function<R1, R> fromRowFunction,
+            Function<C, C1> toColumnFunction,
+            Function<C1, C> fromColumnFunction,
+            Function<V, V1> toValueFunction,
+            Function<V1, V> fromValueFunction) {
+        this.backingTable = checkNotNull(backingTable);
+        this.toRowFunction = checkNotNull(toRowFunction);
+        this.fromRowFunction = checkNotNull(fromRowFunction);
+        this.toColumnFunction = checkNotNull(toColumnFunction);
+        this.fromColumnFunction = checkNotNull(fromColumnFunction);
+        this.toValueFunction = checkNotNull(toValueFunction);
+        this.fromValueFunction = checkNotNull(fromValueFunction);
+        toRowMapValueFunction = createToMapTransformation(
+                toColumnFunction,
+                toValueFunction
+        );
+        fromRowMapValueFunction = createFromMapTransformation(
+                toColumnFunction, fromColumnFunction,
+                toValueFunction, fromValueFunction
+        );
+        toColumnMapValueFunction = createToMapTransformation(
+                toRowFunction,
+                toValueFunction
+        );
+        fromColumnMapValueFunction = createFromMapTransformation(
+                toRowFunction, fromRowFunction,
+                toValueFunction, fromValueFunction
+        );
+    }
+
+    public static <R, C, V, R1, C1, V1>
     TransformingTable<R, C, V, R1, C1, V1> create(
             Table<R1, C1, V1> backingTable,
             Function<R, R1> toRowFunction,
@@ -71,41 +101,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
         );
     }
 
-    // TODO make private (all constructors)
-    public TransformingTable(
-            Table<R1, C1, V1> backingTable,
-            Function<R, R1> toRowFunction,
-            Function<R1, R> fromRowFunction,
-            Function<C, C1> toColumnFunction,
-            Function<C1, C> fromColumnFunction,
-            Function<V, V1> toValueFunction,
-            Function<V1, V> fromValueFunction) {
-        this.backingTable = checkNotNull(backingTable);
-        this.toRowFunction = checkNotNull(toRowFunction);
-        this.fromRowFunction = checkNotNull(fromRowFunction);
-        this.toColumnFunction = checkNotNull(toColumnFunction);
-        this.fromColumnFunction = checkNotNull(fromColumnFunction);
-        this.toValueFunction = checkNotNull(toValueFunction);
-        this.fromValueFunction = checkNotNull(fromValueFunction);
-        toRowMapValueFunction = createMapTransformation(
-                fromColumnFunction, toColumnFunction,
-                fromValueFunction, toValueFunction
-        );
-        fromRowMapValueFunction = createMapTransformation(
-                toColumnFunction, fromColumnFunction,
-                toValueFunction, fromValueFunction
-        );
-        toColumnMapValueFunction = createMapTransformation(
-                fromRowFunction, toRowFunction,
-                fromValueFunction, toValueFunction
-        );
-        fromColumnMapValueFunction = createMapTransformation(
-                toRowFunction, fromRowFunction,
-                toValueFunction, fromValueFunction
-        );
-    }
-
-    private static <K, V, K1, V1> Function<Map<K, V>, Map<K1, V1>> createMapTransformation(
+    private static <K, V, K1, V1> Function<Map<K, V>, Map<K1, V1>> createFromMapTransformation(
             final Function<K1, K> toKeyFunction,
             final Function<K, K1> fromKeyFunction,
             final Function<V1, V> toValueFunction,
@@ -118,6 +114,25 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
                         toKeyFunction, fromKeyFunction,
                         toValueFunction, fromValueFunction
                 );
+            }
+        };
+    }
+
+    // to be consistent with the behaviour, we need to copy and transform
+    private static <K, V, K1, V1> Function<Map<K, V>, Map<K1, V1>> createToMapTransformation(
+            final Function<K, K1> toKeyFunction,
+            final Function<V, V1> toValueFunction) {
+        return new Function<Map<K, V>, Map<K1, V1>>() {
+            @Override
+            public Map<K1, V1> apply(java.util.Map<K, V> cvMap) {
+                Map<K1, V1> transformedCopy = Maps.newHashMap();
+                for (Map.Entry<K, V> entry : cvMap.entrySet()) {
+                    transformedCopy.put(
+                            toKeyFunction.apply(entry.getKey()),
+                            toValueFunction.apply(entry.getValue())
+                    );
+                }
+                return transformedCopy;
             }
         };
     }
@@ -291,7 +306,6 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public Map<C, Map<R, V>> columnMap() {
-
         return new TransformingMap<>(
                 backingTable.columnMap(),
                 toColumnFunction,
