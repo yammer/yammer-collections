@@ -45,7 +45,7 @@
         </dependency>
     </dependencies>
 
- 
+
     <scm>
         <connection>scm:git:git://github.int.yammer.com/yammer/yammer-collections.git</connection>
         <developerConnection>scm:git:git@github.int.yammer.com:yammer/yammer-collections.git</developerConnection>
@@ -72,5 +72,16 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>maven.int.yammer.com-releases</id>
+            <url>http://maven.int.yammer.com/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven.int.yammer.com-snapshots</id>
+            <url>http://maven.int.yammer.com/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
