@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @param <C>
  * @param <V>
  */
+@SuppressWarnings("ClassWithTooManyMethods")
 public class MeteredTable<R, C, V> implements Table<R, C, V> {
     private static final Timer GET_TIMER = createTimerFor("get");
     private static final Timer PUT_TIMER = createTimerFor("put");

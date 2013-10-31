@@ -10,13 +10,13 @@ import com.microsoft.windowsazure.services.table.client.TableQuery;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
+
 /**
  * This class implements the set interface, however it does not enforce it as it only a view.
  */
-class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>> implements Set<Table.Cell<String, String, String>> {
+class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>> {
     private static final Function<AzureEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
             new Function<AzureEntity, Table.Cell<String, String, String>>() {
                 @Override
@@ -64,6 +64,7 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
         return stringCloudTableClient.execute(query);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Iterator<Table.Cell<String, String, String>> iterator() {
         return Iterables.transform(
@@ -71,11 +72,13 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
                 TABLE_CELL_CREATOR).iterator();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Object[] toArray() {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public <T> T[] toArray(T[] a) {
         throw new UnsupportedOperationException();
@@ -92,7 +95,7 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @Override
     public boolean remove(Object o) {
-        if(!(o instanceof Table.Cell)) {
+        if (!(o instanceof Table.Cell)) {
             return false;
         }
 
@@ -106,8 +109,8 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        for(Object o : c) {
-            if(!contains(o)) {
+        for (Object o : c) {
+            if (!contains(o)) {
                 return false;
             }
         }
@@ -118,8 +121,8 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
     @Override
     public boolean addAll(Collection<? extends Table.Cell<String, String, String>> c) {
         boolean change = false;
-        for(Table.Cell<String, String, String> cell : c) {
-            if(add(cell) == true) {
+        for (Table.Cell<String, String, String> cell : c) {
+            if (add(cell)) {
                 change = true;
             }
         }
@@ -135,8 +138,8 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
     @Override
     public boolean removeAll(Collection<?> c) {
         boolean change = false;
-        for(Object o : c) {
-            if(remove(o) == true) {
+        for (Object o : c) {
+            if (remove(o)) {
                 change = true;
             }
         }
@@ -151,6 +154,6 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @Override
     public String toString() {
-        return super.toString()+"AZURE_TABLE_NAME: "+ baseAzureTable.getTableName();
+        return super.toString() + "AZURE_TABLE_NAME: " + baseAzureTable.getTableName();
     }
 }

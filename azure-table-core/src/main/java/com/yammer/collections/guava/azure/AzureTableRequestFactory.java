@@ -4,8 +4,9 @@ import com.microsoft.windowsazure.services.table.client.TableConstants;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
-/* pacakge */class AzureTableRequestFactory {
-    public TableOperation put(String rowString, String columnString, String value) {
+@SuppressWarnings("MethodMayBeStatic")
+class AzureTableRequestFactory {
+    TableOperation put(String rowString, String columnString, String value) {
         AzureEntity secretieEntity = new AzureEntity(rowString, columnString, value);
         return TableOperation.insertOrReplace(secretieEntity);
     }
@@ -40,7 +41,7 @@ import com.microsoft.windowsazure.services.table.client.TableQuery;
     }
 
 
-    public TableQuery<AzureEntity> selectAllForColumn(String tableName, String columnKey) {
+    TableQuery<AzureEntity> selectAllForColumn(String tableName, String columnKey) {
         return selectAll(tableName).where(generateColumnFilter(columnKey));
     }
 
@@ -53,21 +54,21 @@ import com.microsoft.windowsazure.services.table.client.TableQuery;
         return selectAll(tableName).where(columnValueFilter);
     }
 
-    private String generatePartitionFilter(String rowKey) {
+    private static String generatePartitionFilter(String rowKey) {
         return TableQuery.generateFilterCondition(
                 TableConstants.PARTITION_KEY,
                 TableQuery.QueryComparisons.EQUAL,
                 rowKey);
     }
 
-    private String generateColumnFilter(String columnKey) {
+    private static String generateColumnFilter(String columnKey) {
         return TableQuery.generateFilterCondition(
                 TableConstants.ROW_KEY,
                 TableQuery.QueryComparisons.EQUAL,
                 columnKey);
     }
 
-    private String generateValueFilter(String value) {
+    private static String generateValueFilter(String value) {
         return TableQuery.generateFilterCondition(
                 AzureEntity.VALUE,
                 TableQuery.QueryComparisons.EQUAL,

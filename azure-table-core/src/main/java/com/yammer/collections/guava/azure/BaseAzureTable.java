@@ -17,6 +17,7 @@ import static com.yammer.collections.guava.azure.AzureEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
 import static com.yammer.collections.guava.azure.AzureEntityUtil.encode;
 
+@SuppressWarnings("ClassWithTooManyMethods")
 public class BaseAzureTable implements Table<String, String, String> {
     private static final Function<AzureEntity, String> COLUMN_KEY_EXTRACTOR = new Function<AzureEntity, String>() {
         @Override
@@ -34,7 +35,8 @@ public class BaseAzureTable implements Table<String, String, String> {
     private final AzureTableCloudClient stringCloudTableClient;
     private final AzureTableRequestFactory azureTableRequestFactory;
 
-    /* package */ BaseAzureTable(String tableName, AzureTableCloudClient stringCloudTableClient, AzureTableRequestFactory azureTableRequestFactory) {
+    // test only
+    BaseAzureTable(String tableName, AzureTableCloudClient stringCloudTableClient, AzureTableRequestFactory azureTableRequestFactory) {
         this.tableName = tableName;
         this.stringCloudTableClient = stringCloudTableClient;
         this.azureTableRequestFactory = azureTableRequestFactory;

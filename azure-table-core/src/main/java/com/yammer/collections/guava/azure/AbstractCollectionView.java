@@ -8,12 +8,10 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 
-public abstract class AbstractCollectionView<E> extends AbstractCollection<E> {
+abstract class AbstractCollectionView<E> extends AbstractCollection<E> {
     private final Function<AzureEntity, E> typeExtractor;
 
-    public AbstractCollectionView(
-            Function<AzureEntity, E> typeExtractor
-    ) {
+    protected AbstractCollectionView(Function<AzureEntity, E> typeExtractor) {
         this.typeExtractor = typeExtractor;
     }
 
@@ -36,6 +34,7 @@ public abstract class AbstractCollectionView<E> extends AbstractCollection<E> {
 
     protected abstract Iterable<AzureEntity> getBackingIterable();
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Iterator<E> iterator() {
         return Iterables.transform(

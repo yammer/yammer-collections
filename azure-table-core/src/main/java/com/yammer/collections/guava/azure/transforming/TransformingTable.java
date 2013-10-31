@@ -12,6 +12,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
 
+@SuppressWarnings({"ClassWithTooManyFields", "ClassWithTooManyMethods"})
 public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     private final Function<Cell<R, C, V>, Cell<R1, C1, V1>> toBackingCellFunction = new Function<Cell<R, C, V>, Cell<R1, C1, V1>>() {
         @Override
@@ -46,7 +47,6 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     private final Function<Map<R, V>, Map<R1, V1>> toColumnMapValueFunction;
     private final Function<Map<R1, V1>, Map<R, V>> fromColumnMapValueFunction;
 
-    // TODO make private (all constructors)
     public TransformingTable(
             Table<R1, C1, V1> backingTable,
             Function<R, R1> toRowFunction,
@@ -80,27 +80,6 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
         );
     }
 
-    public static <R, C, V, R1, C1, V1>
-    TransformingTable<R, C, V, R1, C1, V1> create(
-            Table<R1, C1, V1> backingTable,
-            Function<R, R1> toRowFunction,
-            Function<R1, R> fromRowFunction,
-            Function<C, C1> toColumnFunction,
-            Function<C1, C> fromColumnFunction,
-            Function<V, V1> toValueFunction,
-            Function<V1, V> fromValueFunction
-    ) {
-        return new TransformingTable<>(
-                backingTable,
-                toRowFunction,
-                fromRowFunction,
-                toColumnFunction,
-                fromColumnFunction,
-                toValueFunction,
-                fromValueFunction
-        );
-    }
-
     private static <K, V, K1, V1> Function<Map<K, V>, Map<K1, V1>> createFromMapTransformation(
             final Function<K1, K> toKeyFunction,
             final Function<K, K1> fromKeyFunction,
@@ -108,7 +87,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
             final Function<V, V1> fromValueFunction) {
         return new Function<Map<K, V>, Map<K1, V1>>() {
             @Override
-            public Map<K1, V1> apply(java.util.Map<K, V> cvMap) {
+            public Map<K1, V1> apply(Map<K, V> cvMap) {
                 return new TransformingMap<>(
                         cvMap,
                         toKeyFunction, fromKeyFunction,
@@ -124,7 +103,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
             final Function<V, V1> toValueFunction) {
         return new Function<Map<K, V>, Map<K1, V1>>() {
             @Override
-            public Map<K1, V1> apply(java.util.Map<K, V> cvMap) {
+            public Map<K1, V1> apply(Map<K, V> cvMap) {
                 Map<K1, V1> transformedCopy = Maps.newHashMap();
                 for (Map.Entry<K, V> entry : cvMap.entrySet()) {
                     transformedCopy.put(
@@ -138,10 +117,10 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     }
 
     @SuppressWarnings("unchecked")
-    private <F, T> T tryTransforming(Object o, Function<F, T> transfromingFunction) {
+    private static <F, T> T tryTransforming(Object o, Function<F, T> transfromingFunction) {
         try {
             return transfromingFunction.apply((F) o);
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return null;
         }
     }
@@ -150,8 +129,8 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     public boolean contains(Object rowKey, Object columnKey) {
         checkNotNull(rowKey);
         checkNotNull(columnKey);
-        final R1 mRowKey = tryTransforming(rowKey, toRowFunction);
-        final C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
+        R1 mRowKey = tryTransforming(rowKey, toRowFunction);
+        C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
         return mRowKey != null &&
                 mColumnKey != null &&
                 backingTable.contains(mRowKey, mColumnKey);
@@ -160,21 +139,21 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     @Override
     public boolean containsRow(Object rowKey) {
         checkNotNull(rowKey);
-        final R1 mRowKey = tryTransforming(rowKey, toRowFunction);
+        R1 mRowKey = tryTransforming(rowKey, toRowFunction);
         return mRowKey != null && backingTable.containsRow(mRowKey);
     }
 
     @Override
     public boolean containsColumn(Object columnKey) {
         checkNotNull(columnKey);
-        final C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
+        C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
         return mColumnKey != null && backingTable.containsColumn(mColumnKey);
     }
 
     @Override
     public boolean containsValue(Object value) {
         checkNotNull(value);
-        final V1 mValue = tryTransforming(value, toValueFunction);
+        V1 mValue = tryTransforming(value, toValueFunction);
         return value != null && backingTable.containsValue(mValue);
     }
 
@@ -182,8 +161,8 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     public V get(Object rowKey, Object columnKey) {
         checkNotNull(rowKey);
         checkNotNull(columnKey);
-        final R1 mRowKey = tryTransforming(rowKey, toRowFunction);
-        final C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
+        R1 mRowKey = tryTransforming(rowKey, toRowFunction);
+        C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
 
         if (mRowKey == null || mColumnKey == null) {
             return null;
@@ -233,8 +212,8 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     public V remove(Object rowKey, Object columnKey) {
         checkNotNull(rowKey);
         checkNotNull(columnKey);
-        final R1 mRowKey = tryTransforming(rowKey, toRowFunction);
-        final C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
+        R1 mRowKey = tryTransforming(rowKey, toRowFunction);
+        C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
 
         if (mRowKey == null || mColumnKey == null) {
             return null;

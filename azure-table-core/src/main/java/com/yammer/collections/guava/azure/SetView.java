@@ -40,6 +40,7 @@ public class SetView<E> extends AbstractSet<E> {
         return collectionView.contains(o);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Iterator<E> iterator() {
         return collectionView.iterator();
@@ -76,12 +77,13 @@ public class SetView<E> extends AbstractSet<E> {
         @Override
         public int size() {
             int size = 0;
-            for (E e : this) {
+            for (E ignored : this) {
                 size++;
             }
             return size;
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public Iterator<E> iterator() {
             return new UniequeIterator(collectionView.iterator());

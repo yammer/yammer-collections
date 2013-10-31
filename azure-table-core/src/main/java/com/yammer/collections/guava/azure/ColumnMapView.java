@@ -17,12 +17,12 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
         this.backingTable = backingTable;
         valueCreator = new Function<C, Map<R, V>>() {
             @Override
-            public Map<R, V> apply(final C key) {
+            public Map<R, V> apply(C key) {
                 return backingTable.column(key);
             }
         };
         entryConstructor = new
-
+           // TODO : extract and deal with warnings in this class
                 Function<C, Entry<C, Map<R, V>>>() {
                     @Override
                     public Entry<C, Map<R, V>> apply(final C input) {

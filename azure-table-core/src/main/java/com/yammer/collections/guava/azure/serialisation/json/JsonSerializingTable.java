@@ -33,6 +33,7 @@ public class JsonSerializingTable<R, C, V> extends TransformingTable<R, C, V, St
 
     private static <F> Function<F, String> createSerializationFunction(final ObjectMapper om) {
         return new Function<F, String>() {
+            @SuppressWarnings("OverlyBroadCatchBlock")
             @Override
             public String apply(F f) {
                 try {
@@ -46,6 +47,7 @@ public class JsonSerializingTable<R, C, V> extends TransformingTable<R, C, V, St
 
     private static <T> Function<String, T> createDeserializationFunction(final ObjectMapper om, final Class<T> klass) {
         return new Function<String, T>() {
+            @SuppressWarnings("OverlyBroadCatchBlock")
             @Override
             public T apply(String t) {
                 try {

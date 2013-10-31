@@ -82,6 +82,7 @@ class ColumnView implements Map<String, String> {
         return baseAzureTable.remove(rowKey, key);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public void putAll(Map<? extends String, ? extends String> m) {
         for (Entry<? extends String, ? extends String> entry : m.entrySet()) {
@@ -96,19 +97,27 @@ class ColumnView implements Map<String, String> {
         }
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<String> keySet() {
-        return
-                SetView.fromSetCollectionView(
-                        new ColumnMapSetView<>(baseAzureTable, rowKey, EXTRACT_COLUMN_KEY, azureTableCloudClient, azureTableRequestFactory)
-                );
+        return SetView.fromSetCollectionView(
+                new ColumnMapSetView<>(
+                        baseAzureTable,
+                        rowKey,
+                        EXTRACT_COLUMN_KEY,
+                        azureTableCloudClient,
+                        azureTableRequestFactory
+                )
+        );
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Collection<String> values() {
         return new ColumnMapSetView<>(baseAzureTable, rowKey, EXTRACT_VALUE, azureTableCloudClient, azureTableRequestFactory);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<String, String>> entrySet() {
         return SetView.fromSetCollectionView(
@@ -116,6 +125,7 @@ class ColumnView implements Map<String, String> {
         );
     }
 
+    // TODO : extractable, as common class?
     private static class ColumnMapEntry implements Entry<String, String> {
         private final String columnKey;
         private final String rowKey;

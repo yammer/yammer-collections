@@ -45,11 +45,12 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
     public boolean contains(Object o) {
         try {
             return backingCollection.contains(safeTransform(checkNotNull((F) o), toFunction));
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return false;
         }
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Iterator<F> iterator() {
         return Iterators.transform(backingCollection.iterator(), fromFunction);
@@ -65,7 +66,7 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
     public boolean remove(Object o) {
         try {
             return backingCollection.remove(safeTransform(checkNotNull((F) o), toFunction));
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return false;
         }
     }

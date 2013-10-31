@@ -2,7 +2,6 @@ package com.yammer.collections.guava.azure.transforming;
 
 
 import com.google.common.base.Function;
-import com.sun.istack.NotNull;
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -33,9 +32,9 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
         this.fromKeyFunction = checkNotNull(fromKeyFunction);
         this.toValueFunction = checkNotNull(toValueFunction);
         this.fromValueFunction = checkNotNull(fromValueFunction);
-        this.toEntryFunction = new Function<Entry<K, V>, Entry<K1, V1>>() {
+        toEntryFunction = new Function<Entry<K, V>, Entry<K1, V1>>() {
             @Override
-            public Entry<K1, V1> apply(java.util.Map.Entry<K, V> kvEntry) {
+            public Entry<K1, V1> apply(Entry<K, V> kvEntry) {
                 return new TransformingEntry<>(
                         kvEntry,
                         toKeyFunction,
@@ -44,11 +43,11 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
                 );
             }
         };
-        this.fromEntryFunction = new
+        fromEntryFunction = new
 
                 Function<Entry<K1, V1>, Entry<K, V>>() {
                     @Override
-                    public Entry<K, V> apply(java.util.Map.Entry<K1, V1> kvEntry) {
+                    public Entry<K, V> apply(Entry<K1, V1> kvEntry) {
                         return new TransformingEntry<>(
                                 kvEntry,
                                 fromKeyFunction,
@@ -69,6 +68,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
         return backingMap.size();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<K, V>> entrySet() {
         return new TransformingSet<>(
@@ -83,7 +83,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     public boolean containsValue(Object o) {
         try {
             return backingMap.containsValue(safeTransform((V) checkNotNull(o), toValueFunction));
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return false;
         }
     }
@@ -93,23 +93,25 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     public boolean containsKey(Object key) {
         try {
             return backingMap.containsKey(safeTransform((K) checkNotNull(key), toKeyFunction));
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return false;
         }
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public V get(Object key) {
         try {
             return safeTransform(
                     backingMap.get(safeTransform((K) checkNotNull(key), toKeyFunction)),
                     fromValueFunction
             );
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return null;
         }
     }
 
+    @Override
     public V put(K key, V value) {
         K1 tKey = safeTransform(checkNotNull(key), toKeyFunction);
         V1 tValue = safeTransform(checkNotNull(value), toValueFunction);
@@ -120,21 +122,24 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public V remove(Object key) {
         try {
             return safeTransform(
                     backingMap.remove(safeTransform((K) checkNotNull(key), toKeyFunction)),
                     fromValueFunction
             );
-        } catch (ClassCastException e) {
+        } catch (ClassCastException ignored) {
             return null;
         }
     }
 
+    @Override
     public void clear() {
         backingMap.clear();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Set<K> keySet() {
         return new TransformingSet<>(
@@ -142,8 +147,9 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
         );
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
-    public  Collection<V> values() {
+    public Collection<V> values() {
         return new TransformingCollection<>(
                 backingMap.values(), toValueFunction, fromValueFunction
         );

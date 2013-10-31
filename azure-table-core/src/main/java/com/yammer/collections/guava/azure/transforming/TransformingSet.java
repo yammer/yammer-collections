@@ -21,6 +21,10 @@ public class TransformingSet<F, T> extends TransformingCollection<F, T> implemen
     @Override
     public boolean equals(Object o) {
         return o != null && (o == this || o instanceof Set && super.equals(o));
+    }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

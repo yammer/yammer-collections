@@ -5,7 +5,7 @@ import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
-/*package*/ class AzureTableCloudClient {
+class AzureTableCloudClient {
     private final CloudTableClient delegate;
 
     AzureTableCloudClient(CloudTableClient delegateClient) {
