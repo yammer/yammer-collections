@@ -1,7 +1,11 @@
 package com.yammer.collections.guava.azure.transforming;
 
 import com.google.common.base.Function;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "ClassWithTooManyMethods"})
 @RunWith(MockitoJUnitRunner.class)
 public class TransformingTableTest {
     private static final Float ROW_KEY_1 = 0.5f;

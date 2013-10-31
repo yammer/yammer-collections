@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -21,6 +20,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"ClassWithTooManyMethods", "InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
 @RunWith(MockitoJUnitRunner.class)
 public class CellSetMutableViewTest {
     private static final String ROW_KEY_1 = "rown_name_1";
@@ -47,21 +47,21 @@ public class CellSetMutableViewTest {
     }
 
     @Test
-    public void size_returns_correct_value() throws UnsupportedEncodingException, StorageException {
+    public void size_returns_correct_value() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(set.size(), is(equalTo(2)));
     }
 
     @Test
-    public void is_returns_false_on_non_empty_set() throws UnsupportedEncodingException, StorageException {
+    public void is_returns_false_on_non_empty_set() throws StorageException {
         setAzureTableToContain(CELL_1);
 
         assertThat(set.isEmpty(), is(equalTo(false)));
     }
 
     @Test
-    public void is_returns_true_on_empty_set() throws UnsupportedEncodingException, StorageException {
+    public void is_returns_true_on_empty_set() throws StorageException {
         setAzureTableToContain();
 
         assertThat(set.isEmpty(), is(equalTo(true)));
@@ -83,7 +83,7 @@ public class CellSetMutableViewTest {
     }
 
     @Test
-    public void iterator_contains_contained_entities() throws UnsupportedEncodingException, StorageException {
+    public void iterator_contains_contained_entities() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(set, containsInAnyOrder(CELL_1, CELL_2));
@@ -97,14 +97,14 @@ public class CellSetMutableViewTest {
     }
 
     @Test
-    public void when_value_existed_in_table_then_add_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_value_existed_in_table_then_add_returns_false() throws StorageException {
         setAzureTableToContain(CELL_1);
 
         assertThat(set.add(CELL_1), is(equalTo(false)));
     }
 
     @Test
-    public void when_value_did_not_exist_in_table_then_add_returns_true() throws UnsupportedEncodingException, StorageException {
+    public void when_value_did_not_exist_in_table_then_add_returns_true() throws StorageException {
         setAzureTableToContain();
 
         assertThat(set.add(CELL_1), is(equalTo(true)));
@@ -118,14 +118,14 @@ public class CellSetMutableViewTest {
     }
 
     @Test
-    public void when_value_existed_in_table_then_remove_returns_true() throws UnsupportedEncodingException, StorageException {
+    public void when_value_existed_in_table_then_remove_returns_true() throws StorageException {
         setAzureTableToContain(CELL_1);
 
         assertThat(set.remove(CELL_1), is(equalTo(true)));
     }
 
     @Test
-    public void when_value_did_not_exist_in_table_then_remove_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_value_did_not_exist_in_table_then_remove_returns_false() throws StorageException {
         setAzureTableToContain();
 
         assertThat(set.remove(CELL_1), is(equalTo(false)));
@@ -137,7 +137,7 @@ public class CellSetMutableViewTest {
     }
 
     @Test
-    public void when_contains_all_then_contains_all_returns_true() throws UnsupportedEncodingException, StorageException {
+    public void when_contains_all_then_contains_all_returns_true() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(set.containsAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(true)));
@@ -145,7 +145,7 @@ public class CellSetMutableViewTest {
     }
 
     @Test
-    public void when_does_not_contain_all_then_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_does_not_contain_all_then_returns_false() throws StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(set.containsAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(false)));
@@ -160,14 +160,14 @@ public class CellSetMutableViewTest {
     }
 
     @Test
-    public void when_all_values_where_contained_then_return_false() throws UnsupportedEncodingException, StorageException {
+    public void when_all_values_where_contained_then_return_false() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(set.addAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(false)));
     }
 
     @Test
-    public void when_some_value_was_not_present_then_return_true() throws UnsupportedEncodingException, StorageException {
+    public void when_some_value_was_not_present_then_return_true() throws StorageException {
         setAzureTableToContain(CELL_1);
 
         assertThat(set.addAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(true)));
@@ -182,21 +182,21 @@ public class CellSetMutableViewTest {
     }
 
     @Test
-    public void when_some_remove_all_values_where_contained_then_return_true() throws UnsupportedEncodingException, StorageException {
+    public void when_some_remove_all_values_where_contained_then_return_true() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(set.removeAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(true)));
     }
 
     @Test
-    public void when_non_of_remove_all_values_existed_then_return_false() throws UnsupportedEncodingException, StorageException {
+    public void when_non_of_remove_all_values_existed_then_return_false() throws StorageException {
         setAzureTableToContain();
 
         assertThat(set.removeAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(false)));
     }
 
     @Test
-    public void clear_deletes_contained_entries() throws UnsupportedEncodingException, StorageException {
+    public void clear_deletes_contained_entries() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         set.clear();
@@ -209,7 +209,8 @@ public class CellSetMutableViewTest {
     // Utilities
     //----------------------
 
-    private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
+    @SafeVarargs
+    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws StorageException {
         for (Table.Cell<String, String, String> cell : cells) {
             when(baseAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
             when(baseAzureTable.contains(cell.getRowKey(), cell.getColumnKey())).thenReturn(true);

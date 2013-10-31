@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
+@SuppressWarnings({"ClassWithTooManyMethods", "InstanceVariableMayNotBeInitialized", "JUnitTestMethodWithNoAssertions"})
 @RunWith(MockitoJUnitRunner.class)
 public class BaseAzureTableTest {
     private static final String ROW_KEY_1 = "rown_name_1";
@@ -55,7 +55,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_columnKeySet_requested_then_all_keys_returned() throws UnsupportedEncodingException, StorageException {
+    public void when_columnKeySet_requested_then_all_keys_returned() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
@@ -65,7 +65,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_rowKeySet_requested_then_all_keys_returned() throws UnsupportedEncodingException, StorageException {
+    public void when_rowKeySet_requested_then_all_keys_returned() throws  StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
@@ -75,7 +75,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException, UnsupportedEncodingException {
+    public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
@@ -85,7 +85,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void get_of_non_existing_entry_returns_null() throws UnsupportedEncodingException, StorageException {
+    public void get_of_non_existing_entry_returns_null() throws  StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
@@ -95,7 +95,7 @@ public class BaseAzureTableTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_get_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
+    public void when_table_client_throws_storage_exception_during_get_then_exception_rethrown() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
         setToThrowStorageExceptionOnRetrievalOf(CELL_1);
@@ -104,7 +104,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_put_then_value_added_or_replaced_in_azure() throws StorageException, UnsupportedEncodingException {
+    public void when_put_then_value_added_or_replaced_in_azure() throws StorageException {
         TableOperation putTableOperationMock = mockPutTableOperation(CELL_2);
 
         baseAzureTable.put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
@@ -113,7 +113,7 @@ public class BaseAzureTableTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_put_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
+    public void when_table_client_throws_storage_exception_during_put_then_exception_rethrown() throws StorageException {
         TableOperation putTableOperationMock = mockPutTableOperation(CELL_1);
         setupThrowStorageExceptionOnTableOperation(putTableOperationMock);
 
@@ -121,7 +121,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_delete_then_deleted_in_azure() throws StorageException, UnsupportedEncodingException {
+    public void when_delete_then_deleted_in_azure() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
         TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
@@ -137,7 +137,7 @@ public class BaseAzureTableTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_delete_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
+    public void when_table_client_throws_storage_exception_during_delete_then_exception_rethrown() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
         TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
@@ -147,7 +147,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void cellSet_returns_all_table_cells() throws UnsupportedEncodingException, StorageException {
+    public void cellSet_returns_all_table_cells() throws  StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
@@ -158,19 +158,19 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_contains_value_for_row_and_key_then_returns_true() throws UnsupportedEncodingException, StorageException {
+    public void when_contains_value_for_row_and_key_then_returns_true() throws  StorageException {
         setAzureTableToContain(CELL_1);
 
         assertThat(baseAzureTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(true)));
     }
 
     @Test
-    public void when_does_not_contain_value_for_row_and_key_then_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_does_not_contain_value_for_row_and_key_then_returns_false() throws  StorageException {
         assertThat(baseAzureTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(false)));
     }
 
     @Test
-    public void row_returns_column_map_with_appropriate_contents() throws UnsupportedEncodingException, StorageException {
+    public void row_returns_column_map_with_appropriate_contents() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Map<String, String> columnMap = baseAzureTable.row(ROW_KEY_1);
@@ -180,77 +180,77 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_contains_value_for_given_row_contains_row_returns_true() throws UnsupportedEncodingException, StorageException {
+    public void when_contains_value_for_given_row_contains_row_returns_true() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsRow(ROW_KEY_1), is(equalTo(true)));
     }
 
     @Test
-    public void when_row_object_is_not_a_string_then_contains_row_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_row_object_is_not_a_string_then_contains_row_returns_false() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsRow(new Object()), is(equalTo(false)));
     }
 
     @Test
-    public void when_does_not_contain_a_value_for_given_row_contains_row_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_does_not_contain_a_value_for_given_row_contains_row_returns_false() throws  StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.containsRow(ROW_KEY_1), is(equalTo(false)));
     }
 
     @Test
-    public void values_returns_all_values() throws UnsupportedEncodingException, StorageException {
+    public void values_returns_all_values() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.values(), containsInAnyOrder(VALUE_1, VALUE_2));
     }
 
     @Test
-    public void contains_value_returns_true_if_value_contains() throws UnsupportedEncodingException, StorageException {
+    public void contains_value_returns_true_if_value_contains() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsValue(VALUE_1), is(equalTo(true)));
     }
 
     @Test
-    public void contains_value_returns_false_if_does_not_contain_value() throws UnsupportedEncodingException, StorageException {
+    public void contains_value_returns_false_if_does_not_contain_value() throws  StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.containsValue(VALUE_1), is(equalTo(false)));
     }
 
     @Test
-    public void contains_value_returns_false_if_object_not_string() throws UnsupportedEncodingException, StorageException {
+    public void contains_value_returns_false_if_object_not_string() throws  StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.containsValue(new Object()), is(equalTo(false)));
     }
 
     @Test
-    public void when_contains_values_the_is_empty_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_contains_values_the_is_empty_returns_false() throws  StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.isEmpty(), is(equalTo(false)));
     }
 
     @Test
-    public void when_empty_then_is_empty_returns_true() throws UnsupportedEncodingException, StorageException {
+    public void when_empty_then_is_empty_returns_true() throws  StorageException {
         setAzureTableToContain();
 
         assertThat(baseAzureTable.isEmpty(), is(equalTo(true)));
     }
 
     @Test
-    public void size_returns_correct_size() throws UnsupportedEncodingException, StorageException {
+    public void size_returns_correct_size() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.size(), is(equalTo(2)));
     }
 
     @Test
-    public void clear_deletes_all_in_cell_set() throws UnsupportedEncodingException, StorageException {
+    public void clear_deletes_all_in_cell_set() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
         TableOperation deleteTableOperationMock1 = mockDeleteTableOperation(CELL_1);
         TableOperation deleteTableOperationMock2 = mockDeleteTableOperation(CELL_2);
@@ -262,7 +262,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void put_all_puts_all_the_values() throws UnsupportedEncodingException, StorageException {
+    public void put_all_puts_all_the_values() throws  StorageException {
         Table<String, String, String> sourceTable = HashBasedTable.create();
         sourceTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
         sourceTable.put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
@@ -276,7 +276,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void column_returns_row_map_with_appropriate_contents() throws UnsupportedEncodingException, StorageException {
+    public void column_returns_row_map_with_appropriate_contents() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Map<String, String> columnMap = baseAzureTable.column(COLUMN_KEY_1);
@@ -286,28 +286,28 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_contains_value_for_given_column_contains_column_returns_true() throws UnsupportedEncodingException, StorageException {
+    public void when_contains_value_for_given_column_contains_column_returns_true() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsColumn(COLUMN_KEY_1), is(equalTo(true)));
     }
 
     @Test
-    public void when_column_object_is_not_a_string_then_contains_column_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_column_object_is_not_a_string_then_contains_column_returns_false() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsColumn(new Object()), is(equalTo(false)));
     }
 
     @Test
-    public void when_does_not_contain_a_value_for_given_column_contains_column_returns_false() throws UnsupportedEncodingException, StorageException {
+    public void when_does_not_contain_a_value_for_given_column_contains_column_returns_false() throws  StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.containsColumn(COLUMN_KEY_1), is(equalTo(false)));
     }
 
     @Test
-    public void rowMap_returns_correct_map() throws UnsupportedEncodingException, StorageException {
+    public void rowMap_returns_correct_map() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Map<String, Map<String, String>> rowMap = baseAzureTable.rowMap();
@@ -324,7 +324,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void columnMap_returns_correct_map() throws UnsupportedEncodingException, StorageException {
+    public void columnMap_returns_correct_map() throws  StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Map<String, Map<String, String>> columnMap = baseAzureTable.columnMap();
@@ -344,11 +344,12 @@ public class BaseAzureTableTest {
     // Utility methods
     //
 
-    private String encode(String stringToBeEncoded) {
+    private static String encode(String stringToBeEncoded) {
         return AzureTestUtil.encode(stringToBeEncoded);
     }
 
-    private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
+    @SafeVarargs
+    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws  StorageException {
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
     }
 

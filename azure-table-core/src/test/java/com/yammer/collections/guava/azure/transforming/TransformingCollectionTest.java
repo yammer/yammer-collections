@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
+@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
 @RunWith(MockitoJUnitRunner.class)
 public class TransformingCollectionTest {
     private static final Integer F_VALUE_1 = 11;

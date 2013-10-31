@@ -27,19 +27,19 @@ public final class AzureTestUtil {
     static final Function<Table.Cell<String, String, String>, AzureEntity> ENCODE_CELL = new Function<Table.Cell<String, String, String>, AzureEntity>() {
         @Override
         public AzureEntity apply(Table.Cell<String, String, String> input) {
-            try {
-                return encodedStringEntity(input);
-            } catch (UnsupportedEncodingException e) {
-                throw Throwables.propagate(e);
-            }
+            return encodedStringEntity(input);
         }
     };
     private static final String ENCODING = "UTF-8";
 
+    private AzureTestUtil() {
+    }
+
+    @SafeVarargs
     static void setAzureTableToContain(String tableName,
                                        AzureTableRequestFactory azureTableRequestFactoryMock,
                                        AzureTableCloudClient azureTableCloudClientMock,
-                                       Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
+                                       Table.Cell<String, String, String>... cells) throws StorageException {
         // retrieve setup in general
         TableOperation blanketRetrieveOperationMock = mock(TableOperation.class);
         when(azureTableRequestFactoryMock.retrieve(any(String.class), any(String.class))).thenReturn(blanketRetrieveOperationMock);
@@ -76,7 +76,7 @@ public final class AzureTestUtil {
         }
     }
 
-    static AzureEntity encodedStringEntity(Table.Cell<String, String, String> unEncodedcell) throws UnsupportedEncodingException {
+    static AzureEntity encodedStringEntity(Table.Cell<String, String, String> unEncodedcell) {
         return new AzureEntity(encode(unEncodedcell.getRowKey()), encode(unEncodedcell.getColumnKey()), encode(unEncodedcell.getValue()));
     }
 
@@ -84,12 +84,13 @@ public final class AzureTestUtil {
             String tableName,
             AzureTableRequestFactory azureTableRequestFactoryMock,
             AzureTableCloudClient azureTableCloudClientMock,
-            Table.Cell<String, String, String> cell) throws UnsupportedEncodingException, StorageException {
+            Table.Cell<String, String, String> cell) throws StorageException {
         TableOperation retriveTableOperationMock = mock(TableOperation.class);
         when(azureTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
         when(azureTableCloudClientMock.execute(tableName, retriveTableOperationMock)).thenReturn(encodedStringEntity(cell));
     }
 
+    @SafeVarargs
     private static void setupRowQueries(String tableName,
                                         AzureTableRequestFactory azureTableRequestFactoryMock,
                                         AzureTableCloudClient azureTableCloudClientMock,
@@ -124,10 +125,11 @@ public final class AzureTestUtil {
         }
     }
 
+    @SafeVarargs
     private static void setupColumnQueries(String tableName,
-                                        AzureTableRequestFactory azureTableRequestFactoryMock,
-                                        AzureTableCloudClient azureTableCloudClientMock,
-                                        Table.Cell<String, String, String>... cells) {
+                                           AzureTableRequestFactory azureTableRequestFactoryMock,
+                                           AzureTableCloudClient azureTableCloudClientMock,
+                                           Table.Cell<String, String, String>... cells) {
 
         TableQuery<AzureEntity> emptyQueryMock = mock(TableQuery.class);
         when(azureTableRequestFactoryMock.selectAllForColumn(anyString(), anyString())).thenReturn(emptyQueryMock);

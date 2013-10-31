@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -22,22 +21,24 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
 @RunWith(MockitoJUnitRunner.class)
 public class ColumnViewTest {
-    private final static String ROW_KEY = "rowKey";
-    private final static String COLUMN_KEY_1 = "columnKey1";
-    private final static String VALUE_1 = "value1";
-    private final static String COLUMN_KEY_2 = "columnKey2";
-    private final static String VALUE_2 = "value2";
-    private final static String RET_VALUE = "ret_value";
-    private final static String OTHER_ROW_KEY = "otherRow";
-    private final static String OTHER_COLUMN_KEY = "otherKey";
-    private final static String OTHER_VALUE = "otherValue";
+    private static final String ROW_KEY = "rowKey";
+    private static final String COLUMN_KEY_1 = "columnKey1";
+    private static final String VALUE_1 = "value1";
+    private static final String COLUMN_KEY_2 = "columnKey2";
+    private static final String VALUE_2 = "value2";
+    private static final String RET_VALUE = "ret_value";
+    private static final String OTHER_ROW_KEY = "otherRow";
+    private static final String OTHER_COLUMN_KEY = "otherKey";
+    private static final String OTHER_VALUE = "otherValue";
     private static final String TABLE_NAME = "secretie_table";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY, COLUMN_KEY_2, VALUE_2);
     private static final Table.Cell<String, String, String> CELL_WITH_OTHER_ROW_KEY = Tables.immutableCell(OTHER_ROW_KEY, OTHER_COLUMN_KEY, OTHER_VALUE);
     private static final Function<Map.Entry, TestMapEntry> MAP_TO_ENTRIES = new Function<Map.Entry, TestMapEntry>() {
+        @SuppressWarnings("ClassEscapesDefinedScope")
         @Override
         public TestMapEntry apply(Map.Entry input) {
             return new TestMapEntry(input);
@@ -98,21 +99,21 @@ public class ColumnViewTest {
     }
 
     @Test
-    public void keySet_returns_contained_keys() throws UnsupportedEncodingException, StorageException {
+    public void keySet_returns_contained_keys() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(columnView.keySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
     }
 
     @Test
-    public void values_returns_contained_values() throws UnsupportedEncodingException, StorageException {
+    public void values_returns_contained_values() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(columnView.values(), containsInAnyOrder(VALUE_1, VALUE_2));
     }
 
     @Test
-    public void entrySet_returns_contained_entries() throws UnsupportedEncodingException, StorageException {
+    public void entrySet_returns_contained_entries() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(
@@ -124,7 +125,7 @@ public class ColumnViewTest {
     }
 
     @Test
-    public void setValue_on_entry_updates_backing_table() throws UnsupportedEncodingException, StorageException {
+    public void setValue_on_entry_updates_backing_table() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
         when(baseAzureTable.put(ROW_KEY, COLUMN_KEY_1, OTHER_VALUE)).thenReturn(RET_VALUE);
         when(baseAzureTable.put(ROW_KEY, COLUMN_KEY_2, OTHER_VALUE)).thenReturn(RET_VALUE);
@@ -136,14 +137,14 @@ public class ColumnViewTest {
     }
 
     @Test
-    public void size_returns_correct_value() throws UnsupportedEncodingException, StorageException {
+    public void size_returns_correct_value() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(columnView.size(), is(equalTo(2)));
     }
 
     @Test
-    public void clear_deletes_values_from_key_set() throws UnsupportedEncodingException, StorageException {
+    public void clear_deletes_values_from_key_set() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2, CELL_WITH_OTHER_ROW_KEY);
 
         columnView.clear();
@@ -153,35 +154,35 @@ public class ColumnViewTest {
     }
 
     @Test
-    public void isEmpty_returns_false_if_no_entires() throws UnsupportedEncodingException, StorageException {
+    public void isEmpty_returns_false_if_no_entires() throws StorageException {
         setAzureTableToContain(CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(columnView.isEmpty(), is(equalTo(true)));
     }
 
     @Test
-    public void isEmpty_returns_true_if_there_are_entires() throws UnsupportedEncodingException, StorageException {
+    public void isEmpty_returns_true_if_there_are_entires() throws StorageException {
         setAzureTableToContain(CELL_1);
 
         assertThat(columnView.isEmpty(), is(equalTo(false)));
     }
 
     @Test
-    public void contains_value_returns_true_if_value_contains() throws UnsupportedEncodingException, StorageException {
+    public void contains_value_returns_true_if_value_contains() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_WITH_OTHER_ROW_KEY);
 
         assertThat(columnView.containsValue(VALUE_1), is(equalTo(true)));
     }
 
     @Test
-    public void contains_value_returns_false_if_does_not_contain_value_in_row() throws UnsupportedEncodingException, StorageException {
+    public void contains_value_returns_false_if_does_not_contain_value_in_row() throws StorageException {
         setAzureTableToContain(Tables.immutableCell(OTHER_ROW_KEY, COLUMN_KEY_1, VALUE_1));
 
         assertThat(columnView.containsValue(VALUE_1), is(equalTo(false)));
     }
 
     @Test
-    public void contains_value_returns_false_if_object_not_string() throws UnsupportedEncodingException, StorageException {
+    public void contains_value_returns_false_if_object_not_string() throws StorageException {
         setAzureTableToContain();
 
         assertThat(columnView.containsValue(new Object()), is(equalTo(false)));
@@ -192,7 +193,8 @@ public class ColumnViewTest {
     // Utilities
     //----------------------
 
-    private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
+    @SafeVarargs
+    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws StorageException {
         for (Table.Cell<String, String, String> cell : cells) {
             when(baseAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
         }

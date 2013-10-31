@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"ClassWithTooManyMethods", "InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls", "ConstantConditions"})
 @RunWith(MockitoJUnitRunner.class)
 public class TransformingMapTest {
     private static final Integer F_KEY_1 = 11;
@@ -293,8 +294,8 @@ public class TransformingMapTest {
 
         assertThat(entries.hasNext(), is(equalTo(false)));
         assertThat(
-                (F_ENTRY_1.equals(entry1) && F_ENTRY_2.equals(entry2)) ||
-                        (F_ENTRY_1.equals(entry2) && F_ENTRY_2.equals(entry1)),
+                F_ENTRY_1.equals(entry1) && F_ENTRY_2.equals(entry2) ||
+                        F_ENTRY_1.equals(entry2) && F_ENTRY_2.equals(entry1),
                 is(equalTo(true))
         );
     }
@@ -374,7 +375,7 @@ public class TransformingMapTest {
         transformingEntry.setValue(null);
     }
 
-    private final static class TestEntry<K, V> implements Map.Entry<K, V> {
+    private static final class TestEntry<K, V> implements Map.Entry<K, V> {
         private final K key;
         private final V value;
 

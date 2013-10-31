@@ -1,7 +1,11 @@
 package com.yammer.collections.guava.azure.metrics;
 
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"ClassWithTooManyMethods", "InstanceVariableMayNotBeInitialized"})
 @RunWith(MockitoJUnitRunner.class)
 public class MeteredTableTest {
     private static final Float ROW_KEY_1 = 0.5f;
@@ -120,7 +125,7 @@ public class MeteredTableTest {
     }
 
     @Test
-    public void columnKeySet_delegates_to_backing_table()  {
+    public void columnKeySet_delegates_to_backing_table() {
         when(backingTableMock.columnKeySet()).thenReturn(ImmutableSet.of(COLUMN_KEY_1, COLUMN_KEY_2));
 
         assertThat(meteredTable.columnKeySet(), containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));

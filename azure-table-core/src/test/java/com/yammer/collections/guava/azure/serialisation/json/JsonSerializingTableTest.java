@@ -13,7 +13,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 public class JsonSerializingTableTest {
+    @SuppressWarnings("ConstantNamingConvention")
     private static final Float ROW = 11.34f;
     private static final Long COLUMN = 123l;
     private static final TestValuePojo VALUE = new TestValuePojo("Michal", Arrays.asList(29, 1, 1980));
@@ -44,6 +46,7 @@ public class JsonSerializingTableTest {
         assertThat(jsonSerializingTable.get(ROW, COLUMN), is(equalTo(VALUE)));
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public static class TestValuePojo {
         private final String name;
         private final Collection<Integer> numbers;
