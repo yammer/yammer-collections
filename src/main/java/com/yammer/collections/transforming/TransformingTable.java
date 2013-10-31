@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure.transforming;
+package com.yammer.collections.transforming;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
+import static com.yammer.collections.transforming.TransformationUtil.safeTransform;
 
 @SuppressWarnings({"ClassWithTooManyFields", "ClassWithTooManyMethods"})
 public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {

@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure.transforming;
+package com.yammer.collections.transforming;
 
 import com.google.common.base.Function;
 

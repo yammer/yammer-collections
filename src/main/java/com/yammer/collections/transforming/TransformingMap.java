@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure.transforming;
+package com.yammer.collections.transforming;
 
 
 import com.google.common.base.Function;
@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
+import static com.yammer.collections.transforming.TransformationUtil.safeTransform;
 
 public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     private final Map<K1, V1> backingMap;

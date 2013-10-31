@@ -1,7 +1,8 @@
-package com.yammer.collections.guava.azure.transforming;
+package com.yammer.collections.transforming;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
+import com.yammer.collections.transforming.TransformingCollection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
