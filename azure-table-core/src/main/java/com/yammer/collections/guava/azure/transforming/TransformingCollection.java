@@ -11,8 +11,6 @@ import java.util.Iterator;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
 
-// TODO : change null handling policy to be consistent (remove null handling in other classes)
-
 public class TransformingCollection<F, T> extends AbstractCollection<F> {
     private final Collection<T> backingCollection;
     private final Function<F, T> toFunction;

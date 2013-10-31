@@ -12,8 +12,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.guava.azure.transforming.TransformationUtil.safeTransform;
 
-// TODO : change null handling policy to be consistent (remove null handling in other classes)
-
 public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     private final Map<K1, V1> backingMap;
     private final Function<K, K1> toKeyFunction;
