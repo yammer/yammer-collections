@@ -12,6 +12,8 @@ import java.util.Set;
  * - for every element T f, toFunction(FromFunction(t)) = t
  * <p/>
  * i.e., fromFunction is a bijection and the toFunction is its reverse
+ *
+ * Does not support null values, i.e., contains(null) returns false, add(null) throws a NullPointerException
  */
 public class TransformingSet<F, T> extends TransformingCollection<F, T> implements Set<F> {
 

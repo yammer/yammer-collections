@@ -162,14 +162,14 @@ public class TransformingTableTest {
 
     // contains
 
-    @Test(expected = NullPointerException.class)
-    public void when_contains_and_row_key_null_thenError() {
-        transformingTable.contains(null, COLUMN_KEY_1);
+    @Test
+    public void when_contains_and_row_key_null_then_false_returned() {
+        assertThat(transformingTable.contains(null, COLUMN_KEY_1), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void when_contains_and_column_key_null_thenError() {
-        transformingTable.contains(ROW_KEY_1, null);
+    @Test
+    public void when_contains_and_column_key_null_then_false_returned() {
+        assertThat(transformingTable.contains(ROW_KEY_1, null), is(equalTo(false)));
     }
 
     @Test
@@ -191,9 +191,9 @@ public class TransformingTableTest {
 
     // containsRow
 
-    @Test(expected = NullPointerException.class)
-    public void when_containsRow_and_row_key_null_thenError() {
-        transformingTable.containsRow(null);
+    @Test
+    public void when_containsRow_and_row_key_null_then_false_returned() {
+        assertThat(transformingTable.containsRow(null), is(equalTo(false)));
     }
 
     @Test
@@ -210,9 +210,9 @@ public class TransformingTableTest {
 
     // contains column
 
-    @Test(expected = NullPointerException.class)
-    public void when_containsColumn_and_column_key_null_thenError() {
-        transformingTable.containsRow(null);
+    @Test
+    public void when_containsColumn_and_column_key_null_then_false_returned() {
+        assertThat(transformingTable.containsColumn(null), is(equalTo(false)));
     }
 
     @Test
@@ -230,9 +230,9 @@ public class TransformingTableTest {
 
     // contains value
 
-    @Test(expected = NullPointerException.class)
-    public void when_containsValue_and_value_is_null_thenError() {
-        transformingTable.containsValue(null);
+    @Test
+    public void when_containsValue_and_value_is_null_then_false_returned() {
+        assertThat(transformingTable.containsValue(null), is(equalTo(false)));
     }
 
     @Test
@@ -249,14 +249,14 @@ public class TransformingTableTest {
 
     // get
 
-    @Test(expected = NullPointerException.class)
-    public void when_get_and_row_key_null_thenError() {
-        transformingTable.get(null, COLUMN_KEY_1);
+    @Test
+    public void when_get_and_row_key_null_then_null_returned() {
+        assertThat(transformingTable.get(null, COLUMN_KEY_1), is(nullValue()));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void when_get_and_column_key_null_thenError() {
-        transformingTable.get(ROW_KEY_1, null);
+    @Test
+    public void when_get_and_column_key_null_then_null_returned() {
+        assertThat(transformingTable.get(ROW_KEY_1, null), is(nullValue()));
     }
 
     @Test
@@ -326,14 +326,14 @@ public class TransformingTableTest {
 
     // remove
 
-    @Test(expected = NullPointerException.class)
-    public void when_remove_and_row_key_null_thenError() {
-        transformingTable.remove(null, COLUMN_KEY_1);
+    @Test
+    public void when_remove_and_row_key_null_then_null_returned() {
+        assertThat(transformingTable.remove(null, COLUMN_KEY_1), is(nullValue()));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void when_remove_and_column_key_null_thenError() {
-        transformingTable.remove(ROW_KEY_1, null);
+    @Test
+    public void when_remove_and_column_key_null_then_null_returned() {
+        assertThat(transformingTable.remove(ROW_KEY_1, null), is(nullValue()));
     }
 
     @Test

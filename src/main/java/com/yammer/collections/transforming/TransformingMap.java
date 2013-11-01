@@ -20,17 +20,6 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     private final Function<Entry<K, V>, Entry<K1, V1>> toEntryFunction;
     private final Function<Entry<K1, V1>, Entry<K, V>> fromEntryFunction;
 
-    public static <K,V,K1,V1> Map<K,V> create(
-            Map<K1, V1> backingMap,
-            Function<K, K1> toKeyFunction,
-            Function<K1, K> fromKeyFunction,
-            Function<V, V1> toValueFunction,
-            Function<V1, V> fromValueFunction
-    ) {
-        return new TransformingMap<K,V,K1,V1>(backingMap, toKeyFunction,fromKeyFunction, toValueFunction, fromValueFunction);
-    }
-
-
     private TransformingMap(
             Map<K1, V1> backingMap,
             final Function<K, K1> toKeyFunction,
@@ -69,6 +58,16 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
                 };
     }
 
+    public static <K, V, K1, V1> Map<K, V> create(
+            Map<K1, V1> backingMap,
+            Function<K, K1> toKeyFunction,
+            Function<K1, K> fromKeyFunction,
+            Function<V, V1> toValueFunction,
+            Function<V1, V> fromValueFunction
+    ) {
+        return new TransformingMap<K, V, K1, V1>(backingMap, toKeyFunction, fromKeyFunction, toValueFunction, fromValueFunction);
+    }
+
     @Override
     public boolean isEmpty() {
         return backingMap.isEmpty();
@@ -93,7 +92,8 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @Override
     public boolean containsValue(Object o) {
         try {
-            return backingMap.containsValue(safeTransform((V) checkNotNull(o), toValueFunction));
+            return o != null &&
+                    backingMap.containsValue(safeTransform((V) o, toValueFunction));
         } catch (ClassCastException ignored) {
             return false;
         }
@@ -103,7 +103,8 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @Override
     public boolean containsKey(Object key) {
         try {
-            return backingMap.containsKey(safeTransform((K) checkNotNull(key), toKeyFunction));
+            return key != null &&
+                    backingMap.containsKey(safeTransform((K) key, toKeyFunction));
         } catch (ClassCastException ignored) {
             return false;
         }
@@ -113,10 +114,11 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @Override
     public V get(Object key) {
         try {
-            return safeTransform(
-                    backingMap.get(safeTransform((K) checkNotNull(key), toKeyFunction)),
-                    fromValueFunction
-            );
+            return key == null ? null :
+                    safeTransform(
+                            backingMap.get(safeTransform((K) key, toKeyFunction)),
+                            fromValueFunction
+                    );
         } catch (ClassCastException ignored) {
             return null;
         }
@@ -136,10 +138,11 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @Override
     public V remove(Object key) {
         try {
-            return safeTransform(
-                    backingMap.remove(safeTransform((K) checkNotNull(key), toKeyFunction)),
-                    fromValueFunction
-            );
+            return key == null ? null :
+                    safeTransform(
+                            backingMap.remove(safeTransform((K) key, toKeyFunction)),
+                            fromValueFunction
+                    );
         } catch (ClassCastException ignored) {
             return null;
         }

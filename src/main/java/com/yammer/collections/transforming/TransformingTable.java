@@ -143,8 +143,9 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public boolean contains(Object rowKey, Object columnKey) {
-        checkNotNull(rowKey);
-        checkNotNull(columnKey);
+        if (rowKey == null || columnKey == null) {
+            return false;
+        }
         R1 mRowKey = tryTransforming(rowKey, toRowFunction);
         C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
         return mRowKey != null &&
@@ -154,29 +155,37 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public boolean containsRow(Object rowKey) {
-        checkNotNull(rowKey);
+        if(rowKey == null) {
+            return false;
+        }
         R1 mRowKey = tryTransforming(rowKey, toRowFunction);
         return mRowKey != null && backingTable.containsRow(mRowKey);
     }
 
     @Override
     public boolean containsColumn(Object columnKey) {
-        checkNotNull(columnKey);
+        if(columnKey == null) {
+            return false;
+        }
         C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
         return mColumnKey != null && backingTable.containsColumn(mColumnKey);
     }
 
     @Override
     public boolean containsValue(Object value) {
-        checkNotNull(value);
+        if(value == null) {
+            return false;
+        }
         V1 mValue = tryTransforming(value, toValueFunction);
-        return value != null && backingTable.containsValue(mValue);
+        return mValue != null && backingTable.containsValue(mValue);
     }
 
     @Override
     public V get(Object rowKey, Object columnKey) {
-        checkNotNull(rowKey);
-        checkNotNull(columnKey);
+        if (rowKey == null || columnKey == null) {
+            return null;
+        }
+
         R1 mRowKey = tryTransforming(rowKey, toRowFunction);
         C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
 
@@ -226,8 +235,10 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public V remove(Object rowKey, Object columnKey) {
-        checkNotNull(rowKey);
-        checkNotNull(columnKey);
+        if (rowKey == null || columnKey == null) {
+            return null;
+        }
+
         R1 mRowKey = tryTransforming(rowKey, toRowFunction);
         C1 mColumnKey = tryTransforming(columnKey, toColumnFunction);
 

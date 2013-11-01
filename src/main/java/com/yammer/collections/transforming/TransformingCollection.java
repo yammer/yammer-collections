@@ -17,6 +17,8 @@ import static com.yammer.collections.transforming.TransformationUtil.safeTransfo
  * - for every element T f, toFunction(FromFunction(t)) = t
  * <p/>
  * i.e., fromFunction is a bijection and the toFunction is its reverse
+ *
+ * Does not support null values, i.e., contains(null) returns false, add(null) throws a NullPointerException
  */
 public class TransformingCollection<F, T> extends AbstractCollection<F> {
     private final Collection<T> backingCollection;
@@ -24,18 +26,18 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
     private final Function<T, F> fromFunction;
 
 
-    public static <F,T> Collection<F> create(
-            Collection<T> backingCollection,
-            Function<F, T> toFunction,
-            Function<T, F> fromFunction
-    ) {
-        return new TransformingCollection<F,T>(backingCollection, toFunction, fromFunction);
-    }
-
     /* package */ TransformingCollection(Collection<T> backingCollection, Function<F, T> toFunction, Function<T, F> fromFunction) {
         this.backingCollection = checkNotNull(backingCollection);
         this.toFunction = checkNotNull(toFunction);
         this.fromFunction = checkNotNull(fromFunction);
+    }
+
+    public static <F, T> Collection<F> create(
+            Collection<T> backingCollection,
+            Function<F, T> toFunction,
+            Function<T, F> fromFunction
+    ) {
+        return new TransformingCollection<F, T>(backingCollection, toFunction, fromFunction);
     }
 
     @Override
@@ -52,7 +54,8 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
     @Override
     public boolean contains(Object o) {
         try {
-            return backingCollection.contains(safeTransform(checkNotNull((F) o), toFunction));
+            return o != null &&
+                    backingCollection.contains(safeTransform((F) o, toFunction));
         } catch (ClassCastException ignored) {
             return false;
         }
@@ -73,7 +76,8 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
     @Override
     public boolean remove(Object o) {
         try {
-            return backingCollection.remove(safeTransform(checkNotNull((F) o), toFunction));
+            return o != null &&
+                    backingCollection.remove(safeTransform((F) o, toFunction));
         } catch (ClassCastException ignored) {
             return false;
         }
@@ -88,7 +92,7 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
     public int hashCode() {
         int hashCode = 43;
         for (F f : this) {
-            hashCode = hashCode*17 + (f == null ? 0 : f.hashCode());
+            hashCode = hashCode * 17 + (f == null ? 0 : f.hashCode());
         }
         return hashCode;
     }

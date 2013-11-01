@@ -85,9 +85,9 @@ public class TransformingCollectionTest {
         assertThat(transformingCollection.contains(F_VALUE_1), is(equalTo(true)));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void contains_null_notAllowed() {
-        transformingCollection.contains(null);
+    @Test
+    public void contains_null_returns_false() {
+        assertThat(transformingCollection.contains(null), is(equalTo(false)));
     }
 
     @Test
@@ -123,9 +123,9 @@ public class TransformingCollectionTest {
         assertThat(transformingCollection.remove(F_VALUE_1), is(equalTo(true)));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void remove_null_not_allowed() {
-        transformingCollection.remove(null);
+    @Test
+    public void remove_null_removes_false() {
+        assertThat(transformingCollection.remove(null), is(equalTo(false)));
     }
 
     @Test

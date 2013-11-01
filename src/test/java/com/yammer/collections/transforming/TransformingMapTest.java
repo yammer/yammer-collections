@@ -156,9 +156,9 @@ public class TransformingMapTest {
         assertThat(transfromingMap.containsValue(F_VALUE_1), is(equalTo(true)));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void containsValue_null_not_allowed() {
-        transfromingMap.containsValue(null);
+    @Test
+    public void containsValue_returns_false() {
+        assertThat(transfromingMap.containsValue(null), is(equalTo(false)));
     }
 
     @Test
@@ -182,9 +182,9 @@ public class TransformingMapTest {
         assertThat(transfromingMap.containsKey(11.0f), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void containsKey_on_null_not_allowed() {
-        transfromingMap.containsKey(null);
+    @Test
+    public void containsKey_on_null_returns_false() {
+        assertThat(transfromingMap.containsKey(null), is(equalTo(false)));
     }
 
     @Test
@@ -232,9 +232,9 @@ public class TransformingMapTest {
         assertThat(transfromingMap.remove(F_KEY_1), is(equalTo(F_VALUE_1)));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void remove_null_not_allowed() {
-        transfromingMap.remove(null);
+    @Test
+    public void remove_null_returns_null() {
+        assertThat(transfromingMap.remove(null), is(nullValue()));
     }
 
     @Test
@@ -258,9 +258,9 @@ public class TransformingMapTest {
         assertThat(transfromingMap.get(F_KEY_1), is(equalTo(F_VALUE_1)));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void get_on_null_key_not_allowed() {
-        transfromingMap.get(null);
+    @Test
+    public void get_on_null_key_returns_null() {
+        assertThat(transfromingMap.get(null), is(nullValue()));
     }
 
     @Test
