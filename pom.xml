@@ -4,7 +4,7 @@
 
     <groupId>com.yammer.collections</groupId>
     <artifactId>yammer-collections</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
 
     <name>Yammer Collections</name>
     <description>Collections utilities which build on top of Guava and the standard collections library.</description>
@@ -122,7 +122,7 @@
         <connection>scm:git:git://github.int.yammer.com/yammer/yammer-collections.git</connection>
         <developerConnection>scm:git:git@github.int.yammer.com:yammer/yammer-collections.git</developerConnection>
         <url>http://github.int.yammer.com/yammer/yammer-collections/</url>
-        <tag>HEAD</tag>
+        <tag>v0.0.2</tag>
     </scm>
 
     <developers>
