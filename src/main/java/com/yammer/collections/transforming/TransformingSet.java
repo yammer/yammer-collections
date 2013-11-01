@@ -2,19 +2,29 @@ package com.yammer.collections.transforming;
 
 import com.google.common.base.Function;
 
+import java.util.Collection;
 import java.util.Set;
 
+/**
+ * This implementation will break if the following is not satisfied:
+ * <p/>
+ * - for every element F f, fromFunction(toFunction(f)) = f
+ * - for every element T f, toFunction(FromFunction(t)) = t
+ * <p/>
+ * i.e., fromFunction is a bijection and the toFunction is its reverse
+ */
 public class TransformingSet<F, T> extends TransformingCollection<F, T> implements Set<F> {
 
-    /**
-     * This implementation will break if the following is not satisfied:
-     * <p/>
-     * - for every element F f, fromFunction(toFunction(f)) = f
-     * - for every element T f, toFunction(FromFunction(t)) = t
-     * <p/>
-     * i.e., fromFunction is a bijection and the toFunction is its reverse
-     */
-    public TransformingSet(Set<T> backingSet, Function<F, T> toFunction, Function<T, F> fromFunction) {
+    public static <F,T> Set<F> create(
+            Set<T> backingCollection,
+            Function<F, T> toFunction,
+            Function<T, F> fromFunction
+    ) {
+        return new TransformingSet<F,T>(backingCollection, toFunction, fromFunction);
+    }
+
+
+    private TransformingSet(Set<T> backingSet, Function<F, T> toFunction, Function<T, F> fromFunction) {
         super(backingSet, toFunction, fromFunction);
     }
 

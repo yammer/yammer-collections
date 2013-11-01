@@ -46,22 +46,22 @@ public class TransformingCollectionTest {
 
     @Before
     public void setUp() {
-        transformingCollection = new TransformingCollection<Integer, String>(backingCollectionMock, TO_FUNCTION, FROM_FUNCTION);
+        transformingCollection = TransformingCollection.create(backingCollectionMock, TO_FUNCTION, FROM_FUNCTION);
     }
 
     @Test(expected = NullPointerException.class)
     public void backingCollection_cannot_be_null() {
-        new TransformingCollection<Integer, String>(null, TO_FUNCTION, FROM_FUNCTION);
+        TransformingCollection.create(null, TO_FUNCTION, FROM_FUNCTION);
     }
 
     @Test(expected = NullPointerException.class)
     public void toFunction_cannot_be_null() {
-        new TransformingCollection<Integer, String>(backingCollectionMock, null, FROM_FUNCTION);
+        TransformingCollection.create(backingCollectionMock, null, FROM_FUNCTION);
     }
 
     @Test(expected = NullPointerException.class)
     public void fromFunction_cannot_be_null() {
-        new TransformingCollection<Integer, String>(backingCollectionMock, TO_FUNCTION, null);
+        TransformingCollection.create(backingCollectionMock, TO_FUNCTION, null);
     }
 
     @Test

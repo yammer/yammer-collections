@@ -44,7 +44,7 @@ public class TransformingSetTest {
 
     @Before
     public void setUp() {
-        transformingSet = new TransformingSet<Integer, String>(backingSetMock, TO_FUNCTION, FROM_FUNCTION);
+        transformingSet = TransformingSet.create(backingSetMock, TO_FUNCTION, FROM_FUNCTION);
     }
 
     @Test

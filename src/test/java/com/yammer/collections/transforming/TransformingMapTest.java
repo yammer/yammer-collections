@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.yammer.collections.transforming.TransformingMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,8 +30,8 @@ public class TransformingMapTest {
     private static final Float F_VALUE_1 = 0.5f;
     private static final Float F_VALUE_2 = 0.8f;
     private static final Float F_VALUE_OTHER = 99.33f;
-    private static final Map.Entry<Integer, Float> F_ENTRY_1 = new TestEntry<Integer,Float>(F_KEY_1, F_VALUE_1);
-    private static final Map.Entry<Integer, Float> F_ENTRY_2 = new TestEntry<Integer,Float>(F_KEY_2, F_VALUE_2);
+    private static final Map.Entry<Integer, Float> F_ENTRY_1 = new TestEntry<Integer, Float>(F_KEY_1, F_VALUE_1);
+    private static final Map.Entry<Integer, Float> F_ENTRY_2 = new TestEntry<Integer, Float>(F_KEY_2, F_VALUE_2);
     private static final String T_KEY_1 = F_KEY_1.toString();
     private static final String T_KEY_2 = F_KEY_2.toString();
     private static final String T_VALUE_1 = F_VALUE_1.toString();
@@ -72,7 +71,7 @@ public class TransformingMapTest {
 
     @Before
     public void setUp() {
-        transfromingMap = new TransformingMap<Integer,Float, String, String>(
+        transfromingMap = TransformingMap.create(
                 backingMapMock,
                 TO_KEY_FUNCTION,
                 FROM_KEY_FUNCTION,
@@ -83,7 +82,7 @@ public class TransformingMapTest {
 
     @Test(expected = NullPointerException.class)
     public void backingMap_cannot_be_null() {
-        new TransformingMap<Integer,Float, String, String>(
+        transfromingMap = TransformingMap.create(
                 null,
                 TO_KEY_FUNCTION,
                 FROM_KEY_FUNCTION,
@@ -94,7 +93,7 @@ public class TransformingMapTest {
 
     @Test(expected = NullPointerException.class)
     public void toKeyFunction_cannot_be_null() {
-        new TransformingMap<Integer,Float, String, String>(
+        transfromingMap = TransformingMap.create(
                 backingMapMock,
                 null,
                 FROM_KEY_FUNCTION,
@@ -105,7 +104,7 @@ public class TransformingMapTest {
 
     @Test(expected = NullPointerException.class)
     public void fromKeyFunction_cannot_be_null() {
-        new TransformingMap<Integer,Float, String, String>(
+        transfromingMap = TransformingMap.create(
                 backingMapMock,
                 TO_KEY_FUNCTION,
                 null,
@@ -116,7 +115,7 @@ public class TransformingMapTest {
 
     @Test(expected = NullPointerException.class)
     public void toValueFunction_cannot_be_null() {
-        new TransformingMap<Integer,Float, String, String>(
+        transfromingMap = TransformingMap.create(
                 backingMapMock,
                 TO_KEY_FUNCTION,
                 FROM_KEY_FUNCTION,
@@ -127,7 +126,7 @@ public class TransformingMapTest {
 
     @Test(expected = NullPointerException.class)
     public void fromValueFunction_cannot_be_null() {
-        new TransformingMap<Integer,Float, String, String>(
+        transfromingMap = TransformingMap.create(
                 backingMapMock,
                 TO_KEY_FUNCTION,
                 FROM_KEY_FUNCTION,

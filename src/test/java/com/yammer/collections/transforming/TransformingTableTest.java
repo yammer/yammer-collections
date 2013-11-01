@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
-import com.yammer.collections.transforming.TransformingTable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,13 +75,13 @@ public class TransformingTableTest {
             return Integer.valueOf(anInteger);
         }
     };
-    private TransformingTable<Float, Long, Integer, String, String, String> transformingTable;
+    private Table<Float, Long, Integer> transformingTable;
     @Mock
     private Table<String, String, String> backingTableMock;
 
     @Before
     public void setUp() {
-        transformingTable = new TransformingTable<Float, Long,Integer, String, String, String>(
+        transformingTable = TransformingTable.create(
                 backingTableMock,
                 TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
                 TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
@@ -93,7 +92,7 @@ public class TransformingTableTest {
 
     @Test(expected = NullPointerException.class)
     public void backingTable_cannot_be_null() {
-        new TransformingTable<Float, Long,Integer, String, String, String>(
+        transformingTable = TransformingTable.create(
                 null,
                 TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
                 TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
@@ -103,7 +102,7 @@ public class TransformingTableTest {
 
     @Test(expected = NullPointerException.class)
     public void toRowFunction_cannot_be_null() {
-        new TransformingTable<Float, Long,Integer, String, String, String>(
+        transformingTable = TransformingTable.create(
                 backingTableMock,
                 null, FROM_ROW_FUNCTION,
                 TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
@@ -113,7 +112,7 @@ public class TransformingTableTest {
 
     @Test(expected = NullPointerException.class)
     public void fromRowFunction_cannot_be_null() {
-        new TransformingTable<Float, Long,Integer, String, String, String>(
+        transformingTable = TransformingTable.create(
                 backingTableMock,
                 TO_ROW_FUNCTION, null,
                 TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
@@ -123,7 +122,7 @@ public class TransformingTableTest {
 
     @Test(expected = NullPointerException.class)
     public void toColumnFunction_cannot_be_null() {
-        new TransformingTable<Float, Long,Integer, String, String, String>(
+        transformingTable = TransformingTable.create(
                 backingTableMock,
                 TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
                 null, FROM_COLUMN_FUNCTION,
@@ -133,7 +132,7 @@ public class TransformingTableTest {
 
     @Test(expected = NullPointerException.class)
     public void fromColumnFunction_cannot_be_null() {
-        new TransformingTable<Float, Long,Integer, String, String, String>(
+        transformingTable = TransformingTable.create(
                 backingTableMock,
                 TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
                 TO_COLUMN_FUNCTION, null,
@@ -143,7 +142,7 @@ public class TransformingTableTest {
 
     @Test(expected = NullPointerException.class)
     public void toValueFunction_cannot_be_null() {
-        new TransformingTable<Float, Long,Integer, String, String, String>(
+        transformingTable = TransformingTable.create(
                 backingTableMock,
                 TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
                 TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,
@@ -153,7 +152,7 @@ public class TransformingTableTest {
 
     @Test(expected = NullPointerException.class)
     public void fromValueFunction_cannot_be_null() {
-        new TransformingTable<Float, Long,Integer, String, String, String>(
+        transformingTable = TransformingTable.create(
                 backingTableMock,
                 TO_ROW_FUNCTION, FROM_ROW_FUNCTION,
                 TO_COLUMN_FUNCTION, FROM_COLUMN_FUNCTION,

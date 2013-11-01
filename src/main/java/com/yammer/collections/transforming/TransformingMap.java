@@ -20,7 +20,18 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     private final Function<Entry<K, V>, Entry<K1, V1>> toEntryFunction;
     private final Function<Entry<K1, V1>, Entry<K, V>> fromEntryFunction;
 
-    public TransformingMap(
+    public static <K,V,K1,V1> Map<K,V> create(
+            Map<K1, V1> backingMap,
+            Function<K, K1> toKeyFunction,
+            Function<K1, K> fromKeyFunction,
+            Function<V, V1> toValueFunction,
+            Function<V1, V> fromValueFunction
+    ) {
+        return new TransformingMap<K,V,K1,V1>(backingMap, toKeyFunction,fromKeyFunction, toValueFunction, fromValueFunction);
+    }
+
+
+    private TransformingMap(
             Map<K1, V1> backingMap,
             final Function<K, K1> toKeyFunction,
             final Function<K1, K> fromKeyFunction,
@@ -71,7 +82,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<K, V>> entrySet() {
-        return new TransformingSet<Entry<K, V>, Entry<K1, V1>>(
+        return TransformingSet.create(
                 backingMap.entrySet(),
                 toEntryFunction,
                 fromEntryFunction
@@ -142,7 +153,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @SuppressWarnings("NullableProblems")
     @Override
     public Set<K> keySet() {
-        return new TransformingSet<K, K1>(
+        return TransformingSet.create(
                 backingMap.keySet(), toKeyFunction, fromKeyFunction
         );
     }
@@ -150,7 +161,7 @@ public class TransformingMap<K, V, K1, V1> extends AbstractMap<K, V> {
     @SuppressWarnings("NullableProblems")
     @Override
     public Collection<V> values() {
-        return new TransformingCollection<V, V1>(
+        return TransformingCollection.create(
                 backingMap.values(), toValueFunction, fromValueFunction
         );
     }

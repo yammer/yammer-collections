@@ -10,20 +10,29 @@ import java.util.Iterator;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.transforming.TransformationUtil.safeTransform;
 
+/**
+ * This implementation will break if the following is not satisfied:
+ * <p/>
+ * - for every element F f, fromFunction(toFunction(f)) = f
+ * - for every element T f, toFunction(FromFunction(t)) = t
+ * <p/>
+ * i.e., fromFunction is a bijection and the toFunction is its reverse
+ */
 public class TransformingCollection<F, T> extends AbstractCollection<F> {
     private final Collection<T> backingCollection;
     private final Function<F, T> toFunction;
     private final Function<T, F> fromFunction;
 
-    /**
-     * This implementation will break if the following is not satisfied:
-     * <p/>
-     * - for every element F f, fromFunction(toFunction(f)) = f
-     * - for every element T f, toFunction(FromFunction(t)) = t
-     * <p/>
-     * i.e., fromFunction is a bijection and the toFunction is its reverse
-     */
-    public TransformingCollection(Collection<T> backingCollection, Function<F, T> toFunction, Function<T, F> fromFunction) {
+
+    public static <F,T> Collection<F> create(
+            Collection<T> backingCollection,
+            Function<F, T> toFunction,
+            Function<T, F> fromFunction
+    ) {
+        return new TransformingCollection<F,T>(backingCollection, toFunction, fromFunction);
+    }
+
+    /* package */ TransformingCollection(Collection<T> backingCollection, Function<F, T> toFunction, Function<T, F> fromFunction) {
         this.backingCollection = checkNotNull(backingCollection);
         this.toFunction = checkNotNull(toFunction);
         this.fromFunction = checkNotNull(fromFunction);

@@ -47,7 +47,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     private final Function<Map<R, V>, Map<R1, V1>> toColumnMapValueFunction;
     private final Function<Map<R1, V1>, Map<R, V>> fromColumnMapValueFunction;
 
-    public TransformingTable(
+    private TransformingTable(
             Table<R1, C1, V1> backingTable,
             Function<R, R1> toRowFunction,
             Function<R1, R> fromRowFunction,
@@ -80,6 +80,22 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
         );
     }
 
+    public static <R, C, V, R1, C1, V1> Table<R, C, V> create(
+            Table<R1, C1, V1> backingTable,
+            Function<R, R1> toRowFunction,
+            Function<R1, R> fromRowFunction,
+            Function<C, C1> toColumnFunction,
+            Function<C1, C> fromColumnFunction,
+            Function<V, V1> toValueFunction,
+            Function<V1, V> fromValueFunction) {
+        return new TransformingTable<R, C, V, R1, C1, V1>(
+                backingTable,
+                toRowFunction, fromRowFunction,
+                toColumnFunction, fromColumnFunction,
+                toValueFunction, fromValueFunction
+        );
+    }
+
     private static <K, V, K1, V1> Function<Map<K, V>, Map<K1, V1>> createFromMapTransformation(
             final Function<K1, K> toKeyFunction,
             final Function<K, K1> fromKeyFunction,
@@ -88,7 +104,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
         return new Function<Map<K, V>, Map<K1, V1>>() {
             @Override
             public Map<K1, V1> apply(Map<K, V> cvMap) {
-                return new TransformingMap<K1, V1, K, V>(
+                return TransformingMap.create(
                         cvMap,
                         toKeyFunction, fromKeyFunction,
                         toValueFunction, fromValueFunction
@@ -225,7 +241,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     @Override
     public Map<C, V> row(R rowKey) {
         checkNotNull(rowKey);
-        return new TransformingMap<C, V, C1, V1>(
+        return TransformingMap.create(
                 backingTable.row(toRowFunction.apply(rowKey)),
                 toColumnFunction, fromColumnFunction,
                 toValueFunction, fromValueFunction
@@ -235,7 +251,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
     @Override
     public Map<R, V> column(C columnKey) {
         checkNotNull(columnKey);
-        return new TransformingMap<R, V, R1, V1>(
+        return TransformingMap.create(
                 backingTable.column(toColumnFunction.apply(columnKey)),
                 toRowFunction, fromRowFunction,
                 toValueFunction, fromValueFunction
@@ -244,7 +260,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public Set<Cell<R, C, V>> cellSet() {
-        return new TransformingSet<Cell<R, C, V>, Cell<R1, C1, V1>>(
+        return TransformingSet.create(
                 backingTable.cellSet(),
                 toBackingCellFunction,
                 fromBackingCellFunction
@@ -253,28 +269,28 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public Set<R> rowKeySet() {
-        return new TransformingSet<R, R1>(
+        return TransformingSet.create(
                 backingTable.rowKeySet(), toRowFunction, fromRowFunction
         );
     }
 
     @Override
     public Set<C> columnKeySet() {
-        return new TransformingSet<C, C1>(
+        return TransformingSet.create(
                 backingTable.columnKeySet(), toColumnFunction, fromColumnFunction
         );
     }
 
     @Override
     public Collection<V> values() {
-        return new TransformingCollection<V, V1>(
+        return TransformingCollection.create(
                 backingTable.values(), toValueFunction, fromValueFunction
         );
     }
 
     @Override
     public Map<R, Map<C, V>> rowMap() {
-        return new TransformingMap<R, Map<C, V>, R1, Map<C1, V1>>(
+        return TransformingMap.create(
                 backingTable.rowMap(),
                 toRowFunction,
                 fromRowFunction,
@@ -285,7 +301,7 @@ public class TransformingTable<R, C, V, R1, C1, V1> implements Table<R, C, V> {
 
     @Override
     public Map<C, Map<R, V>> columnMap() {
-        return new TransformingMap<C, Map<R, V>, C1, Map<R1, V1>>(
+        return TransformingMap.create(
                 backingTable.columnMap(),
                 toColumnFunction,
                 fromColumnFunction,
