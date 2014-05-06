@@ -17,7 +17,6 @@ package com.yammer.collections.transforming;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
-import com.yammer.collections.transforming.TransformingCollection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +30,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -101,6 +101,13 @@ public class TransformingCollectionTest {
     }
 
     @Test
+    public void containsAll_delegates() {
+        when(backingCollectionMock.containsAll(any(Collection.class))).thenReturn(true);
+
+        assertThat(transformingCollection.containsAll(asList(F_VALUE_1, F_VALUE_2)), is(equalTo(true)));
+    }
+
+    @Test
     public void contains_null_returns_false() {
         assertThat(transformingCollection.contains(null), is(equalTo(false)));
     }
@@ -126,6 +133,13 @@ public class TransformingCollectionTest {
         assertThat(transformingCollection.add(F_VALUE_1), is(equalTo(true)));
     }
 
+    @Test
+    public void addAll_delegats() {
+        when(backingCollectionMock.addAll(any(Collection.class))).thenReturn(true);
+
+        assertThat(transformingCollection.addAll(asList(F_VALUE_1, F_VALUE_2)), is(equalTo(true)));
+    }
+
     @Test(expected = NullPointerException.class)
     public void add_null_not_allowed() {
         transformingCollection.add(null);
@@ -139,6 +153,13 @@ public class TransformingCollectionTest {
     }
 
     @Test
+    public void removeAll_delegates() {
+        when(backingCollectionMock.removeAll(any(Collection.class))).thenReturn(true);
+
+        assertThat(transformingCollection.removeAll(asList(F_VALUE_1, F_VALUE_2)), is(equalTo(true)));
+    }
+
+    @Test
     public void remove_null_removes_false() {
         assertThat(transformingCollection.remove(null), is(equalTo(false)));
     }
@@ -148,6 +169,13 @@ public class TransformingCollectionTest {
         when(backingCollectionMock.remove(T_VALUE_1)).thenReturn(true);
 
         assertThat(transformingCollection.remove(11.0f), is(equalTo(false)));
+    }
+
+    @Test
+    public void retainAll_delegates() {
+        when(backingCollectionMock.retainAll(any(Collection.class))).thenReturn(true);
+
+        assertThat(transformingCollection.retainAll(asList(F_VALUE_1, F_VALUE_2)), is(equalTo(true)));
     }
 
     @Test
