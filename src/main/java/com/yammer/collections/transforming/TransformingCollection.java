@@ -16,6 +16,7 @@
 package com.yammer.collections.transforming;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterators;
 
 import java.util.AbstractCollection;
@@ -101,6 +102,26 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
     @Override
     public void clear() {
         backingCollection.clear();
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return backingCollection.containsAll(Collections2.transform(checkNotNull(c), TypedFunction.wrap(toFunction)));
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends F> c) {
+        return backingCollection.addAll(Collections2.transform(checkNotNull(c), toFunction));
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return backingCollection.removeAll(Collections2.transform(checkNotNull(c), TypedFunction.wrap(toFunction)));
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return backingCollection.retainAll(Collections2.transform(checkNotNull(c), TypedFunction.wrap(toFunction)));
     }
 
     @Override
