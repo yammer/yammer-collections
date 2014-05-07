@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.yammer.collections</groupId>
     <artifactId>yammer-collections</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
 
     <name>Yammer Collections</name>
@@ -59,7 +58,7 @@
         <connection>scm:git:git://github.com/yammer/yammer-collections.git</connection>
         <developerConnection>scm:git:git@github.com:yammer/yammer-collections.git</developerConnection>
         <url>https://github.com/yammer/yammer-collections/</url>
-        <tag>HEAD</tag>
+        <tag>yammer-collections-0.0.4</tag>
     </scm>
 
     <developers>
