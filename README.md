@@ -1,3 +1,5 @@
+Yammer Collections [![Build Status](https://travis-ci.org/yammer/yammer-collections.png)](https://travis-ci.org/yammer/yammer-collections)
+
 yammer-collections
 ==================
 
