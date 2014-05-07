@@ -17,7 +17,6 @@ package com.yammer.collections.transforming;
 
 import com.google.common.base.Function;
 
-import java.util.Collection;
 import java.util.Set;
 
 /**

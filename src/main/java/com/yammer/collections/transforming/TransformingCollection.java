@@ -106,7 +106,7 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return backingCollection.containsAll(Collections2.transform(checkNotNull(c), TypedFunction.wrap(toFunction)));
+        return backingCollection.containsAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>)toFunction));
     }
 
     @Override
@@ -116,12 +116,12 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return backingCollection.removeAll(Collections2.transform(checkNotNull(c), TypedFunction.wrap(toFunction)));
+        return backingCollection.removeAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>)toFunction));
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return backingCollection.retainAll(Collections2.transform(checkNotNull(c), TypedFunction.wrap(toFunction)));
+        return backingCollection.retainAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>)toFunction));
     }
 
     @Override

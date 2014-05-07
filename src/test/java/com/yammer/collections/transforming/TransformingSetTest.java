@@ -18,7 +18,6 @@ package com.yammer.collections.transforming;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.yammer.collections.transforming.TransformingSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

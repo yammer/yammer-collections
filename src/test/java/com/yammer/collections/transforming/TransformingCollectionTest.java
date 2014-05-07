@@ -16,16 +16,20 @@
 package com.yammer.collections.transforming;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collection;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -57,6 +61,8 @@ public class TransformingCollectionTest {
     };
     @Mock
     private Collection<String> backingCollectionMock;
+    @Captor
+    private ArgumentCaptor<Collection<String>> collectionCaptor;
     private Collection<Integer> transformingCollection;
 
     @Before
@@ -102,9 +108,10 @@ public class TransformingCollectionTest {
 
     @Test
     public void containsAll_delegates() {
-        when(backingCollectionMock.containsAll(any(Collection.class))).thenReturn(true);
+        when(backingCollectionMock.containsAll(collectionCaptor.capture())).thenReturn(true);
 
         assertThat(transformingCollection.containsAll(asList(F_VALUE_1, F_VALUE_2)), is(equalTo(true)));
+        assertThat(collectionCaptor.getValue(), contains(T_VALUE_1, T_VALUE_2));
     }
 
     @Test
@@ -135,9 +142,10 @@ public class TransformingCollectionTest {
 
     @Test
     public void addAll_delegats() {
-        when(backingCollectionMock.addAll(any(Collection.class))).thenReturn(true);
+        when(backingCollectionMock.addAll(collectionCaptor.capture())).thenReturn(true);
 
         assertThat(transformingCollection.addAll(asList(F_VALUE_1, F_VALUE_2)), is(equalTo(true)));
+        assertThat(collectionCaptor.getValue(), contains(T_VALUE_1, T_VALUE_2));
     }
 
     @Test(expected = NullPointerException.class)
@@ -154,9 +162,10 @@ public class TransformingCollectionTest {
 
     @Test
     public void removeAll_delegates() {
-        when(backingCollectionMock.removeAll(any(Collection.class))).thenReturn(true);
+        when(backingCollectionMock.removeAll(collectionCaptor.capture())).thenReturn(true);
 
         assertThat(transformingCollection.removeAll(asList(F_VALUE_1, F_VALUE_2)), is(equalTo(true)));
+        assertThat(collectionCaptor.getValue(), contains(T_VALUE_1, T_VALUE_2));
     }
 
     @Test
@@ -173,9 +182,10 @@ public class TransformingCollectionTest {
 
     @Test
     public void retainAll_delegates() {
-        when(backingCollectionMock.retainAll(any(Collection.class))).thenReturn(true);
+        when(backingCollectionMock.retainAll(collectionCaptor.capture())).thenReturn(true);
 
         assertThat(transformingCollection.retainAll(asList(F_VALUE_1, F_VALUE_2)), is(equalTo(true)));
+        assertThat(collectionCaptor.getValue(), contains(T_VALUE_1, T_VALUE_2));
     }
 
     @Test
