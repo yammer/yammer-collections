@@ -33,7 +33,7 @@ import static com.yammer.collections.transforming.TransformationUtil.safeTransfo
  * - for every element T f, toFunction(FromFunction(t)) = t
  * <p/>
  * i.e., fromFunction is a bijection and the toFunction is its reverse
- *
+ * <p/>
  * Does not support null values, i.e., contains(null) returns false, add(null) throws a NullPointerException
  */
 public class TransformingCollection<F, T> extends AbstractCollection<F> {
@@ -53,7 +53,7 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
             Function<F, T> toFunction,
             Function<T, F> fromFunction
     ) {
-        return new TransformingCollection<F, T>(backingCollection, toFunction, fromFunction);
+        return new TransformingCollection<>(backingCollection, toFunction, fromFunction);
     }
 
     @Override
@@ -104,9 +104,10 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
         backingCollection.clear();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean containsAll(Collection<?> c) {
-        return backingCollection.containsAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>)toFunction));
+        return backingCollection.containsAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>) toFunction));
     }
 
     @Override
@@ -114,14 +115,16 @@ public class TransformingCollection<F, T> extends AbstractCollection<F> {
         return backingCollection.addAll(Collections2.transform(checkNotNull(c), toFunction));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean removeAll(Collection<?> c) {
-        return backingCollection.removeAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>)toFunction));
+        return backingCollection.removeAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>) toFunction));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean retainAll(Collection<?> c) {
-        return backingCollection.retainAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>)toFunction));
+        return backingCollection.retainAll(Collections2.transform(checkNotNull(c), (Function<Object, Object>) toFunction));
     }
 
     @Override
