@@ -5,3 +5,11 @@ jdk:
 branches:
   only:
     - master
+
+env:
+  global:
+    - secure: "TIvmAq0s7L6mKBqfV0eF70hBSlFOTkbZlKfKGL1PJIPhA9DI0dQvSg/ygDV2zzT9BFHCYQR05N1dWMFAx57o21y1p1wP6FmtIJyLqpm7outM8SfOKEelz8L6HV+2HwerPGV5UoOls8iIBkW5XWdyflON/tXO6TiXAfP4kyhV9EM="
+    - secure: "f3Bj4E30DCLyrkkYM0/xuL6zXnLDVhJTxwuZfuG+70peLKA+9tFSGVhIrTGYEjN90oqqAAqMhMDi7BGMPeVaOiQ5QLVKRRTtjv5+eQg4Q4Oc7eUHHhpeyVBDZ+QbAMAQt82aGnMV0yau20P61lK2A8EoTasiyOsuyZ9sgsgyFQ0="
+
+after_success:
+  - mvn clean deploy --settings settings.xml
