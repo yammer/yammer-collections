@@ -12,7 +12,7 @@ To start using it, just include the following maven dependency in your pom file:
     <dependency>
       <groupId>com.yammer.collections</groupId>
       <artifactId>yammer-collections</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+      <version>0.0.4</version>
     </dependency>
 
 Contents
