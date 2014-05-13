@@ -4,7 +4,7 @@
 
     <groupId>com.yammer.collections</groupId>
     <artifactId>yammer-collections</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Yammer Collections</name>
@@ -58,7 +58,7 @@
         <connection>scm:git:git://github.com/yammer/yammer-collections.git</connection>
         <developerConnection>scm:git:git@github.com:yammer/yammer-collections.git</developerConnection>
         <url>https://github.com/yammer/yammer-collections/</url>
-        <tag>yammer-collections-0.0.5</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
